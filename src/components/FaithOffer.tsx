@@ -317,8 +317,8 @@ export function FaithOffer() {
         <p>30 N Gould St, Sheridan, WY 82801, United States</p>
         <p>
           Support:{" "}
-          <a className="underline text-[#f3c34e]" href="mailto:support@fakko.solutions">
-            support@fakko.solutions
+          <a className="underline text-[#f3c34e]" href="mailto:support.fakko.solutions@gmail.com">
+            support.fakko.solutions@gmail.com
           </a>{" "}
           · Digital product: immediate access to the members area and by email after
           payment.
