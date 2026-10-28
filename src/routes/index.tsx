@@ -1,24 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { FaithQuiz } from "../components/FaithQuiz";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "A Message From Archangel Michael | Plan Faith" },
+      {
+        name: "description",
+        content:
+          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
+      },
+      {
+        property: "og:title",
+        content: "A Message From Archangel Michael | Plan Faith",
+      },
+      {
+        property: "og:description",
+        content:
+          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/lovp_26x6kh4q7w808tewdws371pw9j/fdc7389913d207e214e042afa362cbc8_1793064005836.png",
+      },
+      {
+        name: "twitter:title",
+        content: "A Message From Archangel Michael | Plan Faith",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/lovp_26x6kh4q7w808tewdws371pw9j/fdc7389913d207e214e042afa362cbc8_1793064005836.png",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  return <FaithQuiz />;
 }
