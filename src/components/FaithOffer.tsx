@@ -312,13 +312,13 @@ export function FaithOffer() {
           </nav>
         </div>
         <p className="font-semibold text-[#f7f3ea]">
-          AURA FIGUEIREDO DIGITAL LLC – EIN 32-0868940
+          FAKKO SOLUTIONS LLC – EIN 47-3829164
         </p>
         <p>30 N Gould St, Sheridan, WY 82801, United States</p>
         <p>
           Support:{" "}
-          <a className="underline text-[#f3c34e]" href="mailto:support@plan-faith.com">
-            support@plan-faith.com
+          <a className="underline text-[#f3c34e]" href="mailto:support@fakko.solutions">
+            support@fakko.solutions
           </a>{" "}
           · Digital product: immediate access to the members area and by email after
           payment.
@@ -328,7 +328,7 @@ export function FaithOffer() {
           Results vary from person to person. This is not financial, medical, legal or
           professional advice, and no specific outcome is promised.
         </p>
-        <p className="mt-3">© 2026 AURA FIGUEIREDO DIGITAL LLC. All rights reserved.</p>
+        <p className="mt-3">© 2026 FAKKO SOLUTIONS LLC. All rights reserved.</p>
       </footer>
     </div>
   );
