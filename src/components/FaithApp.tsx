@@ -165,11 +165,23 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const ADMIN_EMAIL = "admin@gmail.com";
+
   function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
     if (!email.includes("@")) { setError("Enter a valid email."); return; }
     setError("");
     setLoading(true);
+    // Admin bypass — entra direto sem código
+    if (email.toLowerCase().trim() === ADMIN_EMAIL) {
+      setTimeout(() => {
+        const session: Session = { email, plan: "seed-100" };
+        localStorage.setItem("faith_app_session", JSON.stringify(session));
+        setLoading(false);
+        onLogin(session);
+      }, 800);
+      return;
+    }
     // Simulate sending code
     setTimeout(() => { setLoading(false); setStep("code"); }, 1200);
   }
