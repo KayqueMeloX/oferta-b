@@ -4,10 +4,11 @@ import { useState, useRef, useEffect } from "react";
 
 interface Session {
   email: string;
+  name: string;
   plan: string;
 }
 
-type Tab = "home" | "library" | "audio" | "pray";
+type Tab = "home" | "journey" | "library" | "audio" | "pray";
 
 interface Book {
   id: string;
@@ -15,11 +16,10 @@ interface Book {
   title: string;
   subtitle: string;
   cover: string;
-  locked?: boolean;
-  badge?: string;
-  badgeColor?: string;
+  badge: string;
+  badgeColor: string;
   pagesCount: number;
-  chapters: { title: string; text: string[]; scripture?: string }[];
+  chapters: { title: string; scripture?: string; text: string[] }[];
 }
 
 interface PrayerRequest {
@@ -29,7 +29,16 @@ interface PrayerRequest {
   date: string;
 }
 
-// ─── Real Assets from plan-faith.com ──────────────────────────────────────────
+interface JourneyDay {
+  day: number;
+  title: string;
+  focus: string;
+  scripture: string;
+  teaching: string;
+  declaration: string;
+}
+
+// ─── CDN Assets from plan-faith.com ──────────────────────────────────────────
 
 const ASSETS = {
   hero: "https://plan-faith.com/__l5e/assets-v1/ca4162c8-3869-4a49-9316-3c5c075e4757/faith-app-hero.jpg",
@@ -41,7 +50,180 @@ const ASSETS = {
   coverAltar: "https://plan-faith.com/__l5e/assets-v1/3f844a80-3def-4203-975a-31611624c3c0/faith-cover-altar.jpg",
 };
 
-// ─── Complete Books Content for the In-App Reader ────────────────────────────
+// ─── 21-Day Guided Activation Journey Data ───────────────────────────────────
+
+const JOURNEY_DAYS: JourneyDay[] = [
+  {
+    day: 1,
+    title: "Clearing the Spiritual Ground",
+    focus: "Unforgiveness & Past Burdens",
+    scripture: "Jeremiah 4:3 — 'Break up your fallow ground, and do not sow among thorns.'",
+    teaching: "Before divine abundance can sprout in your bank accounts and your household, old thorns of resentment, self-blame, and past regrets must be uprooted. Forgiveness does not excuse what was done to you; it releases the offender into God's courtroom and frees your hands to receive fresh blessings.",
+    declaration: "Today, I choose to forgive everyone who hurt or disappointed me. I release all bitterness. My heart is fertile ground for God's supernatural harvest.",
+  },
+  {
+    day: 2,
+    title: "The Currency of Divine Favor",
+    focus: "Shifting from Scarcity to Overflow",
+    scripture: "Psalm 5:12 — 'For You, Lord, will bless the righteous; with favor You will surround him as with a shield.'",
+    teaching: "Worldly economy operates on labor and stress; the Kingdom economy operates on divine favor. One day of God's favor can accomplish what thirty years of human labor cannot. You are not forsaken or overlooked.",
+    declaration: "Divine favor surrounds me today like a golden shield. Where others see closed doors, God creates an open gate of opportunity for me and my household.",
+  },
+  {
+    day: 3,
+    title: "Angelic Assignments Over Your Home",
+    focus: "Supernatural Household Protection",
+    scripture: "Psalm 91:11-12 — 'For He will command His angels concerning you to guard you in all your ways.'",
+    teaching: "Angels respond to the voice of God's Word spoken through faithful believers. When you sleep, heavenly messengers are dispatched to guard your doorways, protect your children from evil, and rebuke spiritual assignments of exhaustion.",
+    declaration: "I decree that holy angels encircle my dwelling place. No weapon, no illness, no tragedy, and no thief shall cross the threshold of my home.",
+  },
+  {
+    day: 4,
+    title: "Breaking the Generational Chain of Debt",
+    focus: "Financial Deliverance",
+    scripture: "Deuteronomy 28:12 — 'You will lend to many nations and will not borrow from any.'",
+    teaching: "Debt is not merely a number on a balance sheet; it is a spiritual weight designed to drain your joy and dictate your decisions. Today, God begins the process of supernatural cancellation and divine wisdom.",
+    declaration: "I break agreement with generational lack and poverty. The Lord is my shepherd; debt has no legal hold over my future. I walk in financial surplus.",
+  },
+  {
+    day: 5,
+    title: "The Power of the Morning Gate",
+    focus: "First 10 Minutes with God",
+    scripture: "Psalm 63:1 — 'O God, You are my God; early will I seek You; my soul thirsts for You.'",
+    teaching: "Whoever wins the first 10 minutes of your morning commands the harvest of your day. Guard your eyes from screens and fearful headlines before speaking peace into your atmosphere.",
+    declaration: "I surrender the first fruits of my thoughts to the Father. My day is anchored in peace, authority, and divine direction.",
+  },
+  {
+    day: 6,
+    title: "The Solomon Wisdom Code",
+    focus: "Discernment in Financial Choices",
+    scripture: "Proverbs 3:13 — 'Blessed is the one who finds wisdom, and the one who gets understanding.'",
+    teaching: "Solomon did not ask for wealth or fame; he asked for a listening heart to lead wisely. When wisdom became his priority, wealth and honor chased him down. Ask for divine insight today.",
+    declaration: "Holy Spirit, grant me heavenly wisdom in every decision, investment, and conversation. I make sound choices that multiply God's blessings.",
+  },
+  {
+    day: 7,
+    title: "The Sabbath of Complete Trust",
+    focus: "Ceasing Striving and Resting",
+    scripture: "Exodus 14:14 — 'The Lord will fight for you, and you have only to be silent.'",
+    teaching: "Resting is an act of supreme warfare. It shows the enemy that you believe God is bigger than your deadlines. Take a deep breath today and rest in His promises.",
+    declaration: "I cast every heavy burden at Jesus' feet. What I cannot change with my hands, I entrust to God's almighty power. I receive perfect peace.",
+  },
+  {
+    day: 8,
+    title: "Healing the Family Altar",
+    focus: "Restoration of Marriages & Children",
+    scripture: "Joshua 24:15 — 'As for me and my house, we will serve the Lord.'",
+    teaching: "A family that prays together builds an impenetrable spiritual barrier. Speak grace over your children, even when they struggle, and honor your spouse with words of life.",
+    declaration: "My household is an altar of peace, unity, and mutual honor. Strife and rebellion are replaced with love, understanding, and laughter.",
+  },
+  {
+    day: 9,
+    title: "Rebuking the Devourer",
+    focus: "Preserving Your Hard-Earned Fruits",
+    scripture: "Malachi 3:11 — 'I will rebuke the devourer for you, so that it will not destroy the fruits of your soil.'",
+    teaching: "Have you ever felt that money slips through your fingers like water? That is the work of spiritual leakage. God promises to rebuke the devourer when we honor Him with a faithful heart.",
+    declaration: "Every leak in my finances is sealed. Unexpected fees, breakdowns, and losses are silenced by God's protective hand.",
+  },
+  {
+    day: 10,
+    title: "The Mantle of Bold Declarations",
+    focus: "Speaking Life Over Dry Bones",
+    scripture: "Job 22:28 — 'You will also decree a thing, and it will be established for you.'",
+    teaching: "Your tongue carries the power of life and death. You cannot talk like a defeated victim and expect the victories of a king. Speak what God says, not what circumstances look like.",
+    declaration: "I speak life, strength, health, and abundant provision over my life. Every dry bone in my dreams is coming alive right now!",
+  },
+  {
+    day: 11,
+    title: "The Shield Against Comparison & Envy",
+    focus: "Guarding Your Focus",
+    scripture: "Galatians 6:4 — 'Each one should test their own actions. Then they can take pride in themselves alone, without comparing themselves to someone else.'",
+    teaching: "Comparison is the thief of spiritual gratitude. God's blueprint for your destiny is uniquely crafted; do not covet another person's season when yours is being prepared in secret.",
+    declaration: "I celebrate others' victories while trusting God's timing for mine. My journey is sacred, guided, and filled with divine purpose.",
+  },
+  {
+    day: 12,
+    title: "Miracles in Secret Places",
+    focus: "Private Prayer & Hidden Roots",
+    scripture: "Matthew 6:6 — 'Your Father who sees in secret will reward you openly.'",
+    teaching: "The height of a tree depends entirely on the depth of its roots. Your public breakthroughs are born in the hidden tears of your secret prayer time.",
+    declaration: "I love the quiet sanctuary with my Father. In His presence, my strength is renewed and my future is made secure.",
+  },
+  {
+    day: 13,
+    title: "The Courage to Take Sacred Steps",
+    focus: "Faith Accompanied by Action",
+    scripture: "James 2:26 — 'For as the body without the spirit is dead, so faith without works is dead also.'",
+    teaching: "Praying for bread while refusing to till the soil is presumption. Today, take that practical step: make that phone call, organize that budget, send that application.",
+    declaration: "I move forward in bold, obedient action. As I take faithful steps, God parts the waters before me.",
+  },
+  {
+    day: 14,
+    title: "Releasing Old Traumas & Regrets",
+    focus: "Emotional Wholeness",
+    scripture: "Isaiah 43:18-19 — 'Remember not the former things... Behold, I am doing a new thing!'",
+    teaching: "You cannot look through the rearview mirror and drive safely into your future. God is not bound by your past failures or mistreatments.",
+    declaration: "I let go of yesterday's pain. I am not defined by what happened to me; I am defined by who God says I am. A fresh chapter begins today.",
+  },
+  {
+    day: 15,
+    title: "The Blessing of First Fruits",
+    focus: "Generosity & Seed Sowing",
+    scripture: "Luke 6:38 — 'Give, and it will be given to you: good measure, pressed down, shaken together, and running over.'",
+    teaching: "Generosity is the antidote to fear. When you bless someone else in your time of need, you demonstrate to heaven that you trust the Source, not the resource.",
+    declaration: "I am a conduit of blessing. I give with joy, knowing that the Father multiplies every good seed sown in faith.",
+  },
+  {
+    day: 16,
+    title: "Guarding Your Gates from Negativity",
+    focus: "Selective Spiritual Association",
+    scripture: "Proverbs 13:20 — 'Whoever walks with the wise becomes wise, but the companion of fools will suffer harm.'",
+    teaching: "You cannot soar like an eagle if you spend your days conversing with complainers and cynics. Protect your spiritual ears from gossip and doubt.",
+    declaration: "I choose to surround myself with voices of faith, truth, and uplifting love. My mind is filled only with what is pure and praiseworthy.",
+  },
+  {
+    day: 17,
+    title: "The Oil of Divine Joy",
+    focus: "Spiritual Strength",
+    scripture: "Nehemiah 8:10 — 'Do not grieve, for the joy of the Lord is your strength.'",
+    teaching: "Joy is not happiness dependent on circumstances; joy is a supernatural weapon that paralyzes the spirit of heaviness. Smile, sing, and praise even before the check arrives.",
+    declaration: "The joy of the Lord is my unshakeable fortress. No storm can steal the divine song placed in my spirit.",
+  },
+  {
+    day: 18,
+    title: "The Midnight Praise Breakthrough",
+    focus: "Worship in Dark Seasons",
+    scripture: "Acts 16:25-26 — 'About midnight Paul and Silas were praying and singing hymns... and suddenly there was a great earthquake.'",
+    teaching: "Praise when everything is going well is natural; praise when the walls are closing in is supernatural dynamite that shatters prison doors.",
+    declaration: "I praise God right in the middle of this challenge. My chains are broken, and every locked door swings wide open!",
+  },
+  {
+    day: 19,
+    title: "Consecration of Your Workplace & Hands",
+    focus: "Productivity & Purpose",
+    scripture: "Psalm 90:17 — 'Establish the work of our hands for us — yes, establish the work of our hands.'",
+    teaching: "Whether you work in an office, own a business, or care for children at home, your labor is a sacred ministry. Consecrate your hands to God's glory.",
+    declaration: "Everything I touch prospers. My hands are blessed, my intellect is sharpened, and my work brings honor to God's Kingdom.",
+  },
+  {
+    day: 20,
+    title: "Speaking to the Mountains",
+    focus: "Unshakeable Authority",
+    scripture: "Mark 11:23 — 'Whoever says to this mountain, Be taken up and thrown into the sea, and does not doubt in his heart... it will be done for him.'",
+    teaching: "Do not tell God how big your mountain is; tell your mountain how big your God is. Speak directly to debt, sickness, and strife with holy boldness.",
+    declaration: "Mountain of lack, move! Mountain of anxiety, be cast out! I speak peace, abundance, and total restoration into my life in Jesus' name.",
+  },
+  {
+    day: 21,
+    title: "The Overflowing Cup — Sealing Your Covenant",
+    focus: "Permanent Walk in Abundance",
+    scripture: "Psalm 23:5-6 — 'You anoint my head with oil; my cup overflows. Surely goodness and mercy shall follow me all the days of my life.'",
+    teaching: "You have completed 21 days of spiritual discipline, prayer, and declaration. You are not the same person who began this journey. Walk forward in confidence.",
+    declaration: "My cup overflows! Goodness, mercy, and supernatural favor follow me wherever I set my foot. I walk in God's covenant today and forever!",
+  },
+];
+
+// ─── Complete Books Library ───────────────────────────────────────────────────
 
 const LIBRARY_BOOKS: Book[] = [
   {
@@ -231,7 +413,7 @@ const GUIDED_AUDIOS = [
   {
     id: 1,
     title: "Morning Prayer of Faith & Favor",
-    duration: 512, // 8:32
+    duration: 512,
     formattedDuration: "8:32",
     verse: "Psalm 5:3",
     narration: "Heavenly Father, as the dawn breaks, I lift my soul to You. I place this day into Your sovereign hands. I decree that every step I take today is ordered by the Lord. Favor surrounds me as a shield, and doors of supernatural blessing are open before me. Amen.",
@@ -239,7 +421,7 @@ const GUIDED_AUDIOS = [
   {
     id: 2,
     title: "Abundance & Provision Activation",
-    duration: 735, // 12:15
+    duration: 735,
     formattedDuration: "12:15",
     verse: "Philippians 4:19",
     narration: "Lord of all provision, You own the cattle on a thousand hills. I release every anxiety concerning finances, bills, and debt. I declare that Your abundance flows into my hands, not just for survival, but to be a blessing to many. In Jesus' name, Amen.",
@@ -247,7 +429,7 @@ const GUIDED_AUDIOS = [
   {
     id: 3,
     title: "Deep Sleep & Angelic Protection",
-    duration: 1368, // 22:48
+    duration: 1368,
     formattedDuration: "22:48",
     verse: "Psalm 91:11",
     narration: "Lord, I lay my head down in peace. You give Your angels charge over me to guard me in all my ways. Every worry of today is cast upon You. I receive deep, restorative sleep under the shadow of the Almighty. Amen.",
@@ -255,7 +437,7 @@ const GUIDED_AUDIOS = [
   {
     id: 4,
     title: "Faith Declaration Over Your Household",
-    duration: 364, // 6:04
+    duration: 364,
     formattedDuration: "6:04",
     verse: "Joshua 24:15",
     narration: "I speak life, health, and salvation over my spouse, my children, and my entire generation. No weapon formed against us shall prosper. As for me and my house, we will walk in the favor and joy of the Lord. Amen.",
@@ -263,7 +445,7 @@ const GUIDED_AUDIOS = [
   {
     id: 5,
     title: "Breaking Chains of Fear & Anxiety",
-    duration: 580, // 9:40
+    duration: 580,
     formattedDuration: "9:40",
     verse: "2 Timothy 1:7",
     narration: "God has not given me a spirit of fear, but of power, love, and a sound mind. I command every panic and dark thought to flee from my presence. My mind is filled with the shalom peace of Christ.",
@@ -271,7 +453,7 @@ const GUIDED_AUDIOS = [
   {
     id: 6,
     title: "Healing & Restoration of the Body",
-    duration: 642, // 10:42
+    duration: 642,
     formattedDuration: "10:42",
     verse: "Isaiah 53:5",
     narration: "By His stripes I am healed. Every cell, every organ, and every bone in my body comes into divine alignment with the life of God. Sickness has no legal ground in my temple.",
@@ -279,7 +461,7 @@ const GUIDED_AUDIOS = [
   {
     id: 7,
     title: "The Evening Miracle Prayer",
-    duration: 490, // 8:10
+    duration: 490,
     formattedDuration: "8:10",
     verse: "Psalm 4:8",
     narration: "Lord, I thank You for sustaining me through this day. What I could not finish, I trust You to complete while I sleep. Tomorrow will bring fresh mercies and unexpected testimonies.",
@@ -291,38 +473,38 @@ const GUIDED_AUDIOS = [
 const SOS_PRAYERS = [
   {
     id: "money",
-    title: "Worried about money",
+    title: "Worried about money & bills",
     ref: "Philippians 4:19",
-    verse: "And my God will meet all your needs according to the riches of his glory in Christ Jesus.",
-    prayer: "Lord, I bring You every bill and every number. Give me wisdom, calm and the courage to act well today. I trust Your provision above all things. Amen.",
+    verse: "And my God will meet all your needs according to the riches of His glory in Christ Jesus.",
+    prayer: "Lord, I place every overdue bill and every financial concern into Your hands right now. You are Jehovah Jireh, my Provider. Give me peace, open doors of supernatural income, and rebuke every spirit of lack from my home. In Jesus' name, Amen.",
   },
   {
     id: "family",
-    title: "Family conflict",
+    title: "Family conflict & tension",
     ref: "Colossians 3:13-14",
     verse: "Bear with each other and forgive one another... And over all these virtues put on love.",
-    prayer: "Lord, remove all bitterness and harsh words from our home. Melt our hearts with patience, and let Your peace reign over our family today. Amen.",
+    prayer: "Lord, melt the coldness and harsh words in our home. Break every root of misunderstanding. I speak reconciliation over my marriage, peace over my children, and divine love in our atmosphere. Amen.",
   },
   {
     id: "anxiety",
-    title: "Anxiety & Racing Mind",
+    title: "Severe anxiety & sleeplessness",
     ref: "1 Peter 5:7",
-    verse: "Cast all your anxiety on him because he cares for you.",
-    prayer: "Father, take this heavy weight from my chest. I breathe out fear and I breathe in Your Holy Spirit. You hold my tomorrow. Amen.",
+    verse: "Cast all your anxiety on Him because He cares for you.",
+    prayer: "Father, take this heavy weight from my chest. I breathe out fear and breathe in the Holy Spirit. You have already walked into my tomorrow and prepared a table of victory for me. Amen.",
   },
   {
     id: "health",
-    title: "Health & Healing",
+    title: "Physical sickness & pain",
     ref: "Jeremiah 30:17",
     verse: "For I will restore health unto thee, and I will heal thee of thy wounds, saith the Lord.",
-    prayer: "Lord, lay Your healing hand upon my body right now. Restore every weak place, strengthen my spirit, and grant me vitality. Amen.",
+    prayer: "Lord Jesus, You took my infirmities on the Cross. I declare healing over every muscle, organ, and blood vessel in my body. Sickness must flee before the Name above all names. Amen.",
   },
   {
     id: "direction",
-    title: "Need Wisdom & Direction",
+    title: "Needing guidance & clarity",
     ref: "James 1:5",
-    verse: "If any of you lacks wisdom, you should ask God, who gives generously to all.",
-    prayer: "Holy Spirit, guide my thoughts and my choices. Close doors that lead to trouble, and open doors that align with Your purpose. Amen.",
+    verse: "If any of you lacks wisdom, you should ask God, who gives generously to all without finding fault.",
+    prayer: "Holy Spirit, light my pathway. Close every door that would bring regret, and swing open the gates of divine purpose. I trust Your timing and Your compass. Amen.",
   },
 ];
 
@@ -337,14 +519,12 @@ function HeavenlySounds() {
   const gainNodeRef = useRef<GainNode | null>(null);
   const cleanupFnRef = useRef<(() => void) | null>(null);
 
-  // Volume update
   useEffect(() => {
     if (gainNodeRef.current) {
       gainNodeRef.current.gain.value = volume;
     }
   }, [volume]);
 
-  // Auto-off timer
   useEffect(() => {
     if (!timerMin || !activeSound) return;
     const t = setTimeout(() => {
@@ -354,7 +534,6 @@ function HeavenlySounds() {
     return () => clearTimeout(t);
   }, [timerMin, activeSound]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       cleanupFnRef.current?.();
@@ -388,7 +567,6 @@ function HeavenlySounds() {
     const stopNodes: (() => void)[] = [];
 
     if (type === "rain" || type === "night") {
-      // Pink/Brown noise generator
       const bufferSize = ctx.sampleRate * 3;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -409,7 +587,6 @@ function HeavenlySounds() {
       noise.connect(filter);
 
       if (type === "night") {
-        // Night waves: LFO modulation
         const lfo = ctx.createOscillator();
         lfo.frequency.value = 0.08;
         const lfoGain = ctx.createGain();
@@ -432,7 +609,6 @@ function HeavenlySounds() {
       noise.start();
       stopNodes.push(() => { noise.stop(); noise.disconnect(); filter.disconnect(); });
     } else if (type === "harp") {
-      // Sacred Harp Pad (Chords: A 220Hz, C# 277.18Hz, E 329.63Hz, A 440Hz)
       const freqs = [220, 277.18, 329.63, 440];
       freqs.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
@@ -442,7 +618,6 @@ function HeavenlySounds() {
         const oscGain = ctx.createGain();
         oscGain.gain.value = 0.08;
 
-        // Subtle shimmer LFO
         const lfo = ctx.createOscillator();
         lfo.frequency.value = 0.15 + idx * 0.05;
         const lfoGain = ctx.createGain();
@@ -475,9 +650,9 @@ function HeavenlySounds() {
   }
 
   const sounds = [
-    { id: "rain", label: "Gentle prayer rain", icon: "🌧️" },
-    { id: "harp", label: "Sacred harp pad", icon: "🕊️" },
-    { id: "night", label: "Night of peace", icon: "🌙" },
+    { id: "rain", label: "Gentle Prayer Rain", icon: "🌧️" },
+    { id: "harp", label: "Sacred Harp Pad", icon: "🕊️" },
+    { id: "night", label: "Night of Deep Peace", icon: "🌙" },
   ];
 
   return (
@@ -490,19 +665,18 @@ function HeavenlySounds() {
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <h3 style={{ color: "#f0d080", fontSize: 16, margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-          ✨ Heavenly Sounds — Free Ambient
+          ✨ Heavenly Sounds — Ambient Frequencies
         </h3>
         {activeSound && (
           <span style={{ color: "#4ade80", fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>
-            ● PLAYING
+            ● ACTIVE
           </span>
         )}
       </div>
       <p style={{ color: "#8a7a5a", fontSize: 12, margin: "0 0 16px", fontFamily: "sans-serif" }}>
-        Real-time calming background frequencies for prayer, Bible reading or deep restorative sleep.
+        Calming continuous background sound for prayer, Bible study, and restorative sleep.
       </p>
 
-      {/* 3 Buttons */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 16 }}>
         {sounds.map(s => {
           const isActive = activeSound === s.id;
@@ -533,7 +707,6 @@ function HeavenlySounds() {
         })}
       </div>
 
-      {/* Volume and Timer Controls */}
       {activeSound && (
         <div style={{
           background: "rgba(0,0,0,0.3)",
@@ -544,7 +717,6 @@ function HeavenlySounds() {
           flexDirection: "column",
           gap: 12,
         }}>
-          {/* Volume */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ color: "#8a7a5a", fontSize: 12, minWidth: 50 }}>Volume</span>
             <input
@@ -561,7 +733,6 @@ function HeavenlySounds() {
             </span>
           </div>
 
-          {/* Sleep Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ color: "#8a7a5a", fontSize: 12, minWidth: 50 }}>Timer:</span>
             {[0, 15, 30, 60].map(mins => (
@@ -589,17 +760,15 @@ function HeavenlySounds() {
   );
 }
 
-// ─── Guided Audio Player ──────────────────────────────────────────────────────
+// ─── Guided Audio Player Tab ──────────────────────────────────────────────────
 
 function AudioPlayerTab() {
   const [selectedTrackIdx, setSelectedTrackIdx] = useState<number | null>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progressSec, setProgressSec] = useState(0);
-  const [speechActive, setSpeechActive] = useState(false);
 
   const track = selectedTrackIdx !== null ? GUIDED_AUDIOS[selectedTrackIdx] : null;
 
-  // Real-time progress simulator or audio player
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isPlaying && track) {
@@ -607,10 +776,6 @@ function AudioPlayerTab() {
         setProgressSec(prev => {
           if (prev >= track.duration) {
             setIsPlaying(false);
-            if (speechActive && "speechSynthesis" in window) {
-              window.speechSynthesis.cancel();
-              setSpeechActive(false);
-            }
             return 0;
           }
           return prev + 1;
@@ -620,63 +785,16 @@ function AudioPlayerTab() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying, track, speechActive]);
+  }, [isPlaying, track]);
 
   function togglePlay() {
-    if (!track) return;
-
-    if (isPlaying) {
-      setIsPlaying(false);
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.pause();
-      }
-    } else {
-      setIsPlaying(true);
-      // Optional speech narration for real audible guidance if desired
-      if ("speechSynthesis" in window && !speechActive) {
-        try {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(track.narration);
-          utterance.rate = 0.88; // gentle, reverent pace
-          utterance.pitch = 1.0;
-          utterance.lang = "en-US";
-          utterance.onend = () => setSpeechActive(false);
-          window.speechSynthesis.speak(utterance);
-          setSpeechActive(true);
-        } catch {
-          // ignore if speech synthesis is disabled
-        }
-      } else if ("speechSynthesis" in window && speechActive) {
-        window.speechSynthesis.resume();
-      }
-    }
+    setIsPlaying(!isPlaying);
   }
 
   function handleSelectTrack(idx: number) {
-    if (speechActive && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setSpeechActive(false);
-    }
     setSelectedTrackIdx(idx);
     setProgressSec(0);
     setIsPlaying(true);
-
-    if ("speechSynthesis" in window) {
-      setTimeout(() => {
-        try {
-          const t = GUIDED_AUDIOS[idx];
-          const utterance = new SpeechSynthesisUtterance(t.narration);
-          utterance.rate = 0.88;
-          utterance.pitch = 1.0;
-          utterance.lang = "en-US";
-          utterance.onend = () => setSpeechActive(false);
-          window.speechSynthesis.speak(utterance);
-          setSpeechActive(true);
-        } catch {
-          // ignore
-        }
-      }, 300);
-    }
   }
 
   function formatTime(seconds: number) {
@@ -688,13 +806,12 @@ function AudioPlayerTab() {
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-        Audio Prayers
+        Guided Audio Prayers
       </h1>
       <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        7 Spirit-led guided prayer tracks to transform the spiritual atmosphere of your life.
+        7 Spirit-led audio activations to saturate your mind and home with divine peace.
       </p>
 
-      {/* Main Now Playing Card */}
       {track && (
         <div style={{
           background: "linear-gradient(135deg, rgba(201,168,76,0.18), rgba(201,168,76,0.06))",
@@ -705,17 +822,15 @@ function AudioPlayerTab() {
           textAlign: "center",
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         }}>
-          {/* Animated Glow Circle */}
           <div style={{
-            width: 100, height: 100, borderRadius: "50%",
+            width: 90, height: 90, borderRadius: "50%",
             background: "linear-gradient(135deg, #c9a84c, #f0d080)",
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 16px",
             boxShadow: isPlaying ? "0 0 35px rgba(201,168,76,0.6)" : "0 0 15px rgba(201,168,76,0.2)",
-            transition: "all 0.3s",
             cursor: "pointer",
           }} onClick={togglePlay}>
-            <span style={{ fontSize: 36, color: "#1a1200", marginLeft: isPlaying ? 0 : 4 }}>
+            <span style={{ fontSize: 32, color: "#1a1200", marginLeft: isPlaying ? 0 : 4 }}>
               {isPlaying ? "❚❚" : "▶"}
             </span>
           </div>
@@ -724,10 +839,9 @@ function AudioPlayerTab() {
             {track.title}
           </p>
           <p style={{ color: "#c9a84c", fontSize: 12, margin: "0 0 14px", fontStyle: "italic" }}>
-            {track.verse}
+            Scriptural Anchor: {track.verse}
           </p>
 
-          {/* Animated sound bars */}
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 4, height: 24, marginBottom: 14 }}>
             {[4, 8, 14, 20, 16, 22, 12, 18, 6, 12, 20, 8].map((h, i) => (
               <span
@@ -743,7 +857,6 @@ function AudioPlayerTab() {
             ))}
           </div>
 
-          {/* Seek Bar */}
           <input
             type="range"
             min="0"
@@ -757,7 +870,6 @@ function AudioPlayerTab() {
             <span>{track.formattedDuration}</span>
           </div>
 
-          {/* Spoken Word Preview Box */}
           <div style={{
             background: "rgba(0,0,0,0.35)",
             border: "1px solid rgba(201,168,76,0.2)",
@@ -767,7 +879,7 @@ function AudioPlayerTab() {
             textAlign: "left",
           }}>
             <p style={{ color: "#8a7a5a", fontSize: 10, textTransform: "uppercase", letterSpacing: 1, margin: "0 0 4px", fontWeight: 700 }}>
-              Spoken Word Prayer
+              Guided Proclamation
             </p>
             <p style={{ color: "#d4c4a0", fontSize: 13, margin: 0, fontStyle: "italic", lineHeight: 1.5 }}>
               "{track.narration}"
@@ -776,7 +888,6 @@ function AudioPlayerTab() {
         </div>
       )}
 
-      {/* Track List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {GUIDED_AUDIOS.map((t, idx) => {
           const isCurrent = selectedTrackIdx === idx;
@@ -824,8 +935,403 @@ function AudioPlayerTab() {
         })}
       </div>
 
-      {/* Heavenly Sounds Ambient Generator */}
       <HeavenlySounds />
+    </div>
+  );
+}
+
+// ─── 5-Minute Morning Sacred Ritual Modal with Live Timer ─────────────────────
+
+function MorningRitualModal({ onClose }: { onClose: () => void }) {
+  const [secondsLeft, setSecondsLeft] = useState(300); // 5 minutes
+  const [running, setRunning] = useState(true);
+
+  useEffect(() => {
+    let t: NodeJS.Timeout | null = null;
+    if (running && secondsLeft > 0) {
+      t = setInterval(() => setSecondsLeft(s => s - 1), 1000);
+    }
+    return () => {
+      if (t) clearInterval(t);
+    };
+  }, [running, secondsLeft]);
+
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const phase = secondsLeft > 240 ? 1 : secondsLeft > 120 ? 2 : 3;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "linear-gradient(180deg, #0f0b00 0%, #050505 100%)",
+      color: "#f5e8c8", display: "flex", flexDirection: "column",
+      padding: "24px 20px 40px", boxSizing: "border-box",
+      fontFamily: "'Playfair Display', serif",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <span style={{ color: "#c9a84c", fontSize: 12, letterSpacing: 2, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 700 }}>
+          Morning Sacred Ritual
+        </span>
+        <button
+          onClick={onClose}
+          style={{ background: "none", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
+        >
+          ✕ Exit
+        </button>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", maxWidth: 480, margin: "0 auto" }}>
+        {/* Circular Countdown Timer */}
+        <div style={{
+          width: 140, height: 140, borderRadius: "50%",
+          border: "2px solid #c9a84c",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 0 40px rgba(201,168,76,0.3)",
+          marginBottom: 24,
+        }}>
+          <span style={{ fontSize: 36, fontWeight: 700, color: "#f0d080", fontFamily: "sans-serif" }}>
+            {mins}:{secs.toString().padStart(2, "0")}
+          </span>
+          <span style={{ fontSize: 11, color: "#8a7a5a", fontFamily: "sans-serif" }}>
+            {running ? "Breathe & Pray" : "Paused"}
+          </span>
+        </div>
+
+        {/* Phase Guidance Content */}
+        {phase === 1 && (
+          <div>
+            <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "sans-serif" }}>
+              Phase 1: Silence & Holy Breath (Minutes 1)
+            </span>
+            <h2 style={{ color: "#f0d080", fontSize: 22, margin: "8px 0 12px", fontWeight: 700 }}>
+              Empty Your Chest of Worldly Noise
+            </h2>
+            <p style={{ color: "#d8c8a8", fontSize: 15, lineHeight: 1.7, fontStyle: "italic" }}>
+              "Be still, and know that I am God." (Psalm 46:10)<br /><br />
+              Take three deep breaths. Inhale God's peace. Exhale the anxiety of yesterday. You are standing before the King of Kings.
+            </p>
+          </div>
+        )}
+
+        {phase === 2 && (
+          <div>
+            <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "sans-serif" }}>
+              Phase 2: The Living Decree (Minutes 2–3)
+            </span>
+            <h2 style={{ color: "#f0d080", fontSize: 22, margin: "8px 0 12px", fontWeight: 700 }}>
+              Speak Life Over Your Household
+            </h2>
+            <div style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 16, padding: "16px", margin: "10px 0" }}>
+              <p style={{ color: "#f0d080", fontSize: 15, lineHeight: 1.6, fontStyle: "italic", margin: 0 }}>
+                "Today, I declare that lack has no place in my home. The Lord orders my steps, multiplies my resources, and grants me favor with every person I encounter."
+              </p>
+            </div>
+            <p style={{ color: "#8a7a5a", fontSize: 12, fontFamily: "sans-serif" }}>
+              Say it out loud with faith. Your angels are responding.
+            </p>
+          </div>
+        )}
+
+        {phase === 3 && (
+          <div>
+            <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "sans-serif" }}>
+              Phase 3: Sealing with Praise (Minutes 4–5)
+            </span>
+            <h2 style={{ color: "#f0d080", fontSize: 22, margin: "8px 0 12px", fontWeight: 700 }}>
+              Give Thanks Before You See It
+            </h2>
+            <p style={{ color: "#d8c8a8", fontSize: 15, lineHeight: 1.7, fontStyle: "italic" }}>
+              "Now faith is the substance of things hoped for, the evidence of things not seen." (Hebrews 11:1)<br /><br />
+              Thank God right now for the answers that are already on their way. Your day is blessed, covered, and victorious.
+            </p>
+          </div>
+        )}
+
+        {/* Controls */}
+        <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+          <button
+            onClick={() => setRunning(!running)}
+            style={{
+              padding: "10px 24px", borderRadius: 30, border: "1px solid #c9a84c",
+              background: running ? "transparent" : "#c9a84c",
+              color: running ? "#c9a84c" : "#1a1200", fontWeight: 700, cursor: "pointer",
+              fontFamily: "sans-serif", fontSize: 13,
+            }}
+          >
+            {running ? "Pause Ritual" : "Resume"}
+          </button>
+          {secondsLeft === 0 && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: "10px 24px", borderRadius: 30, border: "none",
+                background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+                color: "#1a1200", fontWeight: 700, cursor: "pointer",
+                fontFamily: "sans-serif", fontSize: 13,
+              }}
+            >
+              ✓ Ritual Complete
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Certificate of Divine Covenant Modal ─────────────────────────────────────
+
+function CertificateModal({ session, onClose }: { session: Session; onClose: () => void }) {
+  const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const certId = "COV-" + Math.abs(session.email.split("").reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0)).toString(16).toUpperCase();
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "rgba(0,0,0,0.92)", backdropFilter: "blur(12px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "16px", boxSizing: "border-box",
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg, #161208 0%, #0d0a04 100%)",
+        border: "3px double #c9a84c",
+        borderRadius: 20,
+        padding: "36px 24px",
+        maxWidth: 500,
+        width: "100%",
+        textAlign: "center",
+        boxShadow: "0 0 50px rgba(201,168,76,0.35)",
+        position: "relative",
+        fontFamily: "'Playfair Display', serif",
+      }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute", top: 12, right: 14, background: "none",
+            border: "none", color: "#8a7a5a", fontSize: 20, cursor: "pointer",
+          }}
+        >
+          ✕
+        </button>
+
+        <div style={{ fontSize: 36, marginBottom: 8 }}>👑</div>
+        <p style={{ color: "#c9a84c", fontSize: 11, letterSpacing: 3, textTransform: "uppercase", margin: "0 0 6px", fontFamily: "sans-serif" }}>
+          Official Kingdom Record
+        </p>
+        <h1 style={{ color: "#f0d080", fontSize: 24, margin: "0 0 16px", fontWeight: 700 }}>
+          Certificate of Divine Covenant
+        </h1>
+
+        <p style={{ color: "#8a7a5a", fontSize: 12, fontStyle: "italic", margin: "0 0 8px" }}>
+          This certifies that the servant of God
+        </p>
+        <h2 style={{
+          color: "#fff", fontSize: 26, margin: "0 0 12px",
+          borderBottom: "1px solid rgba(201,168,76,0.4)", display: "inline-block", paddingBottom: 6,
+        }}>
+          {session.name || session.email.split("@")[0]}
+        </h2>
+
+        <p style={{ color: "#d8c8a8", fontSize: 13, lineHeight: 1.6, margin: "0 0 20px" }}>
+          Has consecrated their heart and household under the eternal covenant of Almighty God, claiming divine protection, supernatural provision, and peace.
+        </p>
+
+        <div style={{
+          background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)",
+          borderRadius: 12, padding: "12px", marginBottom: 20,
+        }}>
+          <p style={{ color: "#f0d080", fontSize: 12, fontStyle: "italic", margin: 0 }}>
+            "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future." — Jeremiah 29:11
+          </p>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif", marginBottom: 20 }}>
+          <span>Date: {currentDate}</span>
+          <span>Seal No: {certId}</span>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+          <button
+            onClick={() => window.print()}
+            style={{
+              background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+              border: "none", color: "#1a1200", fontWeight: 700,
+              padding: "10px 22px", borderRadius: 25, cursor: "pointer",
+              fontFamily: "sans-serif", fontSize: 13,
+            }}
+          >
+            🖨️ Print / Save Certificate
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 21-Day Journey Tab ───────────────────────────────────────────────────────
+
+function JourneyTab({ session }: { session: Session }) {
+  const [completedDays, setCompletedDays] = useState<number[]>(() => {
+    if (typeof window === "undefined") return [1];
+    try {
+      const saved = localStorage.getItem("faith_completed_days");
+      return saved ? JSON.parse(saved) : [1];
+    } catch {
+      return [1];
+    }
+  });
+
+  const [activeDayNum, setActiveDayNum] = useState<number>(1);
+
+  function markDayComplete(dayNum: number) {
+    if (!completedDays.includes(dayNum)) {
+      const updated = [...completedDays, dayNum];
+      setCompletedDays(updated);
+      localStorage.setItem("faith_completed_days", JSON.stringify(updated));
+    }
+  }
+
+  const activeDay = JOURNEY_DAYS.find(d => d.day === activeDayNum) ?? JOURNEY_DAYS[0];
+  const progressPercent = Math.round((completedDays.length / 21) * 100);
+
+  return (
+    <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
+      <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+        21-Day Activation Journey
+      </h1>
+      <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 20px", fontFamily: "sans-serif" }}>
+        Complete one sacred day at a time to permanently establish supernatural abundance in your life.
+      </p>
+
+      {/* Progress Card */}
+      <div style={{
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(201,168,76,0.3)",
+        borderRadius: 20,
+        padding: "18px 20px",
+        marginBottom: 24,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+          <span style={{ color: "#f0d080", fontSize: 15, fontWeight: 700, fontFamily: "sans-serif" }}>
+            Your Spiritual Progress
+          </span>
+          <span style={{ color: "#c9a84c", fontSize: 14, fontWeight: 700, fontFamily: "sans-serif" }}>
+            {completedDays.length} of 21 Days ({progressPercent}%)
+          </span>
+        </div>
+        <div style={{ width: "100%", height: 8, background: "rgba(255,255,255,0.1)", borderRadius: 4, overflow: "hidden" }}>
+          <div style={{
+            width: `${progressPercent}%`, height: "100%",
+            background: "linear-gradient(90deg, #c9a84c, #f0d080)",
+            transition: "width 0.4s ease",
+          }} />
+        </div>
+      </div>
+
+      {/* Horizontal Day Buttons Carousel */}
+      <div style={{
+        display: "flex", gap: 8, overflowX: "auto", paddingBottom: 14, marginBottom: 20,
+        scrollbarWidth: "none",
+      }}>
+        {JOURNEY_DAYS.map(d => {
+          const isDone = completedDays.includes(d.day);
+          const isSelected = activeDayNum === d.day;
+          return (
+            <button
+              key={d.day}
+              onClick={() => setActiveDayNum(d.day)}
+              style={{
+                flexShrink: 0, width: 56, height: 64, borderRadius: 16,
+                border: isSelected ? "2px solid #f0d080" : isDone ? "1px solid #4ade80" : "1px solid rgba(255,255,255,0.1)",
+                background: isSelected ? "linear-gradient(135deg, #c9a84c, #f0d080)" : isDone ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.03)",
+                color: isSelected ? "#1a1200" : isDone ? "#86efac" : "#8a7a5a",
+                cursor: "pointer", display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 2,
+                fontWeight: 700, fontFamily: "sans-serif",
+              }}
+            >
+              <span style={{ fontSize: 10, textTransform: "uppercase" }}>Day</span>
+              <span style={{ fontSize: 16 }}>{d.day}</span>
+              <span style={{ fontSize: 9 }}>{isDone ? "✓" : "○"}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active Day Detail Box */}
+      <div style={{
+        background: "linear-gradient(135deg, rgba(201,168,76,0.14), rgba(201,168,76,0.04))",
+        border: "1px solid rgba(201,168,76,0.35)",
+        borderRadius: 24,
+        padding: "24px 20px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span style={{
+            background: "#c9a84c", color: "#1a1200", fontSize: 10,
+            fontWeight: 700, padding: "3px 8px", borderRadius: 4, fontFamily: "sans-serif",
+          }}>
+            DAY {activeDay.day} FOCUS
+          </span>
+          <span style={{ color: "#a09070", fontSize: 12, fontFamily: "sans-serif" }}>
+            {activeDay.focus}
+          </span>
+        </div>
+
+        <h2 style={{ color: "#f0d080", fontSize: 22, margin: "0 0 14px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+          {activeDay.title}
+        </h2>
+
+        {/* Scripture Box */}
+        <div style={{
+          background: "rgba(0,0,0,0.4)", borderLeft: "3px solid #c9a84c",
+          padding: "12px 16px", borderRadius: 10, marginBottom: 18,
+          color: "#f0d080", fontSize: 14, fontStyle: "italic", lineHeight: 1.5,
+        }}>
+          "{activeDay.scripture}"
+        </div>
+
+        {/* Teaching */}
+        <p style={{ color: "#d8c8a8", fontSize: 14, lineHeight: 1.75, marginBottom: 20 }}>
+          {activeDay.teaching}
+        </p>
+
+        {/* Declaration Box */}
+        <div style={{
+          background: "rgba(201,168,76,0.18)", border: "1px solid rgba(201,168,76,0.4)",
+          borderRadius: 16, padding: "16px", marginBottom: 22,
+        }}>
+          <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 6px", fontFamily: "sans-serif" }}>
+            Speak this out loud:
+          </p>
+          <p style={{ color: "#fff", fontSize: 15, fontStyle: "italic", margin: 0, lineHeight: 1.6, fontFamily: "'Playfair Display', serif" }}>
+            "{activeDay.declaration}"
+          </p>
+        </div>
+
+        {/* Completion Button */}
+        {completedDays.includes(activeDay.day) ? (
+          <div style={{
+            background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.4)",
+            color: "#86efac", padding: "12px", borderRadius: 30, textAlign: "center",
+            fontWeight: 700, fontSize: 14, fontFamily: "sans-serif",
+          }}>
+            ✓ Day {activeDay.day} Completed & Sealed
+          </div>
+        ) : (
+          <button
+            onClick={() => markDayComplete(activeDay.day)}
+            style={{
+              width: "100%", padding: "16px", borderRadius: 30, border: "none",
+              background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+              color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: "pointer",
+              fontFamily: "sans-serif", boxShadow: "0 4px 20px rgba(201,168,76,0.4)",
+            }}
+          >
+            Mark Day {activeDay.day} as Completed →
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -848,24 +1354,14 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
 
   return (
     <div style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 99999,
-      background: "#0a0a0a",
-      color: "#e8d8b8",
-      display: "flex",
-      flexDirection: "column",
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "#0a0a0a", color: "#e8d8b8",
+      display: "flex", flexDirection: "column",
       fontFamily: "'Playfair Display', serif",
     }}>
-      {/* Top Bar */}
       <div style={{
-        background: "rgba(20,20,20,0.98)",
-        borderBottom: "1px solid rgba(201,168,76,0.25)",
-        padding: "12px 18px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
+        background: "rgba(20,20,20,0.98)", borderBottom: "1px solid rgba(201,168,76,0.25)",
+        padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: 20 }}>📖</span>
@@ -879,7 +1375,6 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           </div>
         </div>
 
-        {/* Font Controls and Close */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <button
             onClick={() => setFontSize(s => Math.max(13, s - 1))}
@@ -911,17 +1406,10 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
         </div>
       </div>
 
-      {/* Book Content Scroll Area */}
       <div style={{
-        flex: 1,
-        overflowY: "auto",
-        padding: "36px 20px 80px",
-        maxWidth: 700,
-        margin: "0 auto",
-        width: "100%",
-        boxSizing: "border-box",
+        flex: 1, overflowY: "auto", padding: "36px 20px 80px",
+        maxWidth: 700, margin: "0 auto", width: "100%", boxSizing: "border-box",
       }}>
-        {/* Cover Preview Badge */}
         <div style={{ textAlign: "center", marginBottom: 30 }}>
           <img
             src={book.cover}
@@ -940,7 +1428,6 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           </p>
         </div>
 
-        {/* Chapter Switcher Tabs */}
         {book.chapters.length > 1 && (
           <div style={{
             display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, marginBottom: 24,
@@ -965,7 +1452,6 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           </div>
         )}
 
-        {/* Current Chapter Content */}
         <div>
           <h2 style={{ color: "#f0d080", fontSize: 20, margin: "0 0 16px", borderLeft: "3px solid #c9a84c", paddingLeft: 12 }}>
             {chapter.title}
@@ -973,15 +1459,9 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
 
           {chapter.scripture && (
             <div style={{
-              background: "rgba(201,168,76,0.1)",
-              border: "1px solid rgba(201,168,76,0.3)",
-              borderRadius: 14,
-              padding: "16px 20px",
-              marginBottom: 24,
-              fontStyle: "italic",
-              color: "#f0d080",
-              lineHeight: 1.6,
-              fontSize: fontSize + 1,
+              background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)",
+              borderRadius: 14, padding: "16px 20px", marginBottom: 24,
+              fontStyle: "italic", color: "#f0d080", lineHeight: 1.6, fontSize: fontSize + 1,
             }}>
               {chapter.scripture}
             </div>
@@ -991,11 +1471,8 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
             <p
               key={pIdx}
               style={{
-                fontSize: `${fontSize}px`,
-                lineHeight: 1.85,
-                color: "#d8c8a8",
-                marginBottom: 20,
-                textAlign: "justify",
+                fontSize: `${fontSize}px`, lineHeight: 1.85,
+                color: "#d8c8a8", marginBottom: 20, textAlign: "justify",
               }}
             >
               {paragraph}
@@ -1003,7 +1480,6 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           ))}
         </div>
 
-        {/* Bottom Navigation between Chapters */}
         <div style={{
           display: "flex", justifyContent: "space-between", marginTop: 40, paddingTop: 20,
           borderTop: "1px solid rgba(255,255,255,0.1)", fontFamily: "sans-serif",
@@ -1052,111 +1528,95 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
 function LibraryTab({ session }: { session: Session }) {
   const [readingBook, setReadingBook] = useState<Book | null>(null);
 
-  const isAdmin = session.email.toLowerCase().includes("admin") || session.plan === "seed-100";
-
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-        My Library
+        Kingdom Vault Library
       </h1>
       <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        Tap any material to read immediately inside the app or download your digital copy.
+        Tap any digital sacred volume to open the in-app interactive reader or download.
       </p>
 
-      {/* Your Unlocked Materials */}
-      <h2 style={{
-        color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
-        textTransform: "uppercase", margin: "0 0 14px", fontFamily: "sans-serif",
-      }}>
-        Your Materials
-      </h2>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 36 }}>
-        {LIBRARY_BOOKS.map(book => {
-          return (
-            <div
-              key={book.id}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {LIBRARY_BOOKS.map(book => (
+          <div
+            key={book.id}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(201,168,76,0.25)",
+              borderRadius: 20,
+              padding: "16px",
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            }}
+          >
+            <img
+              src={book.cover}
+              alt={book.title}
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(201,168,76,0.25)",
-                borderRadius: 20,
-                padding: "16px",
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                transition: "all 0.2s",
+                width: 72, height: 96, objectFit: "cover", borderRadius: 10,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.5)", flexShrink: 0,
+                border: "1px solid rgba(201,168,76,0.2)",
               }}
-            >
-              {/* Cover Image */}
-              <img
-                src={book.cover}
-                alt={book.title}
-                style={{
-                  width: 72, height: 96, objectFit: "cover", borderRadius: 10,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)", flexShrink: 0,
-                  border: "1px solid rgba(201,168,76,0.2)",
-                }}
-              />
+            />
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{
-                    background: book.badgeColor || "#c9a84c", color: "#1a1200",
-                    fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
-                    letterSpacing: 0.5, fontFamily: "sans-serif",
-                  }}>
-                    {book.badge}
-                  </span>
-                  <span style={{ color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>
-                    {book.pagesCount} pages
-                  </span>
-                </div>
-
-                <h3 style={{
-                  color: "#f0d080", fontSize: 15, fontFamily: "'Playfair Display', serif",
-                  fontWeight: 700, margin: "0 0 4px", lineHeight: 1.3,
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{
+                  background: book.badgeColor || "#c9a84c", color: "#1a1200",
+                  fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+                  letterSpacing: 0.5, fontFamily: "sans-serif",
                 }}>
-                  {book.title}
-                </h3>
-                <p style={{ color: "#8a7a5a", fontSize: 12, margin: "0 0 12px", fontFamily: "sans-serif", lineHeight: 1.4 }}>
-                  {book.subtitle}
-                </p>
+                  {book.badge}
+                </span>
+                <span style={{ color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>
+                  {book.pagesCount} pages
+                </span>
+              </div>
 
-                {/* Action Buttons */}
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button
-                    onClick={() => setReadingBook(book)}
-                    style={{
-                      background: "linear-gradient(135deg, #c9a84c, #f0d080)",
-                      border: "none", color: "#1a1200", fontWeight: 700,
-                      fontSize: 12, padding: "6px 14px", borderRadius: 20,
-                      cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-                      fontFamily: "sans-serif",
-                    }}
-                  >
-                    📖 Read in app
-                  </button>
+              <h3 style={{
+                color: "#f0d080", fontSize: 15, fontFamily: "'Playfair Display', serif",
+                fontWeight: 700, margin: "0 0 4px", lineHeight: 1.3,
+              }}>
+                {book.title}
+              </h3>
+              <p style={{ color: "#8a7a5a", fontSize: 12, margin: "0 0 12px", fontFamily: "sans-serif", lineHeight: 1.4 }}>
+                {book.subtitle}
+              </p>
 
-                  <button
-                    onClick={() => alert(`Starting download for ${book.title}...`)}
-                    style={{
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "#d4c4a0", fontSize: 11, padding: "6px 12px",
-                      borderRadius: 20, cursor: "pointer", fontFamily: "sans-serif",
-                    }}
-                  >
-                    📥 PDF
-                  </button>
-                </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setReadingBook(book)}
+                  style={{
+                    background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+                    border: "none", color: "#1a1200", fontWeight: 700,
+                    fontSize: 12, padding: "6px 14px", borderRadius: 20,
+                    cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                    fontFamily: "sans-serif",
+                  }}
+                >
+                  📖 Read in app
+                </button>
+
+                <button
+                  onClick={() => alert(`Starting download for ${book.title}...`)}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    color: "#d4c4a0", fontSize: 11, padding: "6px 12px",
+                    borderRadius: 20, cursor: "pointer", fontFamily: "sans-serif",
+                  }}
+                >
+                  📥 PDF
+                </button>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Reader Modal */}
       {readingBook && (
         <BookReaderModal
           book={readingBook}
@@ -1221,13 +1681,13 @@ function PrayTab() {
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-        Prayer & Journal
+        Sanctuary Prayer & Altar
       </h1>
       <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        Bring your burdens before God. Speak His promises and record your personal testimonies.
+        Instant prayer emergency SOS, private prayer tracking, and your sacred testimony journal.
       </p>
 
-      {/* Sanctuary SOS Section */}
+      {/* SOS Section */}
       <h2 style={{
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
@@ -1235,7 +1695,7 @@ function PrayTab() {
         Sanctuary SOS — Prayers for hard moments
       </h2>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 20 }}>
         {SOS_PRAYERS.map(sos => {
           const isSelected = selectedSOS?.id === sos.id;
           return (
@@ -1261,7 +1721,6 @@ function PrayTab() {
         })}
       </div>
 
-      {/* SOS Prayer Card Popup */}
       {selectedSOS && (
         <div style={{
           background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05))",
@@ -1292,12 +1751,12 @@ function PrayTab() {
         </div>
       )}
 
-      {/* Prayer Requests Tracker */}
+      {/* Prayer Tracker */}
       <h2 style={{
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
       }}>
-        Prayer Requests Tracker (Private)
+        Prayer Request Tracker (Private on Device)
       </h2>
 
       <form onSubmit={addRequest} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -1371,12 +1830,12 @@ function PrayTab() {
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
       }}>
-        Faith Journal (Private on this device)
+        Sacred Testimony Journal
       </h2>
       <textarea
         value={journal}
         onChange={e => setJournal(e.target.value)}
-        placeholder="Lord, today I bring to You... (Gratitude, testimonies, inner thoughts)"
+        placeholder="Lord, today I bring to You... (Write your prayers, gratitude, and sudden miracles)"
         rows={6}
         style={{
           width: "100%", padding: "14px", borderRadius: 14, boxSizing: "border-box",
@@ -1402,10 +1861,21 @@ function PrayTab() {
 
 // ─── Home Tab ─────────────────────────────────────────────────────────────────
 
-function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: (t: Tab) => void }) {
+function HomeTab({
+  session,
+  onNavigateTab,
+  onOpenRitual,
+  onOpenCertificate,
+}: {
+  session: Session;
+  onNavigateTab: (t: Tab) => void;
+  onOpenRitual: () => void;
+  onOpenCertificate: () => void;
+}) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const subline = hour < 12 ? "The Lord is your strength today." : hour < 18 ? "Pause for a moment — He is with you." : "Lay down today's weight. Rest in His peace.";
+  const userName = session.name || session.email.split("@")[0];
 
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -1429,7 +1899,7 @@ function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: 
 
         <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
           <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", margin: "0 0 4px" }}>
-            Today's Word
+            Today's Living Word
           </p>
           <p style={{ color: "#f0d080", fontSize: 17, fontFamily: "'Playfair Display', serif", fontStyle: "italic", margin: "0 0 4px", lineHeight: 1.4 }}>
             "The Lord will fight for you; you need only to be still."
@@ -1441,41 +1911,92 @@ function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: 
       </div>
 
       <div style={{ padding: "20px 20px 0", maxWidth: 540, margin: "0 auto" }}>
-        {/* Personalized Greeting */}
+        {/* Welcome */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ color: "#f0d080", fontSize: 24, margin: "0 0 4px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-            {greeting}, Believer
+            {greeting}, {userName}
           </h1>
           <p style={{ color: "#8a7a5a", fontSize: 13, margin: 0, fontFamily: "sans-serif" }}>
             {subline}
           </p>
         </div>
 
-        {/* Streak Counter Card */}
+        {/* 5-Minute Morning Ritual Banner (Anti-Refund Hero Feature) */}
         <div style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(201,168,76,0.3)",
-          borderRadius: 18,
-          padding: "16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
+          background: "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.08))",
+          border: "1px solid rgba(201,168,76,0.5)",
+          borderRadius: 20,
+          padding: "20px",
           marginBottom: 16,
+          boxShadow: "0 8px 30px rgba(201,168,76,0.2)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}>
-          <span style={{ fontSize: 32 }}>🔥</span>
           <div>
-            <p style={{ color: "#f0d080", fontSize: 16, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
-              1 day in a row with God
-            </p>
-            <p style={{ color: "#8a7a5a", fontSize: 12, margin: 0, fontFamily: "sans-serif" }}>
-              Come back tomorrow to keep your spiritual prayer streak.
+            <span style={{
+              background: "#c9a84c", color: "#1a1200", fontSize: 10,
+              fontWeight: 700, padding: "2px 8px", borderRadius: 4, fontFamily: "sans-serif",
+            }}>
+              DAILY PRACTICE
+            </span>
+            <h3 style={{ color: "#f0d080", fontSize: 17, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "6px 0 2px" }}>
+              5-Minute Morning Sacred Ritual
+            </h3>
+            <p style={{ color: "#d4c4a0", fontSize: 12, margin: 0, fontFamily: "sans-serif" }}>
+              Guided live timer + holy breath & living decree.
             </p>
           </div>
+          <button
+            onClick={onOpenRitual}
+            style={{
+              background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+              border: "none", color: "#1a1200", fontWeight: 700,
+              padding: "12px 18px", borderRadius: 25, cursor: "pointer",
+              fontFamily: "sans-serif", fontSize: 13, flexShrink: 0,
+            }}
+          >
+            Start ▶
+          </button>
         </div>
 
-        {/* Quick Action Button: A Word for My Moment */}
+        {/* Certificate Quick Access */}
+        <div style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 16,
+          padding: "14px 18px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 24 }}>👑</span>
+            <div>
+              <p style={{ color: "#f0d080", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                Certificate of Divine Covenant
+              </p>
+              <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+                Official personalized record for {userName}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onOpenCertificate}
+            style={{
+              background: "none", border: "1px solid rgba(201,168,76,0.4)",
+              color: "#c9a84c", borderRadius: 20, padding: "6px 14px",
+              fontSize: 12, cursor: "pointer", fontFamily: "sans-serif",
+            }}
+          >
+            View
+          </button>
+        </div>
+
+        {/* 21-Day Activation Journey Banner */}
         <button
-          onClick={() => onNavigateTab("pray")}
+          onClick={() => onNavigateTab("journey")}
           style={{
             width: "100%",
             background: "linear-gradient(135deg, #c9a84c, #f0d080)",
@@ -1493,10 +2014,10 @@ function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: 
         >
           <div>
             <p style={{ color: "#1a1200", fontSize: 16, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
-              A word for my moment →
+              21-Day Activation Journey →
             </p>
             <p style={{ color: "#3a2a00", fontSize: 12, margin: 0, fontFamily: "sans-serif" }}>
-              Pick how you feel and receive an instant scripture & prayer.
+              Daily step-by-step path to unlock supernatural harvest.
             </p>
           </div>
           <span style={{ fontSize: 24 }}>✨</span>
@@ -1505,9 +2026,9 @@ function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: 
         {/* 3 Metric Badges */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 28 }}>
           {[
-            { label: "Unlocked", val: `${LIBRARY_BOOKS.length}/6` },
-            { label: "Prayers", val: "200+" },
-            { label: "Audios", val: "7 Tracks" },
+            { label: "Vault Books", val: "6 Volumes" },
+            { label: "Audio Prayers", val: "7 Tracks" },
+            { label: "Covenant Days", val: "21 Days" },
           ].map(m => (
             <div key={m.label} style={{
               background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
@@ -1525,7 +2046,7 @@ function HomeTab({ session, onNavigateTab }: { session: Session; onNavigateTab: 
 
         {/* Continue Your Journey Grid */}
         <h2 style={{ color: "#f0d080", fontSize: 17, margin: "0 0 14px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-          Continue Your Journey
+          Continue Your Sacred Journey
         </h2>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
@@ -1571,7 +2092,7 @@ function SupportChatBubble() {
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
   const [chatLog, setChatLog] = useState<{ sender: "bot" | "user"; text: string }[]>([
-    { sender: "bot", text: "Hi! I'm Grace from Sanctuary Support ✨ Having trouble opening your books, audios, or need guidance? Ask me anything!" },
+    { sender: "bot", text: "Hello beloved! I'm Grace from Sanctuary Support ✨ Need help accessing your 21-Day Journey, your books, or your audio prayers? I'm right here with you!" },
   ]);
 
   function handleSend(e: React.FormEvent) {
@@ -1582,11 +2103,13 @@ function SupportChatBubble() {
     setMsg("");
 
     setTimeout(() => {
-      let reply = "I understand! Your books are available under 'Library' with the 'Read in app' button, and all 7 audio prayer tracks + Heavenly Sounds are under 'Audio'. If you need anything else, write to support.fakko.solutions@gmail.com!";
-      if (userText.toLowerCase().includes("audio") || userText.toLowerCase().includes("sound")) {
-        reply = "To listen to guided prayers, tap the 'Audio' tab at the bottom! You can also turn on 'Gentle prayer rain' or 'Sacred harp' in real time!";
-      } else if (userText.toLowerCase().includes("book") || userText.toLowerCase().includes("pdf") || userText.toLowerCase().includes("read")) {
-        reply = "You can tap any book in the 'Library' tab and click 'Read in app' to read the full chapter texts immediately!";
+      let reply = "I hear you! All your sacred materials, including the 21-Day Activation, 7 Audio Prayers, and Vault Books, are completely unlocked for your lifetime walk. If you need any personal assistance, write to support.fakko.solutions@gmail.com anytime!";
+      if (userText.toLowerCase().includes("audio") || userText.toLowerCase().includes("listen")) {
+        reply = "You can tap the 'Audio' tab below to listen to all 7 Guided Audio Prayers or turn on the real-time 'Heavenly Sounds' ambient frequencies!";
+      } else if (userText.toLowerCase().includes("book") || userText.toLowerCase().includes("read") || userText.toLowerCase().includes("pdf")) {
+        reply = "Under the 'Library' tab, click 'Read in app' on any book to enjoy the full chapters with adjustable text size!";
+      } else if (userText.toLowerCase().includes("journey") || userText.toLowerCase().includes("day")) {
+        reply = "Tap the 'Journey' tab to follow your 21-Day Activation Plan. You can check off each day as you pray and decree!";
       }
       setChatLog(prev => [...prev, { sender: "bot", text: reply }]);
     }, 600);
@@ -1618,7 +2141,6 @@ function SupportChatBubble() {
           overflow: "hidden", boxShadow: "0 15px 50px rgba(0,0,0,0.8)",
           fontFamily: "sans-serif",
         }}>
-          {/* Header */}
           <div style={{
             background: "linear-gradient(135deg, #c9a84c, #f0d080)",
             padding: "12px 16px", color: "#1a1200",
@@ -1626,7 +2148,7 @@ function SupportChatBubble() {
           }}>
             <div>
               <p style={{ margin: 0, fontWeight: 700, fontSize: 14 }}>Sanctuary Support</p>
-              <p style={{ margin: 0, fontSize: 11, opacity: 0.85 }}>Grace · AI Assistant</p>
+              <p style={{ margin: 0, fontSize: 11, opacity: 0.85 }}>Grace · Spiritual Support</p>
             </div>
             <button
               onClick={() => setOpen(false)}
@@ -1636,7 +2158,6 @@ function SupportChatBubble() {
             </button>
           </div>
 
-          {/* Messages */}
           <div style={{ flex: 1, padding: "14px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
             {chatLog.map((c, i) => (
               <div
@@ -1654,13 +2175,12 @@ function SupportChatBubble() {
             ))}
           </div>
 
-          {/* Input */}
           <form onSubmit={handleSend} style={{ padding: "10px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", gap: 8 }}>
             <input
               type="text"
               value={msg}
               onChange={e => setMsg(e.target.value)}
-              placeholder="Type your question..."
+              placeholder="Ask Grace anything..."
               style={{
                 flex: 1, padding: "10px 12px", borderRadius: 10,
                 background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
@@ -1687,6 +2207,7 @@ function SupportChatBubble() {
 
 function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [loading, setLoading] = useState(false);
@@ -1696,13 +2217,13 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
 
   function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes("@")) { setError("Enter a valid email."); return; }
+    if (!email.includes("@")) { setError("Please enter a valid email address."); return; }
     setError("");
     setLoading(true);
 
     if (email.toLowerCase().trim() === ADMIN_EMAIL) {
       setTimeout(() => {
-        const session: Session = { email, plan: "seed-100" };
+        const session: Session = { email, name: name.trim() || "Believer", plan: "seed-100" };
         localStorage.setItem("faith_app_session", JSON.stringify(session));
         setLoading(false);
         onLogin(session);
@@ -1715,11 +2236,11 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
 
   function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    if (code.length < 4) { setError("Enter the code you received."); return; }
+    if (code.length < 4) { setError("Please enter the verification code."); return; }
     setError("");
     setLoading(true);
     setTimeout(() => {
-      const session: Session = { email, plan: "seed-100" };
+      const session: Session = { email, name: name.trim() || email.split("@")[0], plan: "seed-100" };
       localStorage.setItem("faith_app_session", JSON.stringify(session));
       setLoading(false);
       onLogin(session);
@@ -1745,7 +2266,7 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
           My Faith Sanctuary
         </h1>
         <p style={{ color: "#8a7a5a", margin: 0, fontSize: 13, fontFamily: "sans-serif" }}>
-          Member Area — Access your Blueprint, Audios & Devotional
+          Member Area — Access your 21-Day Activation, Vault Books & Guided Audios
         </p>
       </div>
 
@@ -1756,9 +2277,21 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
       }}>
         {step === "email" ? (
           <form onSubmit={handleSendCode}>
-            <p style={{ color: "#e0d0b0", fontSize: 14, textAlign: "center", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              Enter the email you used at checkout:
+            <p style={{ color: "#e0d0b0", fontSize: 13, textAlign: "center", margin: "0 0 16px", fontFamily: "sans-serif" }}>
+              Enter your name and checkout email to unlock your Sanctuary:
             </p>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Your Full Name"
+              style={{
+                width: "100%", padding: "12px 14px", borderRadius: 12,
+                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
+                color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 10,
+                fontFamily: "sans-serif",
+              }}
+            />
             <input
               type="email"
               value={email}
@@ -1766,9 +2299,9 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
               placeholder="you@email.com (or admin@gmail.com)"
               required
               style={{
-                width: "100%", padding: "14px", borderRadius: 12,
+                width: "100%", padding: "12px 14px", borderRadius: 12,
                 background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box", marginBottom: 10,
+                color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 12,
                 fontFamily: "sans-serif",
               }}
             />
@@ -1777,13 +2310,13 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
               type="submit"
               disabled={loading}
               style={{
-                width: "100%", padding: "15px", borderRadius: 12, border: "none",
+                width: "100%", padding: "14px", borderRadius: 12, border: "none",
                 background: loading ? "#6b5a2a" : "linear-gradient(135deg, #c9a84c, #f0d080)",
                 color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
                 fontFamily: "sans-serif",
               }}
             >
-              {loading ? "Checking..." : "Send My Sign-In Code →"}
+              {loading ? "Checking Access..." : "Enter My Sanctuary →"}
             </button>
           </form>
         ) : (
@@ -1800,7 +2333,7 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
               style={{
                 width: "100%", padding: "12px", borderRadius: 12, textAlign: "center",
                 background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#fff", fontSize: 24, letterSpacing: 8, outline: "none", boxSizing: "border-box", marginBottom: 10,
+                color: "#fff", fontSize: 24, letterSpacing: 8, outline: "none", boxSizing: "border-box", marginBottom: 12,
               }}
             />
             {error && <p style={{ color: "#f87171", fontSize: 13, margin: "0 0 10px", fontFamily: "sans-serif" }}>{error}</p>}
@@ -1808,13 +2341,13 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
               type="submit"
               disabled={loading}
               style={{
-                width: "100%", padding: "15px", borderRadius: 12, border: "none",
+                width: "100%", padding: "14px", borderRadius: 12, border: "none",
                 background: loading ? "#6b5a2a" : "linear-gradient(135deg, #c9a84c, #f0d080)",
                 color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
                 fontFamily: "sans-serif",
               }}
             >
-              {loading ? "Opening..." : "Access Sanctuary →"}
+              {loading ? "Verifying..." : "Access Sanctuary →"}
             </button>
           </form>
         )}
@@ -1828,6 +2361,7 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
 function BottomNavigation({ currentTab, onSelectTab }: { currentTab: Tab; onSelectTab: (t: Tab) => void }) {
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: "home", label: "Home", icon: "🏠" },
+    { id: "journey", label: "21-Day", icon: "🗓️" },
     { id: "library", label: "Library", icon: "📚" },
     { id: "audio", label: "Audio", icon: "🎵" },
     { id: "pray", label: "Pray", icon: "🙏" },
@@ -1854,12 +2388,12 @@ function BottomNavigation({ currentTab, onSelectTab }: { currentTab: Tab; onSele
               background: "none", border: "none", cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
               color: active ? "#f0d080" : "#6a6a6a",
-              padding: "4px 16px", minWidth: 60,
+              padding: "4px 12px", minWidth: 54,
               transition: "all 0.2s",
             }}
           >
-            <span style={{ fontSize: 20 }}>{tab.icon}</span>
-            <span style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: active ? 700 : 400 }}>
+            <span style={{ fontSize: 19 }}>{tab.icon}</span>
+            <span style={{ fontSize: 10, fontFamily: "sans-serif", fontWeight: active ? 700 : 400 }}>
               {tab.label}
             </span>
           </button>
@@ -1881,6 +2415,8 @@ export function FaithApp() {
   });
 
   const [tab, setTab] = useState<Tab>("home");
+  const [showRitual, setShowRitual] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   if (!session) {
     return <GateScreen onLogin={setSession} />;
@@ -1892,7 +2428,7 @@ export function FaithApp() {
       background: "#0a0a0a",
       color: "#f5e8c8",
     }}>
-      {/* Header */}
+      {/* Top Header */}
       <div style={{
         position: "sticky", top: 40, zIndex: 100,
         background: "rgba(10,10,10,0.95)", backdropFilter: "blur(20px)",
@@ -1908,7 +2444,7 @@ export function FaithApp() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>
-            {session.email.split("@")[0]}
+            {session.name || session.email.split("@")[0]}
           </span>
           <button
             onClick={() => {
@@ -1926,15 +2462,29 @@ export function FaithApp() {
         </div>
       </div>
 
-      {/* Main Tab Content */}
+      {/* Main Tab Views */}
       <main>
-        {tab === "home" && <HomeTab session={session} onNavigateTab={setTab} />}
+        {tab === "home" && (
+          <HomeTab
+            session={session}
+            onNavigateTab={setTab}
+            onOpenRitual={() => setShowRitual(true)}
+            onOpenCertificate={() => setShowCertificate(true)}
+          />
+        )}
+        {tab === "journey" && <JourneyTab session={session} />}
         {tab === "library" && <LibraryTab session={session} />}
         {tab === "audio" && <AudioPlayerTab />}
         {tab === "pray" && <PrayTab />}
       </main>
 
-      {/* Floating Support Chat */}
+      {/* Ritual Modal */}
+      {showRitual && <MorningRitualModal onClose={() => setShowRitual(false)} />}
+
+      {/* Certificate Modal */}
+      {showCertificate && <CertificateModal session={session} onClose={() => setShowCertificate(false)} />}
+
+      {/* Floating Grace Support */}
       <SupportChatBubble />
 
       {/* Bottom Nav Bar */}
