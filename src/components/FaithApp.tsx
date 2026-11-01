@@ -1623,7 +1623,7 @@ function MorningRitualModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Certificate of Divine Covenant Modal (High-End Royal Edition) ────────────
+// ─── Certificate of Divine Covenant Modal (Mobile-Optimized Royal Edition) ────
 
 function CertificateModal({ session, onClose }: { session: Session; onClose: () => void }) {
   const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -1634,19 +1634,21 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 99999,
-      background: "rgba(0,0,0,0.95)", backdropFilter: "blur(16px)",
+      background: "rgba(0,0,0,0.94)", backdropFilter: "blur(14px)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "16px", boxSizing: "border-box", overflowY: "auto",
+      padding: "12px", boxSizing: "border-box", overflowY: "auto",
     }}>
       <div style={{
-        background: "radial-gradient(ellipse at center, #1b1508 0%, #0c0903 60%, #050401 100%)",
-        border: "3px solid #c9a84c",
-        borderRadius: 24,
-        padding: "36px 28px",
-        maxWidth: 580,
+        background: "radial-gradient(ellipse at center, #1b1508 0%, #0c0903 65%, #050401 100%)",
+        border: "2px solid #c9a84c",
+        borderRadius: 20,
+        padding: "20px 14px",
+        maxWidth: 440,
         width: "100%",
+        maxHeight: "92vh",
+        overflowY: "auto",
         textAlign: "center",
-        boxShadow: "0 0 60px rgba(201,168,76,0.4), inset 0 0 40px rgba(201,168,76,0.1)",
+        boxShadow: "0 0 45px rgba(201,168,76,0.35)",
         position: "relative",
         fontFamily: "'Playfair Display', serif",
         boxSizing: "border-box",
@@ -1655,10 +1657,11 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
         <button
           onClick={onClose}
           style={{
-            position: "absolute", top: 16, right: 18, background: "none",
+            position: "absolute", top: 12, right: 12, background: "none",
             border: "1px solid rgba(201,168,76,0.3)", color: "#c9a84c",
-            borderRadius: "50%", width: 32, height: 32, fontSize: 14,
+            borderRadius: "50%", width: 28, height: 28, fontSize: 13,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 10,
           }}
         >
           ✕
@@ -1666,126 +1669,124 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
 
         {/* Ornate Inner Border */}
         <div style={{
-          border: "1px dashed rgba(201,168,76,0.5)",
-          borderRadius: 18,
-          padding: "28px 20px 24px",
+          border: "1px dashed rgba(201,168,76,0.45)",
+          borderRadius: 14,
+          padding: "16px 12px 14px",
           position: "relative",
         }}>
           {/* Top Seal Badge */}
           <div style={{
-            width: 80, height: 80, borderRadius: "50%",
+            width: 56, height: 56, borderRadius: "50%",
             background: "linear-gradient(135deg, #e6c875 0%, #c9a84c 50%, #8c6d23 100%)",
-            margin: "0 auto 12px",
+            margin: "0 auto 8px",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 0 25px rgba(201,168,76,0.6), inset 0 2px 4px rgba(255,255,255,0.6)",
+            boxShadow: "0 0 18px rgba(201,168,76,0.5), inset 0 2px 4px rgba(255,255,255,0.6)",
             border: "2px solid #fff5cc",
-            position: "relative",
           }}>
-            <span style={{ fontSize: 38 }}>👑</span>
+            <span style={{ fontSize: 26 }}>👑</span>
           </div>
 
           {/* Header titles */}
           <p style={{
-            color: "#e6c875", fontSize: 10, letterSpacing: 3,
-            textTransform: "uppercase", margin: "0 0 4px", fontFamily: "sans-serif", fontWeight: 700,
+            color: "#e6c875", fontSize: 9, letterSpacing: 2,
+            textTransform: "uppercase", margin: "0 0 2px", fontFamily: "sans-serif", fontWeight: 700,
           }}>
-            Kingdom of Heaven Covenant Registry
+            Kingdom Covenant Registry
           </p>
 
           <h1 style={{
-            color: "#fff", fontSize: 24, margin: "0 0 4px",
-            fontWeight: 700, letterSpacing: 0.5,
-            textShadow: "0 2px 10px rgba(201,168,76,0.5)",
+            color: "#fff", fontSize: 19, margin: "0 0 2px",
+            fontWeight: 700, letterSpacing: 0.3, lineHeight: 1.25,
+            textShadow: "0 2px 8px rgba(201,168,76,0.4)",
           }}>
             Certificate of Divine Covenant
           </h1>
 
           <p style={{
-            color: "#c9a84c", fontSize: 11, letterSpacing: 2,
-            textTransform: "uppercase", margin: "0 0 18px", fontFamily: "sans-serif",
+            color: "#c9a84c", fontSize: 9, letterSpacing: 1.5,
+            textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
           }}>
-            & Supernatural Household Consecration
+            & Household Consecration
           </p>
 
           {/* Body declaration */}
-          <p style={{ color: "#a8997a", fontSize: 12, fontStyle: "italic", margin: "0 0 6px" }}>
-            This is to solemnly attest before the Father and the Heavenly Hosts that
+          <p style={{ color: "#a8997a", fontSize: 11, fontStyle: "italic", margin: "0 0 4px" }}>
+            Solemnly attesting before Heaven that
           </p>
 
           {/* Name Plate */}
           <div style={{
             background: "linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.18) 50%, transparent 100%)",
-            borderTop: "1px solid rgba(201,168,76,0.4)",
-            borderBottom: "1px solid rgba(201,168,76,0.4)",
-            padding: "8px 20px",
-            margin: "0 auto 16px",
+            borderTop: "1px solid rgba(201,168,76,0.35)",
+            borderBottom: "1px solid rgba(201,168,76,0.35)",
+            padding: "5px 14px",
+            margin: "0 auto 12px",
             display: "inline-block",
-            minWidth: 260,
+            maxWidth: "90%",
           }}>
             <h2 style={{
-              color: "#fff", fontSize: 26, margin: 0,
-              fontWeight: 700, letterSpacing: 1, textTransform: "capitalize",
+              color: "#fff", fontSize: 20, margin: 0,
+              fontWeight: 700, letterSpacing: 0.5, textTransform: "capitalize",
+              wordBreak: "break-word",
             }}>
               {userName}
             </h2>
           </div>
 
           <p style={{
-            color: "#d8c8a8", fontSize: 13, lineHeight: 1.6,
-            margin: "0 auto 18px", maxWidth: 440,
+            color: "#d8c8a8", fontSize: 11, lineHeight: 1.5,
+            margin: "0 auto 12px",
           }}>
-            Has consecrated their faith, family, and resources under the eternal covenant of Almighty God, claiming divine exemption from lack, total household protection, and unshakeable peace.
+            Has consecrated their faith and household under God's eternal covenant, claiming divine exemption from lack, total angelic protection, and peace.
           </p>
 
           {/* Scripture Gold Box */}
           <div style={{
             background: "rgba(201,168,76,0.08)",
-            border: "1px solid rgba(201,168,76,0.3)",
-            borderRadius: 12, padding: "12px 16px",
-            marginBottom: 22,
+            border: "1px solid rgba(201,168,76,0.25)",
+            borderRadius: 10, padding: "8px 12px",
+            marginBottom: 14,
           }}>
             <p style={{
-              color: "#f0d080", fontSize: 13, fontStyle: "italic",
-              lineHeight: 1.5, margin: "0 0 4px",
+              color: "#f0d080", fontSize: 11, fontStyle: "italic",
+              lineHeight: 1.45, margin: "0 0 2px",
             }}>
-              "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future."
+              "For I know the plans I have for you, plans to prosper you and not to harm you, to give you hope and a future."
             </p>
-            <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+            <p style={{ color: "#8a7a5a", fontSize: 10, margin: 0, fontFamily: "sans-serif" }}>
               — Jeremiah 29:11
             </p>
           </div>
 
-          {/* Signatures & Seal Row */}
+          {/* Signatures Row */}
           <div style={{
             display: "grid", gridTemplateColumns: "1fr 1fr",
-            gap: 20, paddingTop: 14, borderTop: "1px solid rgba(201,168,76,0.25)",
-            marginBottom: 16,
+            gap: 12, paddingTop: 10, borderTop: "1px solid rgba(201,168,76,0.2)",
+            marginBottom: 10,
           }}>
-            {/* Signature 1 */}
             <div style={{ textAlign: "center" }}>
               <div style={{
-                fontFamily: "cursive", fontSize: 19, color: "#f0d080",
-                transform: "rotate(-3deg)", marginBottom: 2,
+                fontFamily: "cursive", fontSize: 15, color: "#f0d080",
+                transform: "rotate(-2deg)", marginBottom: 2,
               }}>
                 Archangel Michael Ministry
               </div>
-              <div style={{ width: 140, height: 1, background: "rgba(201,168,76,0.5)", margin: "0 auto 4px" }} />
-              <p style={{ color: "#8a7a5a", fontSize: 10, margin: 0, textTransform: "uppercase", letterSpacing: 1, fontFamily: "sans-serif" }}>
-                Spiritual Elder Witness
+              <div style={{ width: 100, height: 1, background: "rgba(201,168,76,0.4)", margin: "0 auto 2px" }} />
+              <p style={{ color: "#8a7a5a", fontSize: 8, margin: 0, textTransform: "uppercase", letterSpacing: 0.5, fontFamily: "sans-serif" }}>
+                Elder Witness
               </p>
             </div>
 
-            {/* Signature 2 */}
             <div style={{ textAlign: "center" }}>
               <div style={{
-                fontFamily: "cursive", fontSize: 19, color: "#f0d080",
-                transform: "rotate(-2deg)", marginBottom: 2,
+                fontFamily: "cursive", fontSize: 15, color: "#f0d080",
+                transform: "rotate(-1deg)", marginBottom: 2,
               }}>
                 Covenant Council
               </div>
-              <div style={{ width: 140, height: 1, background: "rgba(201,168,76,0.5)", margin: "0 auto 4px" }} />
-              <p style={{ color: "#8a7a5a", fontSize: 10, margin: 0, textTransform: "uppercase", letterSpacing: 1, fontFamily: "sans-serif" }}>
-                Kingdom Registry Seal
+              <div style={{ width: 100, height: 1, background: "rgba(201,168,76,0.4)", margin: "0 auto 2px" }} />
+              <p style={{ color: "#8a7a5a", fontSize: 8, margin: 0, textTransform: "uppercase", letterSpacing: 0.5, fontFamily: "sans-serif" }}>
+                Registry Seal
               </p>
             </div>
           </div>
@@ -1793,27 +1794,28 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
           {/* Certificate Metadata Bar */}
           <div style={{
             display: "flex", justifyContent: "space-between",
-            color: "#6b5a2a", fontSize: 10, fontFamily: "monospace",
-            paddingTop: 8,
+            color: "#6b5a2a", fontSize: 9, fontFamily: "monospace",
+            paddingTop: 4,
           }}>
-            <span>RECORDED: {currentDate}</span>
-            <span>REGISTRATION: {certId}</span>
+            <span>DATE: {currentDate}</span>
+            <span>NO: {certId}</span>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 22 }}>
+        {/* Action Button */}
+        <div style={{ marginTop: 14 }}>
           <button
             onClick={() => window.print()}
             style={{
+              width: "100%",
               background: "linear-gradient(135deg, #e6c875 0%, #c9a84c 50%, #a8842f 100%)",
               border: "none", color: "#1a1200", fontWeight: 700,
-              padding: "12px 28px", borderRadius: 30, cursor: "pointer",
-              fontFamily: "sans-serif", fontSize: 13,
-              boxShadow: "0 4px 20px rgba(201,168,76,0.4)",
+              padding: "11px 18px", borderRadius: 25, cursor: "pointer",
+              fontFamily: "sans-serif", fontSize: 12,
+              boxShadow: "0 3px 15px rgba(201,168,76,0.35)",
             }}
           >
-            🖨️ Print / Save Official Certificate (PDF)
+            🖨️ Print / Save Official Certificate
           </button>
         </div>
       </div>
