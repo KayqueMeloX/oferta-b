@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -128,12 +129,85 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function DevNav() {
+  const { location } = useRouterState();
+  const currentPath = location.pathname;
+
+  const pages = [
+    { path: "/", label: "🏠 Quiz Intro" },
+    { path: "/quiz", label: "🎯 Quiz" },
+    { path: "/offer", label: "💰 Oferta" },
+    { path: "/faith-app", label: "📱 Área de Membros" },
+  ];
+
+  return (
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 9999,
+      background: "rgba(0,0,0,0.92)",
+      backdropFilter: "blur(12px)",
+      borderBottom: "1px solid rgba(201,168,76,0.3)",
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      padding: "6px 12px",
+      flexWrap: "wrap",
+    }}>
+      <span style={{
+        color: "#6b5a2a",
+        fontSize: 10,
+        fontFamily: "monospace",
+        fontWeight: 700,
+        letterSpacing: 1,
+        marginRight: 8,
+        whiteSpace: "nowrap",
+      }}>
+        ⚡ DEV
+      </span>
+      {pages.map(({ path, label }) => {
+        const active = currentPath === path;
+        return (
+          <Link
+            key={path}
+            to={path}
+            style={{
+              padding: "5px 12px",
+              borderRadius: 20,
+              fontSize: 12,
+              fontFamily: "sans-serif",
+              fontWeight: active ? 700 : 400,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+              background: active
+                ? "linear-gradient(135deg, #c9a84c, #f0d080)"
+                : "rgba(255,255,255,0.06)",
+              color: active ? "#1a1200" : "#8a7a5a",
+              border: active
+                ? "none"
+                : "1px solid rgba(255,255,255,0.1)",
+              transition: "all 0.2s",
+            }}
+          >
+            {label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <DevNav />
+      <div style={{ paddingTop: 40 }}>
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
