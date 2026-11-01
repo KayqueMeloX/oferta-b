@@ -709,17 +709,62 @@ function AudioPlayerTab() {
           textAlign: "center",
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         }}>
-          <div style={{
-            width: 90, height: 90, borderRadius: "50%",
-            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px",
-            boxShadow: isPlaying ? "0 0 35px rgba(201,168,76,0.6)" : "0 0 15px rgba(201,168,76,0.2)",
-            cursor: "pointer",
-          }} onClick={togglePlay}>
-            <span style={{ fontSize: 32, color: "#1a1200", marginLeft: isPlaying ? 0 : 4 }}>
-              {isPlaying ? "❚❚" : "▶"}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, margin: "0 auto 16px" }}>
+            <button
+              onClick={() => {
+                if (selectedTrackIdx !== null && selectedTrackIdx > 0) {
+                  handleSelectTrack(selectedTrackIdx - 1);
+                }
+              }}
+              disabled={selectedTrackIdx === 0}
+              aria-label="Previous track"
+              title="Previous Track"
+              style={{
+                width: 44, height: 44, borderRadius: "50%",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(201,168,76,0.3)",
+                color: selectedTrackIdx === 0 ? "rgba(201,168,76,0.25)" : "#f0d080",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: selectedTrackIdx === 0 ? "not-allowed" : "pointer",
+                fontSize: 18, transition: "all 0.2s",
+              }}
+            >
+              ⏮
+            </button>
+
+            <div style={{
+              width: 90, height: 90, borderRadius: "50%",
+              background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: isPlaying ? "0 0 35px rgba(201,168,76,0.6)" : "0 0 15px rgba(201,168,76,0.2)",
+              cursor: "pointer",
+            }} onClick={togglePlay}>
+              <span style={{ fontSize: 32, color: "#1a1200", marginLeft: isPlaying ? 0 : 4 }}>
+                {isPlaying ? "❚❚" : "▶"}
+              </span>
+            </div>
+
+            <button
+              onClick={() => {
+                if (selectedTrackIdx !== null && selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
+                  handleSelectTrack(selectedTrackIdx + 1);
+                }
+              }}
+              disabled={selectedTrackIdx === GUIDED_AUDIOS.length - 1}
+              aria-label="Next track"
+              title="Next Track"
+              style={{
+                width: 44, height: 44, borderRadius: "50%",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(201,168,76,0.3)",
+                color: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "rgba(201,168,76,0.25)" : "#f0d080",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "not-allowed" : "pointer",
+                fontSize: 18, transition: "all 0.2s",
+              }}
+            >
+              ⏭
+            </button>
           </div>
 
           <p style={{ color: "#f0d080", fontSize: 18, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "0 0 4px" }}>
@@ -1644,6 +1689,24 @@ function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome:
   });
 
   const [activeDayNum, setActiveDayNum] = useState<number>(1);
+  const journeyTabsRef = useRef<HTMLDivElement>(null);
+  const journeyButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    const activeBtn = journeyButtonsRef.current[activeDayNum];
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }, [activeDayNum]);
+
+  function scrollJourneyDays(direction: "left" | "right") {
+    if (journeyTabsRef.current) {
+      journeyTabsRef.current.scrollBy({
+        left: direction === "left" ? -200 : 200,
+        behavior: "smooth",
+      });
+    }
+  }
 
   function markDayComplete(dayNum: number) {
     if (!completedDays.includes(dayNum)) {
@@ -1702,33 +1765,109 @@ function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome:
         </div>
       </div>
 
-      <div style={{
-        display: "flex", gap: 8, overflowX: "auto", paddingBottom: 14, marginBottom: 20,
-        scrollbarWidth: "none",
-      }}>
-        {JOURNEY_DAYS.map(d => {
-          const isDone = completedDays.includes(d.day);
-          const isSelected = activeDayNum === d.day;
-          return (
-            <button
-              key={d.day}
-              onClick={() => setActiveDayNum(d.day)}
+      {/* Day Selector with Left/Right arrows & Quick Jump */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, fontFamily: "sans-serif" }}>
+            Day {activeDayNum} of 21
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>Jump:</span>
+            <select
+              value={activeDayNum}
+              onChange={e => setActiveDayNum(Number(e.target.value))}
               style={{
-                flexShrink: 0, width: 56, height: 64, borderRadius: 16,
-                border: isSelected ? "2px solid #f0d080" : isDone ? "1px solid #4ade80" : "1px solid rgba(255,255,255,0.1)",
-                background: isSelected ? "linear-gradient(135deg, #c9a84c, #f0d080)" : isDone ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.03)",
-                color: isSelected ? "#1a1200" : isDone ? "#86efac" : "#8a7a5a",
-                cursor: "pointer", display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center", gap: 2,
-                fontWeight: 700, fontFamily: "sans-serif",
+                background: "rgba(20,20,20,0.95)",
+                border: "1px solid rgba(201,168,76,0.4)",
+                color: "#f0d080",
+                borderRadius: 8,
+                padding: "3px 8px",
+                fontSize: 12,
+                fontFamily: "sans-serif",
+                cursor: "pointer",
               }}
             >
-              <span style={{ fontSize: 10, textTransform: "uppercase" }}>Day</span>
-              <span style={{ fontSize: 16 }}>{d.day}</span>
-              <span style={{ fontSize: 9 }}>{isDone ? "✓" : "○"}</span>
-            </button>
-          );
-        })}
+              {JOURNEY_DAYS.map(d => (
+                <option key={d.day} value={d.day} style={{ background: "#141414", color: "#e8d8b8" }}>
+                  Day {d.day}: {d.title.slice(0, 26)}...
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button
+            onClick={() => scrollJourneyDays("left")}
+            aria-label="Previous days"
+            title="Scroll days left"
+            style={{
+              width: 32, height: 64, flexShrink: 0,
+              borderRadius: 12, border: "1px solid rgba(201,168,76,0.3)",
+              background: "rgba(201,168,76,0.12)", color: "#f0d080",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 20, fontWeight: 700,
+            }}
+          >
+            ‹
+          </button>
+
+          <div
+            ref={journeyTabsRef}
+            onWheel={e => {
+              if (e.deltaY) {
+                e.currentTarget.scrollLeft += e.deltaY;
+              }
+            }}
+            style={{
+              flex: 1,
+              display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6,
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(201,168,76,0.4) transparent",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {JOURNEY_DAYS.map(d => {
+              const isDone = completedDays.includes(d.day);
+              const isSelected = activeDayNum === d.day;
+              return (
+                <button
+                  key={d.day}
+                  ref={el => { journeyButtonsRef.current[d.day] = el; }}
+                  onClick={() => setActiveDayNum(d.day)}
+                  style={{
+                    flexShrink: 0, width: 56, height: 64, borderRadius: 16,
+                    border: isSelected ? "2px solid #f0d080" : isDone ? "1px solid #4ade80" : "1px solid rgba(255,255,255,0.1)",
+                    background: isSelected ? "linear-gradient(135deg, #c9a84c, #f0d080)" : isDone ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.03)",
+                    color: isSelected ? "#1a1200" : isDone ? "#86efac" : "#8a7a5a",
+                    cursor: "pointer", display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: 2,
+                    fontWeight: 700, fontFamily: "sans-serif",
+                  }}
+                >
+                  <span style={{ fontSize: 10, textTransform: "uppercase" }}>Day</span>
+                  <span style={{ fontSize: 16 }}>{d.day}</span>
+                  <span style={{ fontSize: 9 }}>{isDone ? "✓" : "○"}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => scrollJourneyDays("right")}
+            aria-label="Next days"
+            title="Scroll days right"
+            style={{
+              width: 32, height: 64, flexShrink: 0,
+              borderRadius: 12, border: "1px solid rgba(201,168,76,0.3)",
+              background: "rgba(201,168,76,0.12)", color: "#f0d080",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 20, fontWeight: 700,
+            }}
+          >
+            ›
+          </button>
+        </div>
       </div>
 
       <div style={{
@@ -1842,16 +1981,59 @@ function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome:
 function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void }) {
   const [fontSize, setFontSize] = useState(16);
   const [currentChapter, setCurrentChapter] = useState(0);
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const chapterButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const touchStartXRef = useRef<number | null>(null);
+
+  // Auto-scroll the active chapter tab into center whenever currentChapter changes
+  useEffect(() => {
+    const activeBtn = chapterButtonsRef.current[currentChapter];
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }, [currentChapter]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") setCurrentChapter(c => Math.max(0, c - 1));
+      if (e.key === "ArrowRight") setCurrentChapter(c => Math.min(book.chapters.length - 1, c + 1));
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [book.chapters.length, onClose]);
 
   const chapter = book.chapters[currentChapter] ?? book.chapters[0];
+
+  function scrollTabs(direction: "left" | "right") {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({
+        left: direction === "left" ? -220 : 220,
+        behavior: "smooth",
+      });
+    }
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartXRef.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartXRef.current === null) return;
+    const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+    if (diff > 50) {
+      // Swiped left -> Next chapter
+      if (currentChapter < book.chapters.length - 1) {
+        setCurrentChapter(c => c + 1);
+      }
+    } else if (diff < -50) {
+      // Swiped right -> Previous chapter
+      if (currentChapter > 0) {
+        setCurrentChapter(c => c - 1);
+      }
+    }
+    touchStartXRef.current = null;
+  }
 
   return (
     <div style={{
@@ -1876,12 +2058,40 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          {/* Top Quick Chapter Flippers */}
+          <button
+            onClick={() => setCurrentChapter(c => Math.max(0, c - 1))}
+            disabled={currentChapter === 0}
+            title="Previous chapter"
+            style={{
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.25)",
+              color: currentChapter === 0 ? "rgba(201,168,76,0.25)" : "#f0d080",
+              borderRadius: 8, padding: "4px 8px", fontSize: 12,
+              cursor: currentChapter === 0 ? "not-allowed" : "pointer",
+            }}
+          >
+            ‹ Prev
+          </button>
+          <button
+            onClick={() => setCurrentChapter(c => Math.min(book.chapters.length - 1, c + 1))}
+            disabled={currentChapter === book.chapters.length - 1}
+            title="Next chapter"
+            style={{
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.25)",
+              color: currentChapter === book.chapters.length - 1 ? "rgba(201,168,76,0.25)" : "#f0d080",
+              borderRadius: 8, padding: "4px 8px", fontSize: 12,
+              cursor: currentChapter === book.chapters.length - 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            Next ›
+          </button>
+
           <button
             onClick={() => setFontSize(s => Math.max(13, s - 1))}
             style={{
               background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
-              color: "#c9a84c", borderRadius: 8, padding: "4px 10px", fontSize: 13, cursor: "pointer",
+              color: "#c9a84c", borderRadius: 8, padding: "4px 8px", fontSize: 12, cursor: "pointer",
             }}
           >
             A-
@@ -1890,7 +2100,7 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
             onClick={() => setFontSize(s => Math.min(22, s + 1))}
             style={{
               background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
-              color: "#c9a84c", borderRadius: 8, padding: "4px 10px", fontSize: 13, cursor: "pointer",
+              color: "#c9a84c", borderRadius: 8, padding: "4px 8px", fontSize: 12, cursor: "pointer",
             }}
           >
             A+
@@ -1899,7 +2109,7 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
             onClick={onClose}
             style={{
               background: "linear-gradient(135deg, #c9a84c, #f0d080)", border: "none",
-              color: "#1a1200", borderRadius: 8, padding: "6px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer",
+              color: "#1a1200", borderRadius: 8, padding: "6px 12px", fontWeight: 700, fontSize: 12, cursor: "pointer",
             }}
           >
             ✕ Close
@@ -1907,10 +2117,14 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
         </div>
       </div>
 
-      <div style={{
-        flex: 1, overflowY: "auto", padding: "36px 20px 80px",
-        maxWidth: 700, margin: "0 auto", width: "100%", boxSizing: "border-box",
-      }}>
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          flex: 1, overflowY: "auto", padding: "36px 20px 80px",
+          maxWidth: 700, margin: "0 auto", width: "100%", boxSizing: "border-box",
+        }}
+      >
         <div style={{ textAlign: "center", marginBottom: 30 }}>
           <img
             src={book.cover}
@@ -1930,31 +2144,111 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
         </div>
 
         {book.chapters.length > 1 && (
-          <div style={{
-            display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, marginBottom: 24,
-            borderBottom: "1px solid rgba(201,168,76,0.2)",
-            scrollbarWidth: "none",
-          }}>
-            {book.chapters.map((c, i) => {
-              const shortLabel = c.title.includes(":") ? c.title.split(":")[0] : `Chapter ${i + 1}`;
-              return (
-                <button
-                  key={i}
-                  onClick={() => setCurrentChapter(i)}
+          <div style={{ marginBottom: 24 }}>
+            {/* Chapter Header + Jump to Selector */}
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              marginBottom: 8, gap: 10, flexWrap: "wrap",
+            }}>
+              <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, fontFamily: "sans-serif" }}>
+                Chapter {currentChapter + 1} of {book.chapters.length}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>Jump to:</span>
+                <select
+                  value={currentChapter}
+                  onChange={e => setCurrentChapter(Number(e.target.value))}
                   style={{
-                    padding: "7px 16px", borderRadius: 20, fontSize: 12, cursor: "pointer",
-                    whiteSpace: "nowrap", fontFamily: "sans-serif",
-                    border: currentChapter === i ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.12)",
-                    background: currentChapter === i ? "linear-gradient(135deg, #c9a84c, #f0d080)" : "rgba(255,255,255,0.05)",
-                    color: currentChapter === i ? "#1a1200" : "#d8c8a8",
-                    fontWeight: currentChapter === i ? 700 : 500,
-                    boxShadow: currentChapter === i ? "0 2px 10px rgba(201,168,76,0.3)" : "none",
+                    background: "rgba(20,20,20,0.95)",
+                    border: "1px solid rgba(201,168,76,0.4)",
+                    color: "#f0d080",
+                    borderRadius: 8,
+                    padding: "3px 8px",
+                    fontSize: 12,
+                    fontFamily: "sans-serif",
+                    cursor: "pointer",
+                    maxWidth: 220,
                   }}
                 >
-                  {shortLabel}
-                </button>
-              );
-            })}
+                  {book.chapters.map((c, i) => (
+                    <option key={i} value={i} style={{ background: "#141414", color: "#e8d8b8" }}>
+                      Ch {i + 1}: {c.title.replace(/^Ch \d+:\s*/, "").slice(0, 28)}...
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Carousel with interactive Left & Right arrow buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <button
+                onClick={() => scrollTabs("left")}
+                aria-label="Previous chapters"
+                title="Scroll chapters left"
+                style={{
+                  width: 32, height: 38, flexShrink: 0,
+                  borderRadius: 10, border: "1px solid rgba(201,168,76,0.3)",
+                  background: "rgba(201,168,76,0.12)", color: "#f0d080",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 20, fontWeight: 700,
+                }}
+              >
+                ‹
+              </button>
+
+              <div
+                ref={tabsContainerRef}
+                onWheel={e => {
+                  if (e.deltaY) {
+                    e.currentTarget.scrollLeft += e.deltaY;
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6,
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(201,168,76,0.4) transparent",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                {book.chapters.map((c, i) => {
+                  const shortLabel = c.title.includes(":") ? c.title.split(":")[0] : `Chapter ${i + 1}`;
+                  return (
+                    <button
+                      key={i}
+                      ref={el => { chapterButtonsRef.current[i] = el; }}
+                      onClick={() => setCurrentChapter(i)}
+                      style={{
+                        padding: "7px 16px", borderRadius: 20, fontSize: 12, cursor: "pointer",
+                        whiteSpace: "nowrap", fontFamily: "sans-serif", flexShrink: 0,
+                        border: currentChapter === i ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.12)",
+                        background: currentChapter === i ? "linear-gradient(135deg, #c9a84c, #f0d080)" : "rgba(255,255,255,0.05)",
+                        color: currentChapter === i ? "#1a1200" : "#d8c8a8",
+                        fontWeight: currentChapter === i ? 700 : 500,
+                        boxShadow: currentChapter === i ? "0 2px 10px rgba(201,168,76,0.3)" : "none",
+                      }}
+                    >
+                      {shortLabel}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => scrollTabs("right")}
+                aria-label="Next chapters"
+                title="Scroll chapters right"
+                style={{
+                  width: 32, height: 38, flexShrink: 0,
+                  borderRadius: 10, border: "1px solid rgba(201,168,76,0.3)",
+                  background: "rgba(201,168,76,0.12)", color: "#f0d080",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 20, fontWeight: 700,
+                }}
+              >
+                ›
+              </button>
+            </div>
           </div>
         )}
 
