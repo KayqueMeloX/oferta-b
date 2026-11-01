@@ -1825,7 +1825,7 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
 
 // ─── 21-Day Journey Tab ───────────────────────────────────────────────────────
 
-function JourneyTab({ session }: { session: Session }) {
+function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome: () => void }) {
   const [completedDays, setCompletedDays] = useState<number[]>(() => {
     if (typeof window === "undefined") return [1];
     try {
@@ -1851,6 +1851,19 @@ function JourneyTab({ session }: { session: Session }) {
 
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
+      {/* Back to Home Button */}
+      <button
+        onClick={onBackToHome}
+        style={{
+          background: "none", border: "none", color: "#c9a84c",
+          display: "inline-flex", alignItems: "center", gap: 6,
+          cursor: "pointer", fontSize: 13, fontFamily: "sans-serif",
+          padding: 0, marginBottom: 16, fontWeight: 600,
+        }}
+      >
+        ← Back to Sanctuary Home
+      </button>
+
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
         21-Day Activation Journey
       </h1>
@@ -1979,6 +1992,39 @@ function JourneyTab({ session }: { session: Session }) {
             Mark Day {activeDay.day} as Completed →
           </button>
         )}
+
+        {/* Previous & Next Day Navigation */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.1)",
+          fontFamily: "sans-serif",
+        }}>
+          {activeDayNum > 1 ? (
+            <button
+              onClick={() => { setActiveDayNum(d => d - 1); }}
+              style={{
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.3)",
+                color: "#f0d080", borderRadius: 20, padding: "8px 16px", cursor: "pointer",
+                fontSize: 12, fontWeight: 600,
+              }}
+            >
+              ← Previous (Day {activeDayNum - 1})
+            </button>
+          ) : <div />}
+
+          {activeDayNum < 21 ? (
+            <button
+              onClick={() => { setActiveDayNum(d => d + 1); }}
+              style={{
+                background: "linear-gradient(135deg, #c9a84c, #f0d080)", border: "none",
+                color: "#1a1200", borderRadius: 20, padding: "8px 16px", cursor: "pointer",
+                fontSize: 12, fontWeight: 700,
+              }}
+            >
+              Next (Day {activeDayNum + 1}) →
+            </button>
+          ) : <div />}
+        </div>
       </div>
     </div>
   );
@@ -3173,7 +3219,7 @@ export function FaithApp() {
             onOpenDebtPlanner={() => setShowDebtPlanner(true)}
           />
         )}
-        {tab === "journey" && <JourneyTab session={session} />}
+        {tab === "journey" && <JourneyTab session={session} onBackToHome={() => setTab("home")} />}
         {tab === "library" && <LibraryTab session={session} />}
         {tab === "audio" && <AudioPlayerTab />}
         {tab === "pray" && <PrayTab />}
