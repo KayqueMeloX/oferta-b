@@ -9,9 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as FaithAppRouteImport } from './routes/faith-app'
 import { Route as OfferRouteImport } from './routes/offer'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as IndexRouteImport } from './routes/index'
+
+const FaithAppRoute = FaithAppRouteImport.update({
+  id: '/faith-app',
+  path: '/faith-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 const OfferRoute = OfferRouteImport.update({
   id: '/offer',
@@ -35,12 +42,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
+  '/faith-app': typeof FaithAppRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
+  '/faith-app': typeof FaithAppRoute
 }
 
 export interface FileRoutesById {
@@ -48,14 +57,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
+  '/faith-app': typeof FaithAppRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/offer' | '/quiz'
+  fullPaths: '/' | '/offer' | '/quiz' | '/faith-app'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/offer' | '/quiz'
-  id: '__root__' | '/' | '/offer' | '/quiz'
+  to: '/' | '/offer' | '/quiz' | '/faith-app'
+  id: '__root__' | '/' | '/offer' | '/quiz' | '/faith-app'
   fileRoutesById: FileRoutesById
 }
 
@@ -63,6 +73,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OfferRoute: typeof OfferRoute
   QuizRoute: typeof QuizRoute
+  FaithAppRoute: typeof FaithAppRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -88,6 +99,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faith-app': {
+      id: '/faith-app'
+      path: '/faith-app'
+      fullPath: '/faith-app'
+      preLoaderRoute: typeof FaithAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -95,6 +113,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OfferRoute: OfferRoute,
   QuizRoute: QuizRoute,
+  FaithAppRoute: FaithAppRoute,
 }
 
 export const routeTree = rootRouteImport
