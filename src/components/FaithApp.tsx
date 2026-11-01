@@ -311,7 +311,7 @@ const LIBRARY_BOOKS: Book[] = [
     title: "Personalized Script & Blueprint",
     subtitle: "200+ prayers, scriptures & declarations",
     cover: ASSETS.coverBlueprint,
-    pagesCount: 42,
+    pagesCount: 84,
     badge: "INCLUDED",
     badgeColor: "#c9a84c",
     chapters: [
@@ -344,6 +344,42 @@ const LIBRARY_BOOKS: Book[] = [
           "5. Evening Release: Hand all unsettled matters back into the hands of the Father before your head touches the pillow.",
         ],
       },
+      {
+        title: "Part 4: Overcoming the Devourer & Spiritual Leakage",
+        scripture: '"And I will rebuke the devourer for your sakes, and he shall not destroy the fruits of your ground." — Malachi 3:11',
+        text: [
+          "Have you ever experienced seasons where every time unexpected money arrives, an unexpected breakdown or medical bill immediately swallows it? That is not bad luck; that is spiritual leakage caused by the devourer.",
+          "Scripture teaches that when you walk in sacred covenant and honor God with a generous, obedient heart, God Himself steps in to rebuke the thief. You do not fight alone.",
+          "Proclaim today: 'I command every unseen leak in my finances to cease immediately. The fruits of my labor are sanctified, preserved, and multiplied by the blood of Jesus.'",
+        ],
+      },
+      {
+        title: "Part 5: Prophesying Over Dry Valleys",
+        scripture: '"Then he said unto me, Prophesy upon these bones, and say unto them, O ye dry bones, hear the word of the Lord." — Ezekiel 37:4',
+        text: [
+          "Ezekiel was placed before an open valley of scattered, dried bones. God did not ask him to analyze the problem or mourn the decay; God commanded him to speak life into them.",
+          "Your bank account, your troubled marriage, or your exhausted physical body may look like dry bones today. But the breath of the Almighty enters when faithful words are proclaimed.",
+          "Speak to your circumstances: 'Dry bones of my career, dry bones of my savings, hear the Word of the Lord! Come together, receive divine breath, and rise up as an exceeding great army!'",
+        ],
+      },
+      {
+        title: "Part 6: The Secret Covenant of the Secret Place",
+        scripture: '"He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty." — Psalm 91:1',
+        text: [
+          "Notice that the promise of divine protection is not given to the casual visitor; it belongs to the one who 'dwells' in the secret place. Dwelling means making prayer your permanent address.",
+          "When you wake up, before the world demands your attention, make a secret altar in your soul. Five minutes of quiet communion with the Father gives you twenty-four hours of angelic covering.",
+          "Declare: 'I dwell in the secret place. Fear, sickness, and terror have no authority over my dwelling. My household is hidden in Christ.'",
+        ],
+      },
+      {
+        title: "Part 7: Generational Surplus & Perpetual Blessing",
+        scripture: '"The Lord shall open unto thee His good treasure, the heaven to give the rain unto thy land in his season, and to bless all the work of thine hand." — Deuteronomy 28:12',
+        text: [
+          "God is not only interested in meeting your bills for this month; His heart is generational. A righteous man leaves an inheritance not merely to his children, but to his children's children.",
+          "You are the transition generation in your family. The chain of generational struggle stops with you. The mantle of generational overflow begins through your obedience.",
+          "Sealing Decree: 'I step out of generational survival and step into generational overflow. My children shall walk in divine favor, honor, and health all the days of their lives. Amen!'",
+        ],
+      },
     ],
   },
   {
@@ -351,21 +387,30 @@ const LIBRARY_BOOKS: Book[] = [
     title: "90-Day Activation Plan",
     subtitle: "Daily path + 7 guided audio prayers",
     cover: ASSETS.coverPlan,
-    pagesCount: 65,
+    pagesCount: 95,
     badge: "INCLUDED",
     badgeColor: "#c9a84c",
     chapters: [
       {
-        title: "Day 1 to 30: Clearing the Spiritual Soil",
+        title: "Month 1 (Days 1–15): Clearing Ground & Uprooting Roots of Bitterness",
         scripture: '"Break up your fallow ground, and sow not among thorns." — Jeremiah 4:3',
         text: [
           "Before the seed can explode with life, the thorns of old grudges, unforgiveness, and secret doubts must be pulled out by the roots.",
-          "Spend these first thirty days asking the Holy Spirit to reveal any bitterness stored in your heart. Forgiveness is not saying what happened was right; it is transferring the case to God's courtroom where justice is eternal.",
+          "Spend these first fifteen days asking the Holy Spirit to reveal any bitterness stored in your heart. Forgiveness is not saying what happened was right; it is transferring the case to God's courtroom where justice is eternal.",
           "Declare today: 'Lord, clean my heart. I release everyone who hurt me. I open my hands so You can fill them with miracles.'",
         ],
       },
       {
-        title: "Day 31 to 60: The Deep Roots of Bold Faith",
+        title: "Month 1 (Days 16–30): The 10-Minute Morning Gate Protocol",
+        scripture: '"My voice shalt thou hear in the morning, O Lord; in the morning will I direct my prayer unto thee, and will look up." — Psalm 5:3',
+        text: [
+          "The first moments of consciousness set the spiritual frequency of your day. If you check stressful emails or social media first, you surrender the gate of your mind to worldly noise.",
+          "For the next two weeks, commit to 10 minutes of uninterrupted prayer: 3 minutes of stillness, 4 minutes of spoken decree, and 3 minutes of gratitude before touching your phone.",
+          "Declare: 'The gates of this day are consecrated to the King of Kings. Favor precedes me and joy establishes my steps.'",
+        ],
+      },
+      {
+        title: "Month 2 (Days 31–45): Deep Roots of Bold Faith",
         scripture: '"That Christ may dwell in your hearts by faith; that ye, being rooted and grounded in love..." — Ephesians 3:17',
         text: [
           "In month two, your prayers shift from asking timidly to standing boldly upon what the Word already promises.",
@@ -374,12 +419,30 @@ const LIBRARY_BOOKS: Book[] = [
         ],
       },
       {
-        title: "Day 61 to 90: Receiving the Supernatural Harvest",
+        title: "Month 2 (Days 46–60): Standing Firm Through Spiritual Drought",
+        scripture: '"Blessed is the man that trusteth in the Lord... For he shall be as a tree planted by the waters, and shall not see when heat cometh." — Jeremiah 17:7-8',
+        text: [
+          "Midway through every major spiritual transformation, a moment of silence often occurs. You have prayed, but physical evidence has not yet manifested. This is the testing of your roots.",
+          "When the heat of financial testing comes, do not wilt. Water your roots with praise. Worship God in advance for what He is preparing behind the veil.",
+          "Decree: 'I do not walk by sight; I walk by faith. Though the fig tree does not blossom, yet I will rejoice in the Lord of my salvation!'",
+        ],
+      },
+      {
+        title: "Month 3 (Days 61–75): Receiving the Supernatural Harvest",
         scripture: '"And let us not be weary in well doing: for in due season we shall reap, if we faint not." — Galatians 6:9',
         text: [
           "The final stretch is where the enemy attacks the hardest, because he knows the breakthrough is within arm's reach.",
-          "Do not give up at day 75 or 85. Keep watering your faith with daily gratitude and bold praises.",
+          "Do not give up at day 65 or 70. Keep watering your faith with daily gratitude and bold praises. Your 'due season' is not an arbitrary date; it is an appointed divine alignment.",
           "Today's declaration: 'I step into my harvest season. The blessings of the Lord make rich and add no sorrow with it!'",
+        ],
+      },
+      {
+        title: "Month 3 (Days 76–90): Sealing the Covenant for Generations",
+        scripture: '"But the mercy of the Lord is from everlasting to everlasting upon them that fear him, and his righteousness unto children\'s children." — Psalm 103:17',
+        text: [
+          "As you conclude the 90-day cycle, the breakthrough you have received must be anchored permanently so that it becomes an inheritance.",
+          "Teach your family the power of daily declarations. Walk around your home and anoint the doors in thanksgiving. What God has cleansed, let no devil call common.",
+          "Final Covenant Seal: 'We are sealed in God\'s everlasting covenant. Overflow, peace, divine health, and righteousness belong to our house forever. Amen!'",
         ],
       },
     ],
@@ -389,24 +452,61 @@ const LIBRARY_BOOKS: Book[] = [
     title: "Daily Sanctuary & Prayer Protocol",
     subtitle: "Devotional, prayer tracker & SOS prayers",
     cover: ASSETS.coverSanctuary,
-    pagesCount: 38,
+    pagesCount: 62,
     badge: "BONUS",
     badgeColor: "#8b5cf6",
     chapters: [
       {
-        title: "Establishing the Sanctuary of Peace in Your Home",
+        title: "Chapter 1: Establishing the Sanctuary of Peace in Your Home",
         scripture: '"Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you." — John 14:27',
         text: [
           "Your home is an altar. What atmosphere are you feeding inside its four walls? Is it anxious news and stress, or praise and prayer?",
           "Every morning, consecrate each room: the doorway, the kitchen table, the bedrooms. Where the Lord dwells, fear has no legal right to remain.",
+          "Declare: 'My house is called a house of prayer and divine rest. The shalom of Jesus guards our thoughts and our sleep.'",
         ],
       },
       {
-        title: "The 3-Minute Emergency SOS Prayers",
+        title: "Chapter 2: Consecrating Every Threshold & Window",
+        scripture: '"And they shall take of the blood, and strike it on the two side posts and on the upper door post of the houses." — Exodus 12:7',
+        text: [
+          "Just as the Israelites marked their doors on the night of deliverance, spiritual boundaries matter. Everything that enters your home—through media, visitors, or conversations—enters through a threshold.",
+          "Periodically walk your home. Point to the doorway and declare that only angels of light, provision, and truth may enter. Forbid spirits of division, lust, or depression from taking root.",
+          "Decree: 'I mark this threshold under the blood of Jesus. Evil must pass over; blessing must come in.'",
+        ],
+      },
+      {
+        title: "Chapter 3: The 3-Minute Emergency SOS Prayers",
         scripture: '"God is our refuge and strength, a very present help in trouble." — Psalm 46:1',
         text: [
           "When panic strikes your chest or unexpected news arrives, do not react with human words. Stop immediately, place your hand over your heart, and say: 'The Lord is my shepherd; I shall not want. Peace, be still.'",
           "Speak Psalm 91 in full authority. No weapon formed against your household shall prosper.",
+        ],
+      },
+      {
+        title: "Chapter 4: The Midday Shield Against Burnout",
+        scripture: '"Nor for the destruction that wasteth at noonday." — Psalm 91:6',
+        text: [
+          "The middle of the day is when weariness often attacks. Demands multiply, deadlines press in, and patience wears thin. This is the noon-day pestilence.",
+          "Take a 60-second pause at 12:00 PM. Drink water, close your eyes, and whisper: 'The Lord is my strength and my song. He renews my youth like the eagle\'s.'",
+          "Declare: 'I am not overwhelmed; I am anointed. Holy clarity directs my afternoon tasks.'",
+        ],
+      },
+      {
+        title: "Chapter 5: Evening Consecration & Casting Anxieties",
+        scripture: '"Casting all your care upon him; for he careth for you." — 1 Peter 5:7',
+        text: [
+          "Never carry the unresolved battles of today into the sanctuary of your bed. The pillow is meant for holy dreams, not sleepless calculations.",
+          "Before turning off the lights, verbally name each bill, problem, and concern. Say: 'Lord, I hand this to You. I cannot fix it in my sleep, but You neither slumber nor sleep.'",
+          "Declare: 'In peace I will lie down and sleep, for You alone, Lord, make me dwell in safety.'",
+        ],
+      },
+      {
+        title: "Chapter 6: The Altar of Continual Thanksgiving",
+        scripture: '"Rejoice evermore. Pray without ceasing. In every thing give thanks: for this is the will of God." — 1 Thessalonians 5:16-18',
+        text: [
+          "Thanksgiving is the greatest spiritual weapon on earth because it acknowledges the answer before sight catches up with faith.",
+          "Keep a written record of every answered prayer, no matter how small. A grateful heart is an open channel through which miracles continually flow.",
+          "Decree: 'I praise You, Father, for what You have done, what You are doing, and what You have already prepared for my tomorrow. Amen!'",
         ],
       },
     ],
@@ -417,7 +517,7 @@ const LIBRARY_BOOKS: Book[] = [
     title: "The 7 Holy Seals of Family Protection",
     subtitle: "Daily protective covering over your loved ones",
     cover: ASSETS.coverSeals,
-    pagesCount: 30,
+    pagesCount: 77,
     badge: "VAULT",
     badgeColor: "#d97706",
     chapters: [
@@ -427,6 +527,7 @@ const LIBRARY_BOOKS: Book[] = [
         text: [
           "Just as the children of Israel were covered during the darkest night in Egypt, your family is marked by divine covenant.",
           "Every morning, speak this over your children and spouse: 'I place the blood of the Lamb over our minds, our bodies, our coming in and our going out.'",
+          "The destroyer has no legal claim over a home marked by the covenant of Christ.",
         ],
       },
       {
@@ -434,6 +535,53 @@ const LIBRARY_BOOKS: Book[] = [
         scripture: '"For I, saith the Lord, will be unto her a wall of fire round about, and will be the glory in the midst of her." — Zechariah 2:5',
         text: [
           "No accident, stray bullet, disease or evil intent can penetrate God's consuming fire surrounding your family. Rest in that promise tonight.",
+          "Visualize God's radiant fire encircling the property line of your house, the schools your children attend, and the roads your family travels.",
+          "Decree: 'A wall of holy fire surrounds our dwelling. What tries to harm us will be consumed by God\'s righteous power.'",
+        ],
+      },
+      {
+        title: "Seal 3: Deliverance from Hidden Traps & Pestilence",
+        scripture: '"Surely he shall deliver thee from the snare of the fowler, and from the noisome pestilence." — Psalm 91:3',
+        text: [
+          "The enemy rarely attacks in the open; he lays hidden traps of deceit, toxic relationships, and sudden illness. But the Holy Spirit is your early warning system.",
+          "Pray for divine discernment: 'Lord, expose every hidden trap before my feet reach it. Keep my children from deceptive companions and harmful paths.'",
+          "Decree: 'The snare is broken, and our soul is escaped like a bird from the fowler. Our help is in the Name of the Lord!'",
+        ],
+      },
+      {
+        title: "Seal 4: Shielding the Minds & Morals of Your Children",
+        scripture: '"And all thy children shall be taught of the Lord; and great shall be the peace of thy children." — Isaiah 54:13',
+        text: [
+          "The greatest battleground of this generation is the mind of the children. Cultural confusion, digital addiction, and peer pressure fight for their souls.",
+          "Anoint your children\'s pillows or lay hands upon their foreheads while they sleep. Speak wisdom, purity, and holy courage into their spirits.",
+          "Decree: 'My children shall love the Lord with all their heart. No worldly spirit shall corrupt their destiny. They are mighty in the land!'",
+        ],
+      },
+      {
+        title: "Seal 5: Marital Unity & Breaking Discord",
+        scripture: '"And if a threefold cord is not quickly broken." — Ecclesiastes 4:12',
+        text: [
+          "Spiritual warfare against families almost always starts with subtle irritation and petty arguments between husband and wife. Discord opens the door to weakness.",
+          "Refuse to let the sun go down upon wrath. Speak words of blessing, appreciation, and patience over your spouse every single evening.",
+          "Decree: 'I bind our marriage with the cord of Christ\'s unconditional love. Strife is cast out; tenderness, loyalty, and deep intimacy are restored.'",
+        ],
+      },
+      {
+        title: "Seal 6: Safety in Travel & Sudden Exemption",
+        scripture: '"The Lord shall preserve thy going out and thy coming in from this time forth, and even for evermore." — Psalm 121:8',
+        text: [
+          "Whenever you or your family members start a car, board a plane, or walk outside, speak Seal 6: Psalm 121.",
+          "Angels of transportation are dispatched to clear the highway, prevent mechanical failure, and preserve your life from drunk or reckless drivers.",
+          "Decree: 'Our coming in and our going out are protected by heaven. We travel under the canopy of divine exemption.'",
+        ],
+      },
+      {
+        title: "Seal 7: The Permanent Covenant of Long Life & Peace",
+        scripture: '"With long life will I satisfy him, and shew him my salvation." — Psalm 91:16',
+        text: [
+          "Untimely death and sudden tragedy have no authority over those who walk in God\'s covenant. You shall fulfill the full number of your days in strength.",
+          "Look at your family and declare: 'We will not bury our children, nor will our children bury us before our time. We shall live to see our grandchildren flourish in the house of the Lord.'",
+          "Final Protection Seal: 'The 7 Holy Seals are placed upon our house. Sealed in heaven, sealed on earth. In Jesus\' mighty name, Amen!'",
         ],
       },
     ],
@@ -444,23 +592,62 @@ const LIBRARY_BOOKS: Book[] = [
     title: "The Solomon Wealth Code",
     subtitle: "30-day journey through the money wisdom of Proverbs",
     cover: ASSETS.coverWealth,
-    pagesCount: 52,
+    pagesCount: 88,
     badge: "VAULT",
     badgeColor: "#d97706",
     chapters: [
       {
-        title: "Day 1: Asking for Wisdom Above Gold",
+        title: "Code 1: Asking for Wisdom Above Gold",
         scripture: '"Give me now wisdom and knowledge... And God said to Solomon, Wisdom and knowledge is granted unto thee; and I will give thee riches, and wealth, and honour." — 2 Chronicles 1:10-12',
         text: [
           "When you ask God for wisdom to manage what is in your hands, money automatically flows to you as a servant, never as a master.",
           "Declare: 'Lord, give me divine ideas, witty inventions, and financial clarity today.'",
+          "Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding.",
         ],
       },
       {
-        title: "Day 2: Breaking the Spirit of Debt",
+        title: "Code 2: Breaking the Spirit of Debt & Indenture",
         scripture: '"The rich ruleth over the poor, and the borrower is servant to the lender." — Proverbs 22:7',
         text: [
           "You are not born to be an economic slave. God has a strategy for debt cancellation and supernatural surplus for your household.",
+          "Write down every debt you owe. Place your hands on that paper and pray over it. Ask the Lord for divine multiplication and budget discipline.",
+          "Decree: 'I will lend to many and borrow from none. The chain of compound interest working against me is broken; compound blessing now works for me!'",
+        ],
+      },
+      {
+        title: "Code 3: Diligent Hands & Multiple Streams of Income",
+        scripture: '"In the morning sow thy seed, and in the evening withhold not thine hand: for thou knowest not whether shall prosper." — Ecclesiastes 11:6',
+        text: [
+          "Solomon had trade routes, agricultural lands, real estate, and craftsmen. Kingdom wealth is never dependent upon a single fragile paycheck.",
+          "Ask the Lord: 'What gift, talent, or resource is currently in my house that can be multiplied into a blessing for others?'",
+          "Decree: 'My mind is receptive to God-given business ideas. Multiple streams of righteous revenue flow into my household.'",
+        ],
+      },
+      {
+        title: "Code 4: Honoring the Lord with Firstfruits",
+        scripture: '"Honour the Lord with thy substance, and with the firstfruits of all thine increase: So shall thy barns be filled with plenty." — Proverbs 3:9-10',
+        text: [
+          "The first portion of your increase is holy. When you honor God first, the remaining ninety percent goes further and lasts longer than one hundred percent without His blessing.",
+          "Tithing is not God needing your money; it is your proclamation that God is your Provider and that mammon has no grip over your soul.",
+          "Decree: 'I honor the Lord first in all my income. My barns are filled with plenty, and my vats overflow with new wine!'",
+        ],
+      },
+      {
+        title: "Code 5: Supernatural Favor with Gatekeepers & Decision Makers",
+        scripture: '"The king\'s heart is in the hand of the Lord, as the rivers of water: he turneth it whithersoever he will." — Proverbs 21:1',
+        text: [
+          "Bank managers, hiring directors, landlords, and clients may think they hold the final decision, but God steers their hearts like water in a canal.",
+          "Before any interview or financial negotiation, pray: 'Lord, let Your favor rest upon me. Soften the heart of every decision maker on my behalf.'",
+          "Decree: 'I have supernatural favor with kings, leaders, and gatekeepers. What was denied in the past is granted with abundance today.'",
+        ],
+      },
+      {
+        title: "Code 6: Leaving a Generational Legacy",
+        scripture: '"A good man leaveth an inheritance to his children\'s children: and the wealth of the sinner is laid up for the just." — Proverbs 13:22',
+        text: [
+          "Kingdom wealth is not for selfish luxury; it is for funding the Kingdom, feeding the hungry, and providing security for your descendants.",
+          "Begin planning for the generations that will bear your last name. Leave them not only assets, but the spiritual wisdom to steward those assets with reverence.",
+          "Final Solomon Decree: 'My hands are established in wealth and honor. The Solomon Code is activated in my home. Lack is banished forever! Amen!'",
         ],
       },
     ],
@@ -471,7 +658,7 @@ const LIBRARY_BOOKS: Book[] = [
     title: "The 40-Night Family Altar",
     subtitle: "Nightly prayer protocol for home restoration",
     cover: ASSETS.coverAltar,
-    pagesCount: 48,
+    pagesCount: 82,
     badge: "VAULT",
     badgeColor: "#d97706",
     chapters: [
@@ -480,7 +667,53 @@ const LIBRARY_BOOKS: Book[] = [
         scripture: '"As for me and my house, we will serve the Lord." — Joshua 24:15',
         text: [
           "Gather your loved ones or pray alone in their honor. 10 minutes at night can overturn 10 years of family struggle.",
+          "Light a candle or simply sit quietly with the Bible open in your living room. Dedicate the space as a sanctuary where God's presence is welcomed.",
           "Pray: 'Lord, reign over this household. May peace fill every heart in this home.'",
+        ],
+      },
+      {
+        title: "Night 2: Breaking Old Ancestral Patterns & Cycles",
+        scripture: '"The fathers have eaten sour grapes, and the children\'s teeth are set on edge? ... Ye shall not have occasion any more to use this proverb." — Ezekiel 18:2-3',
+        text: [
+          "Did divorce, addiction, poverty, or chronic depression run in your lineage? God declares in Ezekiel 18 that you no longer have to eat the sour grapes of past generations.",
+          "Stand as the priest of your home. Say out loud: 'Every ungodly pattern that affected my parents stops at my door. My children inherit blessing, not trauma.'",
+          "Decree: 'The blood of the everlasting covenant severs every generational curse. A clean spiritual lineage begins with me tonight.'",
+        ],
+      },
+      {
+        title: "Night 3: Releasing Forgiveness Over Wounded Relationships",
+        scripture: '"Forbearing one another, and forgiving one another, if any man have a quarrel against any: even as Christ forgave you, so also do ye." — Colossians 3:13',
+        text: [
+          "Family wounds cut deeper than any other because they are inflicted by those who were supposed to protect you. But holding that debt poisons your own well.",
+          "Tonight, picture the face of that parent, sibling, or former spouse. Hand the bill to Jesus. Say: 'I release them from what they owe me. I choose to walk free.'",
+          "Decree: 'My heart is washed clean of resentment. Healing oil flows through my family line, restoring communication and mutual tenderness.'",
+        ],
+      },
+      {
+        title: "Night 4: Anointing Your Children & Grandchildren",
+        scripture: '"And he took them up in his arms, put his hands upon them, and blessed them." — Mark 10:16',
+        text: [
+          "While your children sleep, walk quietly to their bedsides. Place your hand gently near their head or feet. Speak God\'s destiny over them.",
+          "Pray: 'Lord, give them wisdom greater than Daniel\'s. Protect them from evil company. Make them pillars in Your Kingdom.'",
+          "Decree: 'My children are blessed in their school, blessed in their minds, and chosen for greatness. No demonic influence can claim them.'",
+        ],
+      },
+      {
+        title: "Night 5: The Shield of Marital Renewal",
+        scripture: '"Therefore what God has joined together, let not man separate." — Matthew 19:6',
+        text: [
+          "If you are married, hold hands with your spouse tonight. If you are standing alone for your marriage or praying for a future spouse, pray in faith.",
+          "Call back the joy of your first love. Forbid the spirit of coldness, silent treatment, and emotional distance from living in your bedroom.",
+          "Decree: 'Our marriage is renewed by holy grace. We are partners in covenant, lovers in friendship, and united under Christ\'s headship.'",
+        ],
+      },
+      {
+        title: "Night 6: Sealing the Altar for Future Generations",
+        scripture: '"Surely the Lord is in this place... How dreadful is this place! this is none other but the house of God, and this is the gate of heaven." — Genesis 28:16-17',
+        text: [
+          "Jacob slept on a stone in the wilderness and woke up to realize that God was with him. He anointed the stone and called it Bethel: the House of God.",
+          "Your living room, your kitchen, your quiet bedroom has become your Bethel. You have built an altar that will speak for your family long after you are in glory.",
+          "Final Family Altar Decree: 'This house belongs to Jesus. The altar is burning with prayer, praise, and covenant love. Heaven is open over our home forever! Amen!'",
         ],
       },
     ],
@@ -2126,23 +2359,28 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
           <div style={{
             display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, marginBottom: 24,
             borderBottom: "1px solid rgba(201,168,76,0.2)",
+            scrollbarWidth: "none",
           }}>
-            {book.chapters.map((c, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentChapter(i)}
-                style={{
-                  padding: "6px 14px", borderRadius: 20, fontSize: 12, cursor: "pointer",
-                  whiteSpace: "nowrap", fontFamily: "sans-serif",
-                  border: currentChapter === i ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.1)",
-                  background: currentChapter === i ? "linear-gradient(135deg, #c9a84c, #f0d080)" : "rgba(255,255,255,0.04)",
-                  color: currentChapter === i ? "#1a1200" : "#8a7a5a",
-                  fontWeight: currentChapter === i ? 700 : 400,
-                }}
-              >
-                Chapter {i + 1}
-              </button>
-            ))}
+            {book.chapters.map((c, i) => {
+              const shortLabel = c.title.includes(":") ? c.title.split(":")[0] : `Chapter ${i + 1}`;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setCurrentChapter(i)}
+                  style={{
+                    padding: "7px 16px", borderRadius: 20, fontSize: 12, cursor: "pointer",
+                    whiteSpace: "nowrap", fontFamily: "sans-serif",
+                    border: currentChapter === i ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.12)",
+                    background: currentChapter === i ? "linear-gradient(135deg, #c9a84c, #f0d080)" : "rgba(255,255,255,0.05)",
+                    color: currentChapter === i ? "#1a1200" : "#d8c8a8",
+                    fontWeight: currentChapter === i ? 700 : 500,
+                    boxShadow: currentChapter === i ? "0 2px 10px rgba(201,168,76,0.3)" : "none",
+                  }}
+                >
+                  {shortLabel}
+                </button>
+              );
+            })}
           </div>
         )}
 
