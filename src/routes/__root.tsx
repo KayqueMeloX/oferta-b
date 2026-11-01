@@ -137,7 +137,9 @@ function DevNav() {
     { path: "/", label: "🏠 Quiz Intro" },
     { path: "/quiz", label: "🎯 Quiz" },
     { path: "/offer", label: "💰 Oferta" },
-    { path: "/faith-app", label: "📱 Área de Membros" },
+    { path: "/checkout", label: "🛒 Checkout" },
+    { path: "/faith-app", label: "📱 Membros" },
+    { path: "/support", label: "💬 Suporte" },
   ];
 
   return (

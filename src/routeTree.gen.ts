@@ -9,10 +9,45 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as RefundRouteImport } from './routes/refund'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as FaithAppRouteImport } from './routes/faith-app'
 import { Route as OfferRouteImport } from './routes/offer'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as IndexRouteImport } from './routes/index'
+
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const RefundRoute = RefundRouteImport.update({
+  id: '/refund',
+  path: '/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 const FaithAppRoute = FaithAppRouteImport.update({
   id: '/faith-app',
@@ -43,6 +78,11 @@ export interface FileRoutesByFullPath {
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
   '/faith-app': typeof FaithAppRoute
+  '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/refund': typeof RefundRoute
+  '/support': typeof SupportRoute
 }
 
 export interface FileRoutesByTo {
@@ -50,6 +90,11 @@ export interface FileRoutesByTo {
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
   '/faith-app': typeof FaithAppRoute
+  '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/refund': typeof RefundRoute
+  '/support': typeof SupportRoute
 }
 
 export interface FileRoutesById {
@@ -58,14 +103,19 @@ export interface FileRoutesById {
   '/offer': typeof OfferRoute
   '/quiz': typeof QuizRoute
   '/faith-app': typeof FaithAppRoute
+  '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/refund': typeof RefundRoute
+  '/support': typeof SupportRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/offer' | '/quiz' | '/faith-app'
+  fullPaths: '/' | '/offer' | '/quiz' | '/faith-app' | '/checkout' | '/privacy' | '/terms' | '/refund' | '/support'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/offer' | '/quiz' | '/faith-app'
-  id: '__root__' | '/' | '/offer' | '/quiz' | '/faith-app'
+  to: '/' | '/offer' | '/quiz' | '/faith-app' | '/checkout' | '/privacy' | '/terms' | '/refund' | '/support'
+  id: '__root__' | '/' | '/offer' | '/quiz' | '/faith-app' | '/checkout' | '/privacy' | '/terms' | '/refund' | '/support'
   fileRoutesById: FileRoutesById
 }
 
@@ -74,6 +124,11 @@ export interface RootRouteChildren {
   OfferRoute: typeof OfferRoute
   QuizRoute: typeof QuizRoute
   FaithAppRoute: typeof FaithAppRoute
+  CheckoutRoute: typeof CheckoutRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  RefundRoute: typeof RefundRoute
+  SupportRoute: typeof SupportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -106,6 +161,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaithAppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund': {
+      id: '/refund'
+      path: '/refund'
+      fullPath: '/refund'
+      preLoaderRoute: typeof RefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -114,6 +204,11 @@ const rootRouteChildren: RootRouteChildren = {
   OfferRoute: OfferRoute,
   QuizRoute: QuizRoute,
   FaithAppRoute: FaithAppRoute,
+  CheckoutRoute: CheckoutRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
+  RefundRoute: RefundRoute,
+  SupportRoute: SupportRoute,
 }
 
 export const routeTree = rootRouteImport
