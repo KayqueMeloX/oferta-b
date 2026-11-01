@@ -38,6 +38,16 @@ interface JourneyDay {
   declaration: string;
 }
 
+interface Testimony {
+  id: string;
+  name: string;
+  location: string;
+  miracleType: string;
+  amountOrFocus: string;
+  story: string;
+  date: string;
+}
+
 // ─── CDN Assets from plan-faith.com ──────────────────────────────────────────
 
 const ASSETS = {
@@ -49,6 +59,76 @@ const ASSETS = {
   coverWealth: "https://plan-faith.com/__l5e/assets-v1/517928fd-1d1d-4358-ac3f-e5310d138a77/faith-cover-wealth.jpg",
   coverAltar: "https://plan-faith.com/__l5e/assets-v1/3f844a80-3def-4203-975a-31611624c3c0/faith-cover-altar.jpg",
 };
+
+// ─── Community Testimonies Data (Anti-Refund Proof) ──────────────────────────
+
+const INITIAL_TESTIMONIES: Testimony[] = [
+  {
+    id: "1",
+    name: "Sarah M.",
+    location: "Dallas, Texas",
+    miracleType: "Financial Release",
+    amountOrFocus: "$7,400 Debt Cancelled",
+    story: "On Day 6 of the 21-Day Activation, I received an official letter from my creditor stating that an old medical debt of $7,400 was resolved and zeroed out. God is real, and His favor is a shield!",
+    date: "2 days ago",
+  },
+  {
+    id: "2",
+    name: "David & Eleanor R.",
+    location: "Columbus, Ohio",
+    miracleType: "Family Restoration",
+    amountOrFocus: "Marriage Rebuilt",
+    story: "We were living in separate rooms and on the verge of divorce. We began using the 40-Night Family Altar together. The coldness melted, and peace returned to our home. Our children are smiling again.",
+    date: "4 days ago",
+  },
+  {
+    id: "3",
+    name: "Marcus T.",
+    location: "Orlando, Florida",
+    miracleType: "Business Surplus",
+    amountOrFocus: "New Contract Awarded",
+    story: "I played the Solomon Wealth Code audios every morning while heading to my workshop. Within two weeks, I was awarded the largest commercial contract in my company's 8-year history. Amen!",
+    date: "This week",
+  },
+  {
+    id: "4",
+    name: "Grace K.",
+    location: "Charlotte, North Carolina",
+    miracleType: "Divine Protection",
+    amountOrFocus: "Protected from Crash",
+    story: "I had just prayed the 7 Holy Seals prayer over my daughter before she drove to college. Her car spun on wet highway ice, but it stopped inches from the concrete barrier with zero damage. God sent His angels!",
+    date: "1 week ago",
+  },
+];
+
+// ─── Angelic Oracle Cards Data (Draw Today's Word) ───────────────────────────
+
+const ORACLE_CARDS = [
+  {
+    angel: "Archangel Michael",
+    title: "The Sword of Breakthrough",
+    theme: "Supernatural Breakthrough",
+    verse: "Isaiah 54:17 — 'No weapon formed against you shall prosper.'",
+    message: "Beloved, stand firm today. Every spiritual barricade erected against your finances and family is being dismantled. Walk forward without fear.",
+    decree: "I decree that every invisible chain holding my breakthrough is broken right now in Jesus' name.",
+  },
+  {
+    angel: "Archangel Gabriel",
+    title: "The Trumpet of Good News",
+    theme: "Unexpected News & Provision",
+    verse: "Luke 1:37 — 'For with God nothing shall be impossible.'",
+    message: "A report of hope is on its way to your household. Where you expected a closed door, heaven is delivering an unexpected phone call and divine favor.",
+    decree: "My ears shall hear good news this week. God turns my waiting into a sudden testimony.",
+  },
+  {
+    angel: "Archangel Raphael",
+    title: "The Balm of Divine Restoration",
+    theme: "Healing & Peace of Mind",
+    verse: "Jeremiah 33:6 — 'I will bring health and healing; I will heal them and reveal abundant peace.'",
+    message: "Cast the heavy weight of tomorrow down. Holy peace is flooding your bloodstream, your mind, and your home today.",
+    decree: "I receive the shalom peace of Christ. Sickness, insomnia, and worry have no place in my body.",
+  },
+];
 
 // ─── 21-Day Guided Activation Journey Data ───────────────────────────────────
 
@@ -940,10 +1020,477 @@ function AudioPlayerTab() {
   );
 }
 
+// ─── 1. Daily Angelic Word / Oracle Modal ("Draw Today's Blessing") ───────────
+
+function AngelicOracleModal({ onClose }: { onClose: () => void }) {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  function handlePick(idx: number) {
+    setSelectedIdx(idx);
+    setRevealed(true);
+  }
+
+  const card = selectedIdx !== null ? ORACLE_CARDS[selectedIdx] : null;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "rgba(0,0,0,0.92)", backdropFilter: "blur(14px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "16px", boxSizing: "border-box", fontFamily: "'Playfair Display', serif",
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg, #151006 0%, #0a0802 100%)",
+        border: "2px solid #c9a84c", borderRadius: 24, padding: "32px 20px",
+        maxWidth: 480, width: "100%", textAlign: "center", position: "relative",
+        boxShadow: "0 0 50px rgba(201,168,76,0.35)",
+      }}>
+        <button
+          onClick={onClose}
+          style={{ position: "absolute", top: 14, right: 16, background: "none", border: "none", color: "#8a7a5a", fontSize: 20, cursor: "pointer" }}
+        >
+          ✕
+        </button>
+
+        <span style={{ fontSize: 32 }}>✨</span>
+        <p style={{ color: "#c9a84c", fontSize: 11, letterSpacing: 2, textTransform: "uppercase", margin: "6px 0 2px", fontFamily: "sans-serif", fontWeight: 700 }}>
+          Daily Angelic Guidance
+        </p>
+        <h2 style={{ color: "#f0d080", fontSize: 22, margin: "0 0 16px", fontWeight: 700 }}>
+          Draw Today's Heavenly Word
+        </h2>
+
+        {!revealed ? (
+          <div>
+            <p style={{ color: "#d8c8a8", fontSize: 13, marginBottom: 24, fontFamily: "sans-serif" }}>
+              Quiet your heart and select one of the three celestial seals below to receive Archangel direction for this hour:
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {["Protection", "Provision", "Direction"].map((theme, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePick(i)}
+                  style={{
+                    aspectRatio: "0.68", borderRadius: 16, border: "2px solid #c9a84c",
+                    background: "linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.08))",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    gap: 8, cursor: "pointer", transition: "transform 0.2s",
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  <span style={{ fontSize: 28 }}>🕊️</span>
+                  <span style={{ color: "#f0d080", fontSize: 11, fontWeight: 700, fontFamily: "sans-serif" }}>
+                    Seal {i + 1}
+                  </span>
+                  <span style={{ color: "#8a7a5a", fontSize: 9, textTransform: "uppercase", fontFamily: "sans-serif" }}>
+                    Tap to Open
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          card && (
+            <div style={{ animation: "fadeIn 0.5s ease" }}>
+              <div style={{
+                background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.4)",
+                borderRadius: 18, padding: "20px", marginBottom: 20, textAlign: "left",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <span style={{ color: "#f0d080", fontSize: 16, fontWeight: 700 }}>
+                    {card.angel}
+                  </span>
+                  <span style={{ color: "#c9a84c", fontSize: 11, fontFamily: "sans-serif", fontWeight: 700 }}>
+                    {card.theme}
+                  </span>
+                </div>
+
+                <h3 style={{ color: "#fff", fontSize: 18, margin: "0 0 10px", fontWeight: 700 }}>
+                  {card.title}
+                </h3>
+
+                <p style={{ color: "#f0d080", fontSize: 13, fontStyle: "italic", margin: "0 0 12px", borderLeft: "2px solid #c9a84c", paddingLeft: 10 }}>
+                  "{card.verse}"
+                </p>
+
+                <p style={{ color: "#d8c8a8", fontSize: 14, lineHeight: 1.6, margin: "0 0 14px" }}>
+                  {card.message}
+                </p>
+
+                <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: 12, padding: "12px", border: "1px solid rgba(201,168,76,0.2)" }}>
+                  <p style={{ color: "#c9a84c", fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 4px", fontFamily: "sans-serif" }}>
+                    Today's Spoken Decree:
+                  </p>
+                  <p style={{ color: "#fff", fontSize: 14, fontStyle: "italic", margin: 0 }}>
+                    "{card.decree}"
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={onClose}
+                style={{
+                  background: "linear-gradient(135deg, #c9a84c, #f0d080)", border: "none", color: "#1a1200",
+                  fontWeight: 700, padding: "12px 28px", borderRadius: 30, cursor: "pointer",
+                  fontFamily: "sans-serif", fontSize: 14,
+                }}
+              >
+                ✓ Receive This Word
+              </button>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── 3. Midnight War Room Modal (Night Prayer & Spiritual Armor) ─────────────
+
+function MidnightWarRoomModal({ onClose }: { onClose: () => void }) {
+  const [playingNightSound, setPlayingNightSound] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  function toggleNightSound() {
+    if (playingNightSound) {
+      audioCtxRef.current?.close();
+      audioCtxRef.current = null;
+      setPlayingNightSound(false);
+    } else {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new AudioCtx();
+      audioCtxRef.current = ctx;
+      ctx.resume();
+
+      // Deep restful frequency (528Hz Love/Restoration Tone + low rumble)
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.value = 528;
+
+      const gain = ctx.createGain();
+      gain.gain.value = 0.04;
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+
+      setPlayingNightSound(true);
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      audioCtxRef.current?.close();
+    };
+  }, []);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "radial-gradient(circle at top, #060b17 0%, #020408 100%)",
+      color: "#e2e8f0", display: "flex", flexDirection: "column",
+      padding: "24px 20px 40px", boxSizing: "border-box", fontFamily: "'Playfair Display', serif",
+      overflowY: "auto",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, maxWidth: 540, margin: "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 24 }}>🌙</span>
+          <div>
+            <p style={{ margin: 0, color: "#93c5fd", fontSize: 13, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "sans-serif" }}>
+              Midnight War Room
+            </p>
+            <p style={{ margin: 0, color: "#64748b", fontSize: 11, fontFamily: "sans-serif" }}>
+              Protocol for Insomnia, Fear & Night Peace
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          style={{ background: "none", border: "1px solid rgba(255,255,255,0.2)", color: "#94a3b8", borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
+        >
+          ✕ Exit
+        </button>
+      </div>
+
+      <div style={{ maxWidth: 540, margin: "0 auto", width: "100%", flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+        {/* Sound Toggle */}
+        <div style={{
+          background: "rgba(15,23,42,0.8)", border: "1px solid rgba(147,197,253,0.3)",
+          borderRadius: 16, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center",
+        }}>
+          <div>
+            <p style={{ color: "#93c5fd", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "sans-serif" }}>
+              528Hz Deep Restoration Frequency
+            </p>
+            <p style={{ color: "#64748b", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+              Gentle harmonic tone to silence racing nighttime thoughts
+            </p>
+          </div>
+          <button
+            onClick={toggleNightSound}
+            style={{
+              background: playingNightSound ? "#3b82f6" : "rgba(255,255,255,0.1)",
+              border: "none", color: "#fff", padding: "8px 16px", borderRadius: 20,
+              fontSize: 12, cursor: "pointer", fontWeight: 700, fontFamily: "sans-serif",
+            }}
+          >
+            {playingNightSound ? "❚❚ Pause Tone" : "▶ Play 528Hz"}
+          </button>
+        </div>
+
+        {/* Psalm 91 Armor */}
+        <div style={{
+          background: "rgba(15,23,42,0.6)", border: "1px solid rgba(148,163,184,0.2)",
+          borderRadius: 20, padding: "20px",
+        }}>
+          <span style={{ color: "#93c5fd", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 700 }}>
+            The Midnight Covering
+          </span>
+          <h2 style={{ color: "#f8fafc", fontSize: 20, margin: "6px 0 12px", fontWeight: 700 }}>
+            Psalm 91:5-6 Decree
+          </h2>
+          <p style={{ color: "#cbd5e1", fontSize: 15, fontStyle: "italic", lineHeight: 1.7, margin: 0 }}>
+            "You will not fear the terror of night, nor the arrow that flies by day, nor the pestilence that stalks in the darkness... For He will command His angels concerning you to guard you in all your ways."
+          </p>
+        </div>
+
+        {/* 3 Steps to Rest */}
+        <div style={{
+          background: "rgba(15,23,42,0.6)", border: "1px solid rgba(148,163,184,0.2)",
+          borderRadius: 20, padding: "20px", display: "flex", flexDirection: "column", gap: 14,
+        }}>
+          <h3 style={{ color: "#93c5fd", fontSize: 16, margin: 0, fontWeight: 700 }}>
+            3 Midnight Releases
+          </h3>
+
+          <div>
+            <p style={{ color: "#f1f5f9", fontSize: 14, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
+              1. The Handover of Unfinished Tasks
+            </p>
+            <p style={{ color: "#94a3b8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              Whisper: "Lord, what I could not finish today, You will work out on my behalf while I rest."
+            </p>
+          </div>
+
+          <div>
+            <p style={{ color: "#f1f5f9", fontSize: 14, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
+              2. Rebuking Sleepless Anxiety
+            </p>
+            <p style={{ color: "#94a3b8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              Whisper: "Spirit of worry, leave my bedroom. In peace I will lie down and sleep, for the Lord makes me dwell in safety."
+            </p>
+          </div>
+
+          <div>
+            <p style={{ color: "#f1f5f9", fontSize: 14, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
+              3. The Angelic Perimeter
+            </p>
+            <p style={{ color: "#94a3b8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              Whisper: "Holy angels guard my windows, my door, and my children. Morning will bring fresh joy."
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          style={{
+            background: "linear-gradient(135deg, #3b82f6, #60a5fa)", border: "none", color: "#0f172a",
+            fontWeight: 700, padding: "14px", borderRadius: 30, cursor: "pointer",
+            fontFamily: "sans-serif", fontSize: 14, marginTop: 10,
+          }}
+        >
+          ✓ Rest In His Peace Tonight
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── 4. Community Testimonies Wall Component ──────────────────────────────────
+
+function TestimoniesWall({ onAddYours }: { onAddYours: () => void }) {
+  const [testimonies] = useState<Testimony[]>(INITIAL_TESTIMONIES);
+
+  return (
+    <div style={{ marginTop: 28, marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div>
+          <h2 style={{ color: "#f0d080", fontSize: 18, margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+            Faith Community Miracles
+          </h2>
+          <p style={{ color: "#8a7a5a", fontSize: 12, margin: "2px 0 0", fontFamily: "sans-serif" }}>
+            Real breakthroughs reported by members walking this covenant.
+          </p>
+        </div>
+        <button
+          onClick={onAddYours}
+          style={{
+            background: "none", border: "1px solid rgba(201,168,76,0.4)",
+            color: "#c9a84c", borderRadius: 20, padding: "5px 12px",
+            fontSize: 11, cursor: "pointer", fontFamily: "sans-serif",
+          }}
+        >
+          + Share Yours
+        </button>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {testimonies.map(t => (
+          <div
+            key={t.id}
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(201,168,76,0.2)",
+              borderRadius: 16, padding: "16px",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+              <div>
+                <p style={{ color: "#f0d080", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                  {t.name}
+                </p>
+                <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+                  {t.location} · {t.date}
+                </p>
+              </div>
+              <span style={{
+                background: "rgba(74,222,128,0.15)", color: "#86efac",
+                border: "1px solid rgba(74,222,128,0.3)", borderRadius: 6,
+                padding: "2px 8px", fontSize: 10, fontWeight: 700, fontFamily: "sans-serif",
+              }}>
+                {t.amountOrFocus}
+              </span>
+            </div>
+
+            <p style={{ color: "#d8c8a8", fontSize: 13, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+              "{t.story}"
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── 6. Divine Seed & Debt Freedom Planner Modal ──────────────────────────────
+
+function DebtPlannerModal({ onClose }: { onClose: () => void }) {
+  const [debtAmount, setDebtAmount] = useState<string>("5000");
+  const [timelineDays, setTimelineDays] = useState<number>(30);
+  const [calculated, setCalculated] = useState(false);
+
+  const num = parseFloat(debtAmount) || 0;
+  const weeklyStep = (num / (timelineDays / 7)).toFixed(2);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "rgba(0,0,0,0.92)", backdropFilter: "blur(14px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "16px", boxSizing: "border-box", fontFamily: "'Playfair Display', serif",
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg, #161208 0%, #0a0802 100%)",
+        border: "2px solid #c9a84c", borderRadius: 24, padding: "30px 20px",
+        maxWidth: 480, width: "100%", position: "relative",
+        boxShadow: "0 0 50px rgba(201,168,76,0.35)",
+      }}>
+        <button
+          onClick={onClose}
+          style={{ position: "absolute", top: 14, right: 16, background: "none", border: "none", color: "#8a7a5a", fontSize: 20, cursor: "pointer" }}
+        >
+          ✕
+        </button>
+
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <span style={{ fontSize: 32 }}>💰</span>
+          <p style={{ color: "#c9a84c", fontSize: 11, letterSpacing: 2, textTransform: "uppercase", margin: "6px 0 2px", fontFamily: "sans-serif", fontWeight: 700 }}>
+            Kingdom Financial Protocol
+          </p>
+          <h2 style={{ color: "#f0d080", fontSize: 22, margin: 0, fontWeight: 700 }}>
+            Supernatural Debt Release Planner
+          </h2>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
+          <div>
+            <label style={{ color: "#8a7a5a", fontSize: 11, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 6, fontFamily: "sans-serif", fontWeight: 700 }}>
+              Amount to Be Cancelled or Multiplied ($ USD)
+            </label>
+            <input
+              type="number"
+              value={debtAmount}
+              onChange={e => { setDebtAmount(e.target.value); setCalculated(true); }}
+              placeholder="e.g. 5000"
+              style={{
+                width: "100%", padding: "12px 14px", borderRadius: 12,
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.3)",
+                color: "#f0d080", fontSize: 18, fontWeight: 700, outline: "none", boxSizing: "border-box", fontFamily: "sans-serif",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ color: "#8a7a5a", fontSize: 11, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 6, fontFamily: "sans-serif", fontWeight: 700 }}>
+              Covenant Focus Timeline
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              {[30, 60, 90].map(days => (
+                <button
+                  key={days}
+                  onClick={() => { setTimelineDays(days); setCalculated(true); }}
+                  style={{
+                    padding: "10px", borderRadius: 10, cursor: "pointer",
+                    border: timelineDays === days ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.1)",
+                    background: timelineDays === days ? "linear-gradient(135deg, #c9a84c, #f0d080)" : "rgba(255,255,255,0.04)",
+                    color: timelineDays === days ? "#1a1200" : "#8a7a5a",
+                    fontWeight: 700, fontFamily: "sans-serif", fontSize: 13,
+                  }}
+                >
+                  {days} Days
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Calculation Box */}
+        <div style={{
+          background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.35)",
+          borderRadius: 16, padding: "16px", marginBottom: 20,
+        }}>
+          <p style={{ color: "#c9a84c", fontSize: 11, textTransform: "uppercase", letterSpacing: 1, margin: "0 0 4px", fontFamily: "sans-serif", fontWeight: 700 }}>
+            Heavenly Strategy Projection
+          </p>
+          <p style={{ color: "#f0d080", fontSize: 20, fontWeight: 700, margin: "0 0 8px", fontFamily: "sans-serif" }}>
+            ${weeklyStep} / week of supernatural release
+          </p>
+          <p style={{ color: "#d8c8a8", fontSize: 13, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+            "The borrower is servant to the lender no more. Under this {timelineDays}-day decree, God will grant you unexpected financial ideas, debt rebates, and divine surplus."
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          style={{
+            width: "100%", padding: "14px", borderRadius: 30, border: "none",
+            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+            color: "#1a1200", fontWeight: 700, fontSize: 14, cursor: "pointer",
+            fontFamily: "sans-serif",
+          }}
+        >
+          ✓ Lock In This Covenant Plan
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── 5-Minute Morning Sacred Ritual Modal with Live Timer ─────────────────────
 
 function MorningRitualModal({ onClose }: { onClose: () => void }) {
-  const [secondsLeft, setSecondsLeft] = useState(300); // 5 minutes
+  const [secondsLeft, setSecondsLeft] = useState(300);
   const [running, setRunning] = useState(true);
 
   useEffect(() => {
@@ -981,7 +1528,6 @@ function MorningRitualModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", maxWidth: 480, margin: "0 auto" }}>
-        {/* Circular Countdown Timer */}
         <div style={{
           width: 140, height: 140, borderRadius: "50%",
           border: "2px solid #c9a84c",
@@ -997,7 +1543,6 @@ function MorningRitualModal({ onClose }: { onClose: () => void }) {
           </span>
         </div>
 
-        {/* Phase Guidance Content */}
         {phase === 1 && (
           <div>
             <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "sans-serif" }}>
@@ -1047,7 +1592,6 @@ function MorningRitualModal({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {/* Controls */}
         <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
           <button
             onClick={() => setRunning(!running)}
@@ -1203,7 +1747,6 @@ function JourneyTab({ session }: { session: Session }) {
         Complete one sacred day at a time to permanently establish supernatural abundance in your life.
       </p>
 
-      {/* Progress Card */}
       <div style={{
         background: "rgba(255,255,255,0.04)",
         border: "1px solid rgba(201,168,76,0.3)",
@@ -1228,7 +1771,6 @@ function JourneyTab({ session }: { session: Session }) {
         </div>
       </div>
 
-      {/* Horizontal Day Buttons Carousel */}
       <div style={{
         display: "flex", gap: 8, overflowX: "auto", paddingBottom: 14, marginBottom: 20,
         scrollbarWidth: "none",
@@ -1258,7 +1800,6 @@ function JourneyTab({ session }: { session: Session }) {
         })}
       </div>
 
-      {/* Active Day Detail Box */}
       <div style={{
         background: "linear-gradient(135deg, rgba(201,168,76,0.14), rgba(201,168,76,0.04))",
         border: "1px solid rgba(201,168,76,0.35)",
@@ -1282,7 +1823,6 @@ function JourneyTab({ session }: { session: Session }) {
           {activeDay.title}
         </h2>
 
-        {/* Scripture Box */}
         <div style={{
           background: "rgba(0,0,0,0.4)", borderLeft: "3px solid #c9a84c",
           padding: "12px 16px", borderRadius: 10, marginBottom: 18,
@@ -1291,12 +1831,10 @@ function JourneyTab({ session }: { session: Session }) {
           "{activeDay.scripture}"
         </div>
 
-        {/* Teaching */}
         <p style={{ color: "#d8c8a8", fontSize: 14, lineHeight: 1.75, marginBottom: 20 }}>
           {activeDay.teaching}
         </p>
 
-        {/* Declaration Box */}
         <div style={{
           background: "rgba(201,168,76,0.18)", border: "1px solid rgba(201,168,76,0.4)",
           borderRadius: 16, padding: "16px", marginBottom: 22,
@@ -1309,7 +1847,6 @@ function JourneyTab({ session }: { session: Session }) {
           </p>
         </div>
 
-        {/* Completion Button */}
         {completedDays.includes(activeDay.day) ? (
           <div style={{
             background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.4)",
@@ -1687,7 +2224,6 @@ function PrayTab() {
         Instant prayer emergency SOS, private prayer tracking, and your sacred testimony journal.
       </p>
 
-      {/* SOS Section */}
       <h2 style={{
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
@@ -1751,7 +2287,6 @@ function PrayTab() {
         </div>
       )}
 
-      {/* Prayer Tracker */}
       <h2 style={{
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
@@ -1825,7 +2360,6 @@ function PrayTab() {
         ))}
       </div>
 
-      {/* Faith Journal */}
       <h2 style={{
         color: "#c9a84c", fontSize: 13, fontWeight: 700, letterSpacing: 1.5,
         textTransform: "uppercase", margin: "0 0 12px", fontFamily: "sans-serif",
@@ -1866,11 +2400,17 @@ function HomeTab({
   onNavigateTab,
   onOpenRitual,
   onOpenCertificate,
+  onOpenOracle,
+  onOpenWarRoom,
+  onOpenDebtPlanner,
 }: {
   session: Session;
   onNavigateTab: (t: Tab) => void;
   onOpenRitual: () => void;
   onOpenCertificate: () => void;
+  onOpenOracle: () => void;
+  onOpenWarRoom: () => void;
+  onOpenDebtPlanner: () => void;
 }) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -1921,30 +2461,95 @@ function HomeTab({
           </p>
         </div>
 
-        {/* 5-Minute Morning Ritual Banner (Anti-Refund Hero Feature) */}
+        {/* 1. Daily Angelic Word Oracle Button */}
+        <div
+          onClick={onOpenOracle}
+          style={{
+            background: "linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.08))",
+            border: "1px solid rgba(201,168,76,0.5)",
+            borderRadius: 20, padding: "16px 20px", marginBottom: 14,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between",
+            boxShadow: "0 6px 25px rgba(201,168,76,0.25)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 28 }}>🎴</span>
+            <div>
+              <span style={{
+                background: "#c9a84c", color: "#1a1200", fontSize: 9,
+                fontWeight: 700, padding: "2px 6px", borderRadius: 4, fontFamily: "sans-serif",
+              }}>
+                DAILY HABIT
+              </span>
+              <p style={{ color: "#f0d080", fontSize: 15, fontWeight: 700, margin: "4px 0 2px", fontFamily: "'Playfair Display', serif" }}>
+                Draw Today's Archangel Word
+              </p>
+              <p style={{ color: "#d4c4a0", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+                Tap to reveal your personalized seal & blessing for today.
+              </p>
+            </div>
+          </div>
+          <span style={{ color: "#f0d080", fontSize: 20 }}>→</span>
+        </div>
+
+        {/* 2-Column Grid: 3. Midnight War Room & 6. Debt Planner */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 14 }}>
+          {/* Midnight War Room */}
+          <div
+            onClick={onOpenWarRoom}
+            style={{
+              background: "linear-gradient(135deg, #091222 0%, #03060c 100%)",
+              border: "1px solid rgba(147,197,253,0.3)",
+              borderRadius: 18, padding: "14px", cursor: "pointer",
+            }}
+          >
+            <span style={{ fontSize: 24, display: "block", marginBottom: 6 }}>🌙</span>
+            <p style={{ color: "#93c5fd", fontSize: 13, fontWeight: 700, margin: "0 0 2px", fontFamily: "'Playfair Display', serif" }}>
+              Midnight War Room
+            </p>
+            <p style={{ color: "#64748b", fontSize: 10, margin: 0, fontFamily: "sans-serif" }}>
+              For fear, insomnia & 528Hz peaceful rest.
+            </p>
+          </div>
+
+          {/* Debt Freedom Planner */}
+          <div
+            onClick={onOpenDebtPlanner}
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(201,168,76,0.3)",
+              borderRadius: 18, padding: "14px", cursor: "pointer",
+            }}
+          >
+            <span style={{ fontSize: 24, display: "block", marginBottom: 6 }}>💰</span>
+            <p style={{ color: "#f0d080", fontSize: 13, fontWeight: 700, margin: "0 0 2px", fontFamily: "'Playfair Display', serif" }}>
+              Debt Freedom Plan
+            </p>
+            <p style={{ color: "#8a7a5a", fontSize: 10, margin: 0, fontFamily: "sans-serif" }}>
+              Calculate supernatural release & seed sowing.
+            </p>
+          </div>
+        </div>
+
+        {/* 5-Minute Morning Ritual Banner */}
         <div style={{
-          background: "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.08))",
-          border: "1px solid rgba(201,168,76,0.5)",
-          borderRadius: 20,
-          padding: "20px",
-          marginBottom: 16,
-          boxShadow: "0 8px 30px rgba(201,168,76,0.2)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.06))",
+          border: "1px solid rgba(201,168,76,0.4)",
+          borderRadius: 20, padding: "18px 20px", marginBottom: 14,
+          display: "flex", justifyContent: "space-between", alignItems: "center",
         }}>
           <div>
             <span style={{
-              background: "#c9a84c", color: "#1a1200", fontSize: 10,
-              fontWeight: 700, padding: "2px 8px", borderRadius: 4, fontFamily: "sans-serif",
+              background: "#c9a84c", color: "#1a1200", fontSize: 9,
+              fontWeight: 700, padding: "2px 6px", borderRadius: 4, fontFamily: "sans-serif",
             }}>
               DAILY PRACTICE
             </span>
-            <h3 style={{ color: "#f0d080", fontSize: 17, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "6px 0 2px" }}>
+            <h3 style={{ color: "#f0d080", fontSize: 16, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "6px 0 2px" }}>
               5-Minute Morning Sacred Ritual
             </h3>
-            <p style={{ color: "#d4c4a0", fontSize: 12, margin: 0, fontFamily: "sans-serif" }}>
-              Guided live timer + holy breath & living decree.
+            <p style={{ color: "#d4c4a0", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
+              Live countdown timer + decree & breathwork.
             </p>
           </div>
           <button
@@ -1952,8 +2557,8 @@ function HomeTab({
             style={{
               background: "linear-gradient(135deg, #c9a84c, #f0d080)",
               border: "none", color: "#1a1200", fontWeight: 700,
-              padding: "12px 18px", borderRadius: 25, cursor: "pointer",
-              fontFamily: "sans-serif", fontSize: 13, flexShrink: 0,
+              padding: "10px 16px", borderRadius: 25, cursor: "pointer",
+              fontFamily: "sans-serif", fontSize: 12, flexShrink: 0,
             }}
           >
             Start ▶
@@ -1964,21 +2569,18 @@ function HomeTab({
         <div style={{
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 16,
-          padding: "14px 18px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          borderRadius: 16, padding: "12px 18px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
           marginBottom: 16,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 24 }}>👑</span>
+            <span style={{ fontSize: 22 }}>👑</span>
             <div>
-              <p style={{ color: "#f0d080", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+              <p style={{ color: "#f0d080", fontSize: 13, fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
                 Certificate of Divine Covenant
               </p>
-              <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
-                Official personalized record for {userName}
+              <p style={{ color: "#8a7a5a", fontSize: 10, margin: 0, fontFamily: "sans-serif" }}>
+                Personalized record for {userName}
               </p>
             </div>
           </div>
@@ -1986,8 +2588,8 @@ function HomeTab({
             onClick={onOpenCertificate}
             style={{
               background: "none", border: "1px solid rgba(201,168,76,0.4)",
-              color: "#c9a84c", borderRadius: 20, padding: "6px 14px",
-              fontSize: 12, cursor: "pointer", fontFamily: "sans-serif",
+              color: "#c9a84c", borderRadius: 20, padding: "4px 12px",
+              fontSize: 11, cursor: "pointer", fontFamily: "sans-serif",
             }}
           >
             View
@@ -2023,26 +2625,8 @@ function HomeTab({
           <span style={{ fontSize: 24 }}>✨</span>
         </button>
 
-        {/* 3 Metric Badges */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 28 }}>
-          {[
-            { label: "Vault Books", val: "6 Volumes" },
-            { label: "Audio Prayers", val: "7 Tracks" },
-            { label: "Covenant Days", val: "21 Days" },
-          ].map(m => (
-            <div key={m.label} style={{
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 14, padding: "12px 8px", textAlign: "center",
-            }}>
-              <p style={{ color: "#f0d080", fontSize: 17, fontWeight: 700, margin: "0 0 2px", fontFamily: "sans-serif" }}>
-                {m.val}
-              </p>
-              <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0, fontFamily: "sans-serif" }}>
-                {m.label}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* 4. Community Testimonies Wall */}
+        <TestimoniesWall onAddYours={() => alert("To share your personal miracle testimony, email us at support.fakko.solutions@gmail.com and we'll feature your story!")} />
 
         {/* Continue Your Journey Grid */}
         <h2 style={{ color: "#f0d080", fontSize: 17, margin: "0 0 14px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
@@ -2417,6 +3001,9 @@ export function FaithApp() {
   const [tab, setTab] = useState<Tab>("home");
   const [showRitual, setShowRitual] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [showOracle, setShowOracle] = useState(false);
+  const [showWarRoom, setShowWarRoom] = useState(false);
+  const [showDebtPlanner, setShowDebtPlanner] = useState(false);
 
   if (!session) {
     return <GateScreen onLogin={setSession} />;
@@ -2470,6 +3057,9 @@ export function FaithApp() {
             onNavigateTab={setTab}
             onOpenRitual={() => setShowRitual(true)}
             onOpenCertificate={() => setShowCertificate(true)}
+            onOpenOracle={() => setShowOracle(true)}
+            onOpenWarRoom={() => setShowWarRoom(true)}
+            onOpenDebtPlanner={() => setShowDebtPlanner(true)}
           />
         )}
         {tab === "journey" && <JourneyTab session={session} />}
@@ -2478,11 +3068,12 @@ export function FaithApp() {
         {tab === "pray" && <PrayTab />}
       </main>
 
-      {/* Ritual Modal */}
+      {/* Feature Modals */}
       {showRitual && <MorningRitualModal onClose={() => setShowRitual(false)} />}
-
-      {/* Certificate Modal */}
       {showCertificate && <CertificateModal session={session} onClose={() => setShowCertificate(false)} />}
+      {showOracle && <AngelicOracleModal onClose={() => setShowOracle(false)} />}
+      {showWarRoom && <MidnightWarRoomModal onClose={() => setShowWarRoom(false)} />}
+      {showDebtPlanner && <DebtPlannerModal onClose={() => setShowDebtPlanner(false)} />}
 
       {/* Floating Grace Support */}
       <SupportChatBubble />
