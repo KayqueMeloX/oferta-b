@@ -666,6 +666,7 @@ function AudioPlayerTab() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const ambientStopRef = useRef<(() => void) | null>(null);
+  const speechTimerRef = useRef<any>(null);
 
   const track = selectedTrackIdx !== null ? GUIDED_AUDIOS[selectedTrackIdx] : null;
 
@@ -727,44 +728,120 @@ function AudioPlayerTab() {
     ambientStopRef.current = null;
   }
 
-  // Sync audio playback
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  function speakNarration(text: string) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    clearInterval(speechTimerRef.current);
 
-    if (isPlaying) {
-      audio.play().catch(() => {});
-      if (ambientEnabled && selectedTrackIdx !== null) {
-        startAmbientPad(selectedTrackIdx);
-      }
-    } else {
-      audio.pause();
-      stopAmbientPad();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.88;
+    utterance.pitch = 0.96;
+
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Samantha") || v.name.includes("Google") || v.name.includes("Daniel")));
+    if (voice) utterance.voice = voice;
+
+    speechTimerRef.current = setInterval(() => {
+      setProgressSec(p => p + 1);
+    }, 1000);
+
+    utterance.onend = () => {
+      clearInterval(speechTimerRef.current);
+      handleTrackEnded();
+    };
+
+    utterance.onerror = () => {
+      clearInterval(speechTimerRef.current);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function stopSpeech() {
+    clearInterval(speechTimerRef.current);
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
     }
-  }, [isPlaying, selectedTrackIdx, ambientEnabled]);
+  }
 
   useEffect(() => {
     return () => {
       stopAmbientPad();
+      stopSpeech();
       audioCtxRef.current?.close();
     };
   }, []);
 
   function togglePlay() {
-    if (!isPlaying && audioCtxRef.current?.state === "suspended") {
-      audioCtxRef.current.resume();
+    const audio = audioRef.current;
+
+    if (!isPlaying) {
+      try {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = audioCtxRef.current ?? new AudioCtx();
+        audioCtxRef.current = ctx;
+        if (ctx.state === "suspended") {
+          ctx.resume();
+        }
+      } catch {}
+
+      if (ambientEnabled && selectedTrackIdx !== null) {
+        startAmbientPad(selectedTrackIdx);
+      }
+
+      if (audio) {
+        audio.play()
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.warn("Direct HTML5 audio failed, falling back to speech synthesis:", err);
+            speakNarration(track?.narration || "");
+            setIsPlaying(true);
+          });
+      } else {
+        speakNarration(track?.narration || "");
+        setIsPlaying(true);
+      }
+    } else {
+      if (audio) {
+        audio.pause();
+      }
+      stopSpeech();
+      stopAmbientPad();
+      setIsPlaying(false);
     }
-    setIsPlaying(!isPlaying);
   }
 
   function handleSelectTrack(idx: number) {
     stopAmbientPad();
+    stopSpeech();
     setSelectedTrackIdx(idx);
     setProgressSec(0);
-    setIsPlaying(true);
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {});
+
+    const newTrack = GUIDED_AUDIOS[idx];
+    const audio = audioRef.current;
+
+    if (ambientEnabled) {
+      startAmbientPad(idx);
+    }
+
+    if (audio && newTrack) {
+      audio.src = newTrack.audioUrl;
+      audio.currentTime = 0;
+      audio.load();
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((err) => {
+          console.warn("Audio play on track select failed, falling back to speech:", err);
+          speakNarration(newTrack.narration);
+          setIsPlaying(true);
+        });
+    } else if (newTrack) {
+      speakNarration(newTrack.narration);
+      setIsPlaying(true);
     }
   }
 
@@ -811,9 +888,15 @@ function AudioPlayerTab() {
         <audio
           ref={audioRef}
           src={track.audioUrl}
-          preload="metadata"
+          preload="auto"
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleTrackEnded}
+          onError={(e) => {
+            console.warn("HTML5 audio playback error, triggering speech synthesis fallback:", e);
+            if (isPlaying) {
+              speakNarration(track.narration);
+            }
+          }}
           onLoadedMetadata={() => {
             if (audioRef.current?.duration) {
               setRealDuration(Math.floor(audioRef.current.duration));
