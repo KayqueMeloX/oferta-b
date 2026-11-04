@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { VslPlayer } from "./VslPlayer";
 
 const ASSET_BASE = "https://plan-faith.com/__l5e/assets-v1";
 
@@ -81,16 +82,12 @@ const PRODUCTS = [
   },
 ];
 
-const VTURB_ID = "vid-6ad8fee7e661f216ee2f0e00";
-const VTURB_SCRIPT =
-  "https://scripts.converteai.net/283ce102-11c9-4c28-89d2-e9eb86994d09/players/6ad8fee7e661f216ee2f0e00/v4/player.js";
 const REVEAL_DELAY_SECONDS = 155;
 
 export function FaithOffer() {
   const [name, setName] = useState("");
   const [dateStr, setDateStr] = useState("");
   const [isRevealed, setIsRevealed] = useState(false);
-  const vturbContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -122,24 +119,12 @@ export function FaithOffer() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Vturb script loader
-  useEffect(() => {
-    const container = vturbContainerRef.current;
-    if (container && !container.querySelector("vturb-smartplayer")) {
-      container.innerHTML = `
-        <vturb-smartplayer id="${VTURB_ID}" style="display:block;margin:0 auto;width:100%;">
-          <div style="position:relative;width:100%;padding:178.22% 0 0;background-color:black;"></div>
-        </vturb-smartplayer>
-      `;
-    }
-
-    if (!document.querySelector(`script[src="${VTURB_SCRIPT}"]`)) {
-      const script = document.createElement("script");
-      script.src = VTURB_SCRIPT;
-      script.async = true;
-      document.head.appendChild(script);
-    }
-  }, []);
+  const handleReveal = () => {
+    setIsRevealed(true);
+    try {
+      localStorage.setItem("faith_offer_revealed_v2", "1");
+    } catch {}
+  };
 
   return (
     <div
@@ -188,10 +173,7 @@ export function FaithOffer() {
         </p>
 
         {/* Video Player */}
-        <div
-          ref={vturbContainerRef}
-          className="mx-auto my-6 w-full max-w-[400px] overflow-hidden rounded-2xl shadow-2xl"
-        />
+        <VslPlayer onReveal={handleReveal} revealTime={REVEAL_DELAY_SECONDS} />
 
         {!isRevealed ? (
           <p className="font-sans text-sm text-[#d8cba7]">
