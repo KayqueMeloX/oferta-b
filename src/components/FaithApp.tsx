@@ -3435,13 +3435,42 @@ function BottomNavigation({ currentTab, onSelectTab }: { currentTab: Tab; onSele
 // ─── Main FaithApp Export ─────────────────────────────────────────────────────
 
 export function FaithApp() {
+  const [welcomeAlert, setWelcomeAlert] = useState(false);
+
   const [session, setSession] = useState<Session | null>(() => {
     if (typeof window === "undefined") return null;
     try {
+      const params = new URLSearchParams(window.location.search);
+      const isSuccess =
+        params.get("success") === "true" ||
+        params.has("session_id") ||
+        params.get("paid") === "true";
+
+      if (isSuccess) {
+        const queryEmail = params.get("email");
+        const queryName = params.get("name");
+        const newSession: Session = {
+          email: queryEmail || "member@faith-app.com",
+          name: queryName || "Beloved Member",
+          plan: "seed-100",
+        };
+        localStorage.setItem("faith_app_session", JSON.stringify(newSession));
+        return newSession;
+      }
+
       const raw = localStorage.getItem("faith_app_session");
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("success") === "true" || params.has("session_id") || params.get("paid") === "true") {
+        setWelcomeAlert(true);
+      }
+    }
+  }, []);
 
   const [tab, setTab] = useState<Tab>("home");
   const [showRitual, setShowRitual] = useState(false);
@@ -3460,9 +3489,41 @@ export function FaithApp() {
       background: "#0a0a0a",
       color: "#f5e8c8",
     }}>
+      {/* Welcome Banner if returning from Stripe */}
+      {welcomeAlert && (
+        <div style={{
+          background: "linear-gradient(135deg, rgba(201,168,76,0.35), rgba(240,208,128,0.18))",
+          borderBottom: "1.5px solid #c9a84c",
+          padding: "14px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          color: "#f0d080",
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: "sans-serif",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 20 }}>🎉</span>
+            <span>
+              <strong>Payment Confirmed!</strong> Welcome to your Sacred Sanctuary. All 21 Days, Library Vault & Guided Audios are 100% unlocked for you.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setWelcomeAlert(false)}
+            style={{
+              background: "none", border: "none", color: "#c9a84c", cursor: "pointer", fontSize: 16, padding: "4px 8px",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Top Header */}
       <div style={{
-        position: "sticky", top: 40, zIndex: 100,
+        position: "sticky", top: 0, zIndex: 100,
         background: "rgba(10,10,10,0.95)", backdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(201,168,76,0.2)",
         padding: "12px 20px",
