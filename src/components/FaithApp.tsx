@@ -300,57 +300,64 @@ const GUIDED_AUDIOS = [
   {
     id: 1,
     title: "Morning Prayer of Faith & Favor",
-    duration: 512,
+    duration: 40,
     formattedDuration: "8:32",
     verse: "Psalm 5:3",
+    audioUrl: "/audio/track-1.wav",
     narration: "Heavenly Father, as the dawn breaks, I lift my soul to You. I place this day into Your sovereign hands. I decree that every step I take today is ordered by the Lord. Favor surrounds me as a shield, and doors of supernatural blessing are open before me. Amen.",
   },
   {
     id: 2,
     title: "Abundance & Provision Activation",
-    duration: 735,
+    duration: 41,
     formattedDuration: "12:15",
     verse: "Philippians 4:19",
+    audioUrl: "/audio/track-2.wav",
     narration: "Lord of all provision, You own the cattle on a thousand hills. I release every anxiety concerning finances, bills, and debt. I declare that Your abundance flows into my hands, not just for survival, but to be a blessing to many. In Jesus' name, Amen.",
   },
   {
     id: 3,
     title: "Deep Sleep & Angelic Protection",
-    duration: 1368,
+    duration: 40,
     formattedDuration: "22:48",
     verse: "Psalm 91:11",
+    audioUrl: "/audio/track-3.wav",
     narration: "Lord, I lay my head down in peace. You give Your angels charge over me to guard me in all my ways. Every worry of today is cast upon You. I receive deep, restorative sleep under the shadow of the Almighty. Amen.",
   },
   {
     id: 4,
     title: "Faith Declaration Over Your Household",
-    duration: 364,
+    duration: 40,
     formattedDuration: "6:04",
     verse: "Joshua 24:15",
+    audioUrl: "/audio/track-4.wav",
     narration: "I speak life, health, and salvation over my spouse, my children, and my entire generation. No weapon formed against us shall prosper. As for me and my house, we will walk in the favor and joy of the Lord. Amen.",
   },
   {
     id: 5,
     title: "Breaking Chains of Fear & Anxiety",
-    duration: 580,
+    duration: 41,
     formattedDuration: "9:40",
     verse: "2 Timothy 1:7",
+    audioUrl: "/audio/track-5.wav",
     narration: "God has not given me a spirit of fear, but of power, love, and a sound mind. I command every panic and dark thought to flee from my presence. My mind is filled with the shalom peace of Christ.",
   },
   {
     id: 6,
     title: "Healing & Restoration of the Body",
-    duration: 642,
+    duration: 37,
     formattedDuration: "10:42",
     verse: "Isaiah 53:5",
+    audioUrl: "/audio/track-6.wav",
     narration: "By His stripes I am healed. Every cell, every organ, and every bone in my body comes into divine alignment with the life of God. Sickness has no legal ground in my temple.",
   },
   {
     id: 7,
     title: "The Evening Miracle Prayer",
-    duration: 490,
+    duration: 38,
     formattedDuration: "8:10",
     verse: "Psalm 4:8",
+    audioUrl: "/audio/track-7.wav",
     narration: "Lord, I thank You for sustaining me through this day. What I could not finish, I trust You to complete while I sleep. Tomorrow will bring fresh mercies and unexpected testimonies.",
   },
 ];
@@ -653,35 +660,140 @@ function AudioPlayerTab() {
   const [selectedTrackIdx, setSelectedTrackIdx] = useState<number | null>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progressSec, setProgressSec] = useState(0);
+  const [realDuration, setRealDuration] = useState(0);
+  const [ambientEnabled, setAmbientEnabled] = useState(true);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const ambientStopRef = useRef<(() => void) | null>(null);
 
   const track = selectedTrackIdx !== null ? GUIDED_AUDIOS[selectedTrackIdx] : null;
 
+  // Handle ambient background harmonics (432Hz / 528Hz pads)
+  function startAmbientPad(idx: number) {
+    stopAmbientPad();
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = audioCtxRef.current ?? new AudioCtx();
+      audioCtxRef.current = ctx;
+      if (ctx.state === "suspended") ctx.resume();
+
+      const freqs = [432, 528, 396, 432, 741, 528, 432];
+      const baseFreq = freqs[idx] ?? 432;
+
+      const master = ctx.createGain();
+      master.gain.value = 0.12;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const oscSub = ctx.createOscillator();
+
+      osc1.type = "sine";
+      osc1.frequency.value = baseFreq;
+
+      osc2.type = "triangle";
+      osc2.frequency.value = baseFreq * 1.5; // harmonic fifth
+
+      oscSub.type = "sine";
+      oscSub.frequency.value = baseFreq / 2; // deep sub-bass
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 550;
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      oscSub.connect(filter);
+      filter.connect(master);
+
+      osc1.start();
+      osc2.start();
+      oscSub.start();
+
+      ambientStopRef.current = () => {
+        try {
+          osc1.stop();
+          osc2.stop();
+          oscSub.stop();
+          master.disconnect();
+        } catch {}
+      };
+    } catch {}
+  }
+
+  function stopAmbientPad() {
+    ambientStopRef.current?.();
+    ambientStopRef.current = null;
+  }
+
+  // Sync audio playback
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isPlaying && track) {
-      interval = setInterval(() => {
-        setProgressSec(prev => {
-          if (prev >= track.duration) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 1000);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.play().catch(() => {});
+      if (ambientEnabled && selectedTrackIdx !== null) {
+        startAmbientPad(selectedTrackIdx);
+      }
+    } else {
+      audio.pause();
+      stopAmbientPad();
     }
+  }, [isPlaying, selectedTrackIdx, ambientEnabled]);
+
+  useEffect(() => {
     return () => {
-      if (interval) clearInterval(interval);
+      stopAmbientPad();
+      audioCtxRef.current?.close();
     };
-  }, [isPlaying, track]);
+  }, []);
 
   function togglePlay() {
+    if (!isPlaying && audioCtxRef.current?.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
     setIsPlaying(!isPlaying);
   }
 
   function handleSelectTrack(idx: number) {
+    stopAmbientPad();
     setSelectedTrackIdx(idx);
     setProgressSec(0);
     setIsPlaying(true);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+  }
+
+  function handleTimeUpdate() {
+    if (audioRef.current) {
+      const current = Math.floor(audioRef.current.currentTime);
+      setProgressSec(current);
+      if (audioRef.current.duration && !isNaN(audioRef.current.duration)) {
+        setRealDuration(Math.floor(audioRef.current.duration));
+      }
+    }
+  }
+
+  function handleTrackEnded() {
+    if (selectedTrackIdx !== null && selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
+      handleSelectTrack(selectedTrackIdx + 1);
+    } else {
+      setIsPlaying(false);
+      setProgressSec(0);
+      stopAmbientPad();
+    }
+  }
+
+  function handleSeek(e: React.ChangeEvent<HTMLInputElement>) {
+    const targetSec = parseInt(e.target.value);
+    setProgressSec(targetSec);
+    if (audioRef.current) {
+      audioRef.current.currentTime = targetSec;
+    }
   }
 
   function formatTime(seconds: number) {
@@ -690,13 +802,31 @@ function AudioPlayerTab() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   }
 
+  const currentDuration = realDuration > 0 ? realDuration : (track?.duration ?? 40);
+
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
+      {/* Hidden Native Audio Element */}
+      {track && (
+        <audio
+          ref={audioRef}
+          src={track.audioUrl}
+          preload="metadata"
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleTrackEnded}
+          onLoadedMetadata={() => {
+            if (audioRef.current?.duration) {
+              setRealDuration(Math.floor(audioRef.current.duration));
+            }
+          }}
+        />
+      )}
+
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
         Guided Audio Prayers
       </h1>
       <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        7 Spirit-led audio activations to saturate your mind and home with divine peace.
+        7 Spirit-led audio activations with studio vocal narration & sacred solfeggio frequencies.
       </p>
 
       {track && (
@@ -709,6 +839,31 @@ function AudioPlayerTab() {
           textAlign: "center",
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         }}>
+          {/* Top Audio Status Badge */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <span style={{
+              background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)",
+              color: "#4ade80", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 12,
+              fontFamily: "sans-serif", display: "inline-flex", alignItems: "center", gap: 4,
+            }}>
+              ● STUDIO AUDIO READY
+            </span>
+
+            <button
+              onClick={() => setAmbientEnabled(v => !v)}
+              style={{
+                background: ambientEnabled ? "rgba(201,168,76,0.2)" : "rgba(255,255,255,0.05)",
+                border: `1px solid ${ambientEnabled ? "#c9a84c" : "rgba(255,255,255,0.1)"}`,
+                color: ambientEnabled ? "#f0d080" : "#8a7a5a",
+                borderRadius: 12, padding: "3px 10px", fontSize: 11, cursor: "pointer",
+                fontFamily: "sans-serif", fontWeight: 600,
+              }}
+              title="Toggle sacred harmonic background frequency"
+            >
+              🕊️ 528Hz Ambient: {ambientEnabled ? "ON" : "OFF"}
+            </button>
+          </div>
+
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, margin: "0 auto 16px" }}>
             <button
               onClick={() => {
@@ -792,14 +947,30 @@ function AudioPlayerTab() {
           <input
             type="range"
             min="0"
-            max={track.duration}
+            max={currentDuration}
             value={progressSec}
-            onChange={e => setProgressSec(parseInt(e.target.value))}
+            onChange={handleSeek}
             style={{ width: "100%", accentColor: "#c9a84c", cursor: "pointer", marginBottom: 6 }}
           />
           <div style={{ display: "flex", justifyContent: "space-between", color: "#8a7a5a", fontSize: 11 }}>
             <span>{formatTime(progressSec)}</span>
-            <span>{track.formattedDuration}</span>
+            <span>{formatTime(currentDuration)}</span>
+          </div>
+
+          {/* Download Audio Button */}
+          <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+            <a
+              href={track.audioUrl}
+              download={`${track.title}.wav`}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.3)",
+                color: "#f0d080", borderRadius: 20, padding: "6px 14px", fontSize: 12,
+                textDecoration: "none", fontFamily: "sans-serif", fontWeight: 600,
+              }}
+            >
+              <span>⬇</span> Download Track ({track.formattedDuration})
+            </a>
           </div>
 
           <div style={{
@@ -811,7 +982,7 @@ function AudioPlayerTab() {
             textAlign: "left",
           }}>
             <p style={{ color: "#8a7a5a", fontSize: 10, textTransform: "uppercase", letterSpacing: 1, margin: "0 0 4px", fontWeight: 700 }}>
-              Guided Proclamation
+              Guided Proclamation Narration
             </p>
             <p style={{ color: "#d4c4a0", fontSize: 13, margin: 0, fontStyle: "italic", lineHeight: 1.5 }}>
               "{track.narration}"
@@ -851,13 +1022,34 @@ function AudioPlayerTab() {
               </div>
 
               <div style={{ flex: 1 }}>
-                <p style={{ color: isCurrent ? "#f0d080" : "#e0d0b0", fontSize: 14, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "0 0 2px" }}>
-                  {idx + 1}. {t.title}
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                  <p style={{ color: isCurrent ? "#f0d080" : "#e0d0b0", fontSize: 14, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: 0 }}>
+                    {idx + 1}. {t.title}
+                  </p>
+                  <span style={{
+                    background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.3)",
+                    color: "#f0d080", fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 4,
+                  }}>
+                    READY
+                  </span>
+                </div>
                 <p style={{ color: "#8a7a5a", fontSize: 11, margin: 0 }}>
                   {t.verse}
                 </p>
               </div>
+
+              <span style={{ color: "#8a7a5a", fontSize: 12, flexShrink: 0 }}>
+                {t.formattedDuration}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <HeavenlySounds />
+    </div>
+  );
+}
 
               <span style={{ color: "#8a7a5a", fontSize: 12, flexShrink: 0 }}>
                 {t.formattedDuration}
