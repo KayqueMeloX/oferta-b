@@ -129,7 +129,13 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function PrivateDevNav({ onClose }: { onClose: () => void }) {
+function PrivateDevNav({
+  isMinimized,
+  onToggleMinimize,
+}: {
+  isMinimized: boolean;
+  onToggleMinimize: () => void;
+}) {
   const { location } = useRouterState();
   const currentPath = location.pathname;
 
@@ -152,6 +158,46 @@ function PrivateDevNav({ onClose }: { onClose: () => void }) {
       window.location.href = "/faith-app?success=true";
     } catch {}
   };
+
+  const handleLockApp = () => {
+    try {
+      localStorage.removeItem("faith_app_session");
+      window.location.href = "/faith-app";
+    } catch {}
+  };
+
+  if (isMinimized) {
+    return (
+      <button
+        type="button"
+        onClick={onToggleMinimize}
+        title="Open Developer Navigation Bar"
+        style={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+          zIndex: 99999,
+          background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+          color: "#1a1200",
+          border: "1px solid rgba(0,0,0,0.3)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+          borderRadius: 24,
+          padding: "8px 14px",
+          fontSize: 12,
+          fontWeight: 800,
+          fontFamily: "system-ui, sans-serif",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          transition: "transform 0.15s ease",
+        }}
+      >
+        <span>🛠️</span>
+        <span>DEV NAV</span>
+      </button>
+    );
+  }
 
   return (
     <div
@@ -186,7 +232,7 @@ function PrivateDevNav({ onClose }: { onClose: () => void }) {
             fontFamily: "monospace",
           }}
         >
-          🔒 ADMIN DEV
+          🛠️ DEV NAV
         </span>
 
         {pages.map(({ path, label }) => {
@@ -231,25 +277,44 @@ function PrivateDevNav({ onClose }: { onClose: () => void }) {
             cursor: "pointer",
           }}
         >
-          ⚡ Unlock App
+          ⚡ Desbloquear App
+        </button>
+
+        <button
+          type="button"
+          onClick={handleLockApp}
+          title="Bloquear para testar versão não paga"
+          style={{
+            background: "rgba(239, 68, 68, 0.15)",
+            border: "1px solid rgba(239, 68, 68, 0.4)",
+            color: "#f87171",
+            borderRadius: 14,
+            padding: "3px 8px",
+            fontSize: 11,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          🔒 Bloquear
         </button>
       </div>
 
       <button
         type="button"
-        onClick={onClose}
-        title="Hide Dev Panel (press Alt+D or visit ?admin=1 to reopen)"
+        onClick={onToggleMinimize}
+        title="Minimizar barra de navegação dev"
         style={{
           background: "rgba(255,255,255,0.1)",
           border: "1px solid rgba(255,255,255,0.2)",
-          color: "#aaa",
+          color: "#f0d080",
           borderRadius: 8,
           padding: "3px 8px",
           fontSize: 11,
           cursor: "pointer",
+          whiteSpace: "nowrap",
         }}
       >
-        ✕ Hide
+        — Minimizar
       </button>
     </div>
   );
@@ -257,39 +322,27 @@ function PrivateDevNav({ onClose }: { onClose: () => void }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // 1. Check URL parameters ?admin=1 or ?dev=1
-    const params = new URLSearchParams(window.location.search);
-    const hasAdminParam = params.get("admin") === "1" || params.get("dev") === "1";
-
-    if (hasAdminParam) {
-      localStorage.setItem("faith_admin_mode", "1");
-      setIsAdmin(true);
-    } else {
-      // 2. Check localStorage
-      if (localStorage.getItem("faith_admin_mode") === "1") {
-        setIsAdmin(true);
-      }
+    // Check localStorage preference
+    const saved = localStorage.getItem("dev_nav_minimized");
+    if (saved === "1") {
+      setIsMinimized(true);
     }
 
-    // 3. Secret keyboard shortcut: Alt + D or Ctrl + Shift + D
+    // Keyboard shortcut Alt+D to toggle
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         (e.altKey && (e.key === "d" || e.key === "D")) ||
         (e.ctrlKey && e.shiftKey && (e.key === "d" || e.key === "D"))
       ) {
         e.preventDefault();
-        setIsAdmin((prev) => {
+        setIsMinimized((prev) => {
           const next = !prev;
-          if (next) {
-            localStorage.setItem("faith_admin_mode", "1");
-          } else {
-            localStorage.removeItem("faith_admin_mode");
-          }
+          localStorage.setItem("dev_nav_minimized", next ? "1" : "0");
           return next;
         });
       }
@@ -299,15 +352,21 @@ function RootComponent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const handleClose = () => {
-    localStorage.removeItem("faith_admin_mode");
-    setIsAdmin(false);
+  const handleToggleMinimize = () => {
+    setIsMinimized((prev) => {
+      const next = !prev;
+      localStorage.setItem("dev_nav_minimized", next ? "1" : "0");
+      return next;
+    });
   };
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isAdmin && <PrivateDevNav onClose={handleClose} />}
-      <div style={{ paddingTop: isAdmin ? 42 : 0 }}>
+      <PrivateDevNav
+        isMinimized={isMinimized}
+        onToggleMinimize={handleToggleMinimize}
+      />
+      <div style={{ paddingTop: isMinimized ? 0 : 42 }}>
         <Outlet />
       </div>
     </QueryClientProvider>
