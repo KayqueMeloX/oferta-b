@@ -203,11 +203,14 @@ function DevNav() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const showDev =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("dev");
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DevNav />
-      <div style={{ paddingTop: 40 }}>
+      {showDev && <DevNav />}
+      <div style={{ paddingTop: showDev ? 40 : 0 }}>
         <Outlet />
       </div>
     </QueryClientProvider>

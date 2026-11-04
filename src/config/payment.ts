@@ -1,25 +1,23 @@
 /**
- * Direct payment / checkout URLs for each plan.
- * Replace the placeholder links below with your Kiwify, Hotmart, Stripe, Cartpanda or PerfectPay checkout URLs.
+ * Direct Stripe payment / checkout URLs for each plan.
  */
 export const PAYMENT_LINKS: Record<string, string> = {
   // $27 - Seed of Faith
-  "seed-27": "https://CONFIGURE_SEU_LINK_AQUI/plan-27",
+  "seed-27": "https://buy.stripe.com/28EdR99ibdEj1RVfl8ao803",
 
   // $47 - Roots of Faith (Most Popular)
-  "seed-47": "https://CONFIGURE_SEU_LINK_AQUI/plan-47",
+  "seed-47": "https://buy.stripe.com/aFa5kD9ibgQveEH0qeao804",
 
   // $77 - Harvest of Faith (Best Value)
-  "seed-77": "https://CONFIGURE_SEU_LINK_AQUI/plan-77",
+  "seed-77": "https://buy.stripe.com/9B6cN565Z43JeEH6OCao805",
 
   // $100 - Legacy of Faith (Complete)
-  "seed-100": "https://CONFIGURE_SEU_LINK_AQUI/plan-100",
+  "seed-100": "https://buy.stripe.com/28EaEX51V7fVfILb4Sao806",
 };
 
 /**
  * Returns the direct payment URL for a given plan key (e.g. 'seed-27' or '27').
- * If the link is configured, redirects directly to the external payment processor.
- * If not yet configured, falls back to the internal /checkout page for preview.
+ * Redirects directly to the official Stripe payment page.
  */
 export function getPaymentUrl(planKey: string): string {
   const normalizedKey = planKey.startsWith("seed-") ? planKey : `seed-${planKey}`;
