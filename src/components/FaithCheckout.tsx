@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PAYMENT_LINKS } from "../config/payment";
 
 // ─── Plan definitions ─────────────────────────────────────────────────────────
 
@@ -85,34 +86,14 @@ export function FaithCheckout() {
   function handleBuy() {
     setLoading(true);
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TODO: Substitua o link abaixo pela URL de pagamento da sua plataforma.
-    // Exemplos:
-    //   Hotmart:  https://pay.hotmart.com/SEU_PRODUTO?checkoutMode=10
-    //   Kiwify:   https://kiwify.com.br/seu-produto
-    //   Stripe:   https://buy.stripe.com/seu_payment_link
-    //
-    // Para usar planos diferentes:
-    //   if (plan.id === "seed-27") window.location.href = "https://...";
-    //   else if (plan.id === "seed-47") window.location.href = "https://...";
-    //   etc.
-    // ─────────────────────────────────────────────────────────────────────────
-    const PAYMENT_LINKS: Record<string, string> = {
-      "seed-27":  "https://CONFIGURE_SEU_LINK_AQUI/plan-27",
-      "seed-47":  "https://CONFIGURE_SEU_LINK_AQUI/plan-47",
-      "seed-77":  "https://CONFIGURE_SEU_LINK_AQUI/plan-77",
-      "seed-100": "https://CONFIGURE_SEU_LINK_AQUI/plan-100",
-    };
-
     const link = PAYMENT_LINKS[plan.id];
     if (link && !link.includes("CONFIGURE_SEU_LINK_AQUI")) {
       window.location.href = link;
     } else {
-      // Fallback: volta para a oferta se não configurado
       setTimeout(() => {
-        alert("Payment link not configured yet. Please contact support.");
+        alert("Payment link not configured yet in src/config/payment.ts");
         setLoading(false);
-      }, 800);
+      }, 500);
     }
   }
 

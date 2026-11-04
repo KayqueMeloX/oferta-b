@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { VslPlayer } from "./VslPlayer";
+import { getPaymentUrl } from "../config/payment";
 
 const ASSET_BASE = "https://plan-faith.com/__l5e/assets-v1";
 
@@ -60,25 +61,21 @@ const PRODUCTS = [
     key: "seed-27",
     name: "Seed of Faith",
     price: "$27",
-    checkoutUrl: "/checkout?plan=27",
   },
   {
     key: "seed-47",
     name: "Roots of Faith",
     price: "$47",
-    checkoutUrl: "/checkout?plan=47",
   },
   {
     key: "seed-77",
     name: "Harvest of Faith",
     price: "$77",
-    checkoutUrl: "/checkout?plan=77",
   },
   {
     key: "seed-100",
     name: "Legacy of Faith",
     price: "$100",
-    checkoutUrl: "/checkout?plan=100",
   },
 ];
 
@@ -239,29 +236,32 @@ export function FaithOffer() {
             </h2>
 
             <div className="mx-auto mt-6 flex max-w-md flex-col gap-8">
-              {PRODUCTS.map((prod) => (
-                <article key={prod.key} className="flex flex-col gap-3">
-                  <a
-                    href={prod.checkoutUrl}
-                    className="block w-full cursor-pointer transition-transform active:scale-[0.98]"
-                  >
-                    <img
-                      src={SEED_IMAGES[prod.key] ?? ""}
-                      alt={prod.name}
-                      width={420}
-                      height={420}
-                      loading="lazy"
-                      className="aspect-square w-full rounded-2xl border-[3px] border-[#f3c34e] object-cover"
-                    />
-                  </a>
-                  <a
-                    href={prod.checkoutUrl}
-                    className="block w-full rounded-xl bg-gradient-to-r from-[#f7d873] to-[#e0a91d] py-4 text-center font-bold text-[#1a1206] shadow-lg transition-transform active:scale-[0.98]"
-                  >
-                    Choose this Seed – {prod.price} USD
-                  </a>
-                </article>
-              ))}
+              {PRODUCTS.map((prod) => {
+                const targetUrl = getPaymentUrl(prod.key);
+                return (
+                  <article key={prod.key} className="flex flex-col gap-3">
+                    <a
+                      href={targetUrl}
+                      className="block w-full cursor-pointer transition-transform active:scale-[0.98]"
+                    >
+                      <img
+                        src={SEED_IMAGES[prod.key] ?? ""}
+                        alt={prod.name}
+                        width={420}
+                        height={420}
+                        loading="lazy"
+                        className="aspect-square w-full rounded-2xl border-[3px] border-[#f3c34e] object-cover"
+                      />
+                    </a>
+                    <a
+                      href={targetUrl}
+                      className="block w-full rounded-xl bg-gradient-to-r from-[#f7d873] to-[#e0a91d] py-4 text-center font-bold text-[#1a1206] shadow-lg transition-transform active:scale-[0.98]"
+                    >
+                      Choose this Seed – {prod.price} USD
+                    </a>
+                  </article>
+                );
+              })}
             </div>
 
             <p className="mt-6 font-sans text-sm italic text-[#d8cba7]">
