@@ -20,6 +20,7 @@ const FALLBACK_MP4_URL = "/vsl-full.mp4";
 
 export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<any>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -32,8 +33,6 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    let hlsInstance: any = null;
 
     const initHls = () => {
       // 1. Check if native HLS is supported (Safari iOS / macOS)
@@ -55,25 +54,49 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
       // 2. Load Hls.js for Chrome, Firefox, Edge, Android
       const setupHlsJs = () => {
         if (window.Hls && window.Hls.isSupported()) {
-          hlsInstance = new window.Hls({
+          if (hlsRef.current) {
+            hlsRef.current.destroy();
+          }
+
+          const hls = new window.Hls({
             enableWorker: true,
             lowLatencyMode: false,
+            startPosition: 0,
+            backBufferLength: 60,
           });
-          hlsInstance.loadSource(HLS_STREAM_URL);
-          hlsInstance.attachMedia(video);
-          hlsInstance.on(window.Hls.Events.MANIFEST_PARSED, () => {
+
+          hlsRef.current = hls;
+          hls.loadSource(HLS_STREAM_URL);
+          hls.attachMedia(video);
+
+          hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
             setIsLoading(false);
             video
               .play()
               .then(() => setIsPlaying(true))
               .catch(() => {});
           });
-          hlsInstance.on(window.Hls.Events.ERROR, (_: any, data: any) => {
+
+          hls.on(window.Hls.Events.ERROR, (_: any, data: any) => {
             if (data.fatal) {
-              console.warn("HLS fatal error, falling back to local MP4", data);
-              video.src = FALLBACK_MP4_URL;
-              video.load();
-              video.play().catch(() => {});
+              switch (data.type) {
+                case window.Hls.ErrorTypes.NETWORK_ERROR:
+                  console.warn("HLS network error, recovering...", data);
+                  hls.startLoad();
+                  break;
+                case window.Hls.ErrorTypes.MEDIA_ERROR:
+                  console.warn("HLS media error, recovering...", data);
+                  hls.recoverMediaError();
+                  break;
+                default:
+                  console.warn("HLS fatal error, falling back to local MP4", data);
+                  hls.destroy();
+                  hlsRef.current = null;
+                  video.src = FALLBACK_MP4_URL;
+                  video.load();
+                  video.play().catch(() => {});
+                  break;
+              }
             }
           });
         } else {
@@ -98,7 +121,6 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
         script.async = true;
         script.onload = setupHlsJs;
         script.onerror = () => {
-          // In case jsdelivr fails, fallback directly to local MP4
           video.src = FALLBACK_MP4_URL;
           video.load();
           video.play().catch(() => {});
@@ -111,8 +133,9 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
     initHls();
 
     return () => {
-      if (hlsInstance) {
-        hlsInstance.destroy();
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
     };
   }, []);
@@ -148,16 +171,32 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
     setIsMuted(false);
     setHasStartedWithSound(true);
 
-    // Restart from 0:00 so the viewer doesn't miss the beginning
-    video.currentTime = 0;
-    video
-      .play()
-      .then(() => setIsPlaying(true))
-      .catch((err) => console.error("Play error:", err));
+    const target = 0.05;
+    video.currentTime = target;
+    if (hlsRef.current) {
+      hlsRef.current.startLoad(target);
+    }
+
+    const doPlay = () => {
+      video
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => console.error("Play error:", err));
+    };
+
+    if (video.seeking) {
+      video.addEventListener("seeked", doPlay, { once: true });
+    } else {
+      doPlay();
+    }
   };
 
   // Toggle play/pause once unmuted
-  const handleTogglePlay = () => {
+  const handleTogglePlay = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
     if (!hasStartedWithSound) {
       handleUnmuteAndPlay({ stopPropagation: () => {} } as any);
       return;
@@ -166,23 +205,70 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    if (video.paused) {
+    if (video.paused || video.ended) {
+      if (hlsRef.current) {
+        hlsRef.current.startLoad();
+      }
+      setIsLoading(true);
       video
         .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
+        .then(() => {
+          setIsPlaying(true);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.warn("Play error, trying canplay/seeked listener:", err);
+          const onReady = () => {
+            video
+              .play()
+              .then(() => {
+                setIsPlaying(true);
+                setIsLoading(false);
+              })
+              .catch(() => setIsLoading(false));
+          };
+          video.addEventListener("canplay", onReady, { once: true });
+          video.addEventListener("seeked", onReady, { once: true });
+        });
     } else {
       video.pause();
       setIsPlaying(false);
     }
   };
 
+  // Rewind to beginning and guarantee playback
   const handleRestart = (e: React.MouseEvent) => {
     e.stopPropagation();
     const video = videoRef.current;
     if (!video) return;
-    video.currentTime = 0;
-    video.play().then(() => setIsPlaying(true)).catch(() => {});
+
+    setIsLoading(true);
+    const target = 0.05;
+    video.currentTime = target;
+
+    if (hlsRef.current) {
+      hlsRef.current.startLoad(target);
+    }
+
+    const doPlay = () => {
+      video
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.warn("Autoplay after restart prevented/delayed:", err);
+          setIsLoading(false);
+          setIsPlaying(false);
+        });
+    };
+
+    if (video.seeking) {
+      video.addEventListener("seeked", doPlay, { once: true });
+    } else {
+      doPlay();
+    }
   };
 
   return (
@@ -190,7 +276,7 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
       {/* Video Container (Vertical 9:16) */}
       <div
         className="relative aspect-[9/16] w-full cursor-pointer bg-black overflow-hidden flex items-center justify-center"
-        onClick={handleTogglePlay}
+        onClick={(e) => handleTogglePlay(e)}
       >
         <video
           ref={videoRef}
@@ -200,7 +286,14 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
           poster={POSTER_URL}
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => setIsPlaying(true)}
+          onPlaying={() => {
+            setIsPlaying(true);
+            setIsLoading(false);
+          }}
           onPause={() => setIsPlaying(false)}
+          onWaiting={() => setIsLoading(true)}
+          onCanPlay={() => setIsLoading(false)}
+          onSeeked={() => setIsLoading(false)}
           onEnded={() => {
             setIsPlaying(false);
             if (!revealedRef.current && onReveal) {
@@ -213,8 +306,17 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
 
         {/* Loading Spinner */}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none z-30">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#f3c34e] border-t-transparent" />
+          </div>
+        )}
+
+        {/* Big Central Play Button when Paused */}
+        {hasStartedWithSound && !isPlaying && !isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/35 pointer-events-none z-20 transition-all">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/80 border-2 border-[#f3c34e] text-[#f3c34e] shadow-[0_0_30px_rgba(243,195,78,0.6)] transform scale-100 hover:scale-110 transition-transform">
+              <Play className="h-8 w-8 fill-[#f3c34e] ml-1" />
+            </div>
           </div>
         )}
 
@@ -280,11 +382,8 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleTogglePlay();
-                  }}
-                  className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20"
+                  onClick={(e) => handleTogglePlay(e)}
+                  className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-all active:scale-95"
                   aria-label={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
@@ -295,10 +394,10 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={handleRestart}
-                  className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20"
+                  onClick={(e) => handleRestart(e)}
+                  className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-all active:scale-95"
                   aria-label="Restart video"
-                  title="Restart"
+                  title="Restart from beginning"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                 </button>
@@ -315,7 +414,7 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
                       setIsMuted(video.muted);
                     }
                   }}
-                  className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20"
+                  className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-all active:scale-95"
                   aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? (
