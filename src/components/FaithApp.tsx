@@ -3146,7 +3146,7 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="you@email.com (or admin@gmail.com)"
+              placeholder="you@email.com"
               required
               style={{
                 width: "100%", padding: "12px 14px", borderRadius: 12,
