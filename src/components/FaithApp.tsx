@@ -657,219 +657,76 @@ function HeavenlySounds() {
 // ─── Guided Audio Player Tab ──────────────────────────────────────────────────
 
 function AudioPlayerTab() {
-  const [selectedTrackIdx, setSelectedTrackIdx] = useState<number | null>(0);
+  const [selectedTrackIdx, setSelectedTrackIdx] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progressSec, setProgressSec] = useState(0);
-  const [realDuration, setRealDuration] = useState(0);
-  const [ambientEnabled, setAmbientEnabled] = useState(true);
+  const [duration, setDuration] = useState(40);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const ambientStopRef = useRef<(() => void) | null>(null);
-  const speechTimerRef = useRef<any>(null);
 
-  const track = selectedTrackIdx !== null ? GUIDED_AUDIOS[selectedTrackIdx] : null;
-
-  // Handle ambient background harmonics (432Hz / 528Hz pads)
-  function startAmbientPad(idx: number) {
-    stopAmbientPad();
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = audioCtxRef.current ?? new AudioCtx();
-      audioCtxRef.current = ctx;
-      if (ctx.state === "suspended") ctx.resume();
-
-      const freqs = [432, 528, 396, 432, 741, 528, 432];
-      const baseFreq = freqs[idx] ?? 432;
-
-      const master = ctx.createGain();
-      master.gain.value = 0.12;
-      master.connect(ctx.destination);
-
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const oscSub = ctx.createOscillator();
-
-      osc1.type = "sine";
-      osc1.frequency.value = baseFreq;
-
-      osc2.type = "triangle";
-      osc2.frequency.value = baseFreq * 1.5; // harmonic fifth
-
-      oscSub.type = "sine";
-      oscSub.frequency.value = baseFreq / 2; // deep sub-bass
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 550;
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      oscSub.connect(filter);
-      filter.connect(master);
-
-      osc1.start();
-      osc2.start();
-      oscSub.start();
-
-      ambientStopRef.current = () => {
-        try {
-          osc1.stop();
-          osc2.stop();
-          oscSub.stop();
-          master.disconnect();
-        } catch {}
-      };
-    } catch {}
-  }
-
-  function stopAmbientPad() {
-    ambientStopRef.current?.();
-    ambientStopRef.current = null;
-  }
-
-  function speakNarration(text: string) {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    clearInterval(speechTimerRef.current);
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.88;
-    utterance.pitch = 0.96;
-
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Samantha") || v.name.includes("Google") || v.name.includes("Daniel")));
-    if (voice) utterance.voice = voice;
-
-    speechTimerRef.current = setInterval(() => {
-      setProgressSec(p => p + 1);
-    }, 1000);
-
-    utterance.onend = () => {
-      clearInterval(speechTimerRef.current);
-      handleTrackEnded();
-    };
-
-    utterance.onerror = () => {
-      clearInterval(speechTimerRef.current);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }
-
-  function stopSpeech() {
-    clearInterval(speechTimerRef.current);
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      stopAmbientPad();
-      stopSpeech();
-      audioCtxRef.current?.close();
-    };
-  }, []);
+  const track = GUIDED_AUDIOS[selectedTrackIdx] ?? GUIDED_AUDIOS[0];
 
   function togglePlay() {
     const audio = audioRef.current;
+    if (!audio) return;
 
-    if (!isPlaying) {
-      try {
-        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        const ctx = audioCtxRef.current ?? new AudioCtx();
-        audioCtxRef.current = ctx;
-        if (ctx.state === "suspended") {
-          ctx.resume();
-        }
-      } catch {}
-
-      if (ambientEnabled && selectedTrackIdx !== null) {
-        startAmbientPad(selectedTrackIdx);
-      }
-
-      if (audio) {
-        audio.play()
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch((err) => {
-            console.warn("Direct HTML5 audio failed, falling back to speech synthesis:", err);
-            speakNarration(track?.narration || "");
-            setIsPlaying(true);
-          });
-      } else {
-        speakNarration(track?.narration || "");
-        setIsPlaying(true);
-      }
-    } else {
-      if (audio) {
-        audio.pause();
-      }
-      stopSpeech();
-      stopAmbientPad();
+    if (isPlaying) {
+      audio.pause();
       setIsPlaying(false);
+    } else {
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.warn("Audio play error:", err);
+          setIsPlaying(false);
+        });
     }
   }
 
   function handleSelectTrack(idx: number) {
-    stopAmbientPad();
-    stopSpeech();
     setSelectedTrackIdx(idx);
     setProgressSec(0);
-
-    const newTrack = GUIDED_AUDIOS[idx];
     const audio = audioRef.current;
-
-    if (ambientEnabled) {
-      startAmbientPad(idx);
-    }
-
-    if (audio && newTrack) {
-      audio.src = newTrack.audioUrl;
+    if (audio) {
+      audio.src = GUIDED_AUDIOS[idx].audioUrl;
       audio.currentTime = 0;
       audio.load();
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-        })
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
         .catch((err) => {
-          console.warn("Audio play on track select failed, falling back to speech:", err);
-          speakNarration(newTrack.narration);
-          setIsPlaying(true);
+          console.warn("Track play on select:", err);
+          setIsPlaying(false);
         });
-    } else if (newTrack) {
-      speakNarration(newTrack.narration);
-      setIsPlaying(true);
     }
   }
 
   function handleTimeUpdate() {
-    if (audioRef.current) {
-      const current = Math.floor(audioRef.current.currentTime);
-      setProgressSec(current);
-      if (audioRef.current.duration && !isNaN(audioRef.current.duration)) {
-        setRealDuration(Math.floor(audioRef.current.duration));
+    const audio = audioRef.current;
+    if (audio) {
+      setProgressSec(Math.floor(audio.currentTime));
+      if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+        setDuration(Math.floor(audio.duration));
       }
     }
   }
 
   function handleTrackEnded() {
-    if (selectedTrackIdx !== null && selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
+    if (selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
       handleSelectTrack(selectedTrackIdx + 1);
     } else {
       setIsPlaying(false);
       setProgressSec(0);
-      stopAmbientPad();
     }
   }
 
   function handleSeek(e: React.ChangeEvent<HTMLInputElement>) {
     const targetSec = parseInt(e.target.value);
     setProgressSec(targetSec);
-    if (audioRef.current) {
-      audioRef.current.currentTime = targetSec;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = targetSec;
     }
   }
 
@@ -879,182 +736,177 @@ function AudioPlayerTab() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   }
 
-  const currentDuration = realDuration > 0 ? realDuration : (track?.duration ?? 40);
-
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
       {/* Hidden Native Audio Element */}
-      {track && (
-        <audio
-          ref={audioRef}
-          src={track.audioUrl}
-          preload="auto"
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleTrackEnded}
-          onError={(e) => {
-            console.warn("HTML5 audio playback error, triggering speech synthesis fallback:", e);
-            if (isPlaying) {
-              speakNarration(track.narration);
-            }
-          }}
-          onLoadedMetadata={() => {
-            if (audioRef.current?.duration) {
-              setRealDuration(Math.floor(audioRef.current.duration));
-            }
-          }}
-        />
-      )}
+      <audio
+        ref={audioRef}
+        src={track.audioUrl}
+        preload="auto"
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleTrackEnded}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onLoadedMetadata={() => {
+          const audio = audioRef.current;
+          if (audio?.duration && !isNaN(audio.duration)) {
+            setDuration(Math.floor(audio.duration));
+          }
+        }}
+      />
 
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
         Guided Audio Prayers
       </h1>
       <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        7 Spirit-led audio activations with studio vocal narration & sacred solfeggio frequencies.
+        7 Spirit-led audio activations with clear studio vocal narration and biblical declarations.
       </p>
 
-      {track && (
-        <div style={{
-          background: "linear-gradient(135deg, rgba(201,168,76,0.18), rgba(201,168,76,0.06))",
-          border: "1px solid rgba(201,168,76,0.4)",
-          borderRadius: 24,
-          padding: "24px 20px",
-          marginBottom: 24,
-          textAlign: "center",
-          boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-        }}>
-          {/* Top Audio Status Badge */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{
-              background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)",
-              color: "#4ade80", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 12,
-              fontFamily: "sans-serif", display: "inline-flex", alignItems: "center", gap: 4,
-            }}>
-              ● STUDIO AUDIO READY
-            </span>
+      {/* Main Player Card */}
+      <div style={{
+        background: "linear-gradient(135deg, rgba(201,168,76,0.18), rgba(201,168,76,0.06))",
+        border: "1px solid rgba(201,168,76,0.4)",
+        borderRadius: 24,
+        padding: "24px 20px",
+        marginBottom: 24,
+        textAlign: "center",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+      }}>
+        {/* Top Audio Status Badge */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <span style={{
+            background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)",
+            color: "#4ade80", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 12,
+            fontFamily: "sans-serif", display: "inline-flex", alignItems: "center", gap: 4,
+          }}>
+            ● STUDIO AUDIO READY
+          </span>
 
-            <button
-              onClick={() => setAmbientEnabled(v => !v)}
-              style={{
-                background: ambientEnabled ? "rgba(201,168,76,0.2)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${ambientEnabled ? "#c9a84c" : "rgba(255,255,255,0.1)"}`,
-                color: ambientEnabled ? "#f0d080" : "#8a7a5a",
-                borderRadius: 12, padding: "3px 10px", fontSize: 11, cursor: "pointer",
-                fontFamily: "sans-serif", fontWeight: 600,
-              }}
-              title="Toggle sacred harmonic background frequency"
-            >
-              🕊️ 528Hz Ambient: {ambientEnabled ? "ON" : "OFF"}
-            </button>
-          </div>
+          <span style={{ color: "#c9a84c", fontSize: 11, fontFamily: "sans-serif", fontWeight: 600 }}>
+            Track {selectedTrackIdx + 1} of {GUIDED_AUDIOS.length}
+          </span>
+        </div>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, margin: "0 auto 16px" }}>
-            <button
-              onClick={() => {
-                if (selectedTrackIdx !== null && selectedTrackIdx > 0) {
-                  handleSelectTrack(selectedTrackIdx - 1);
-                }
-              }}
-              disabled={selectedTrackIdx === 0}
-              aria-label="Previous track"
-              title="Previous Track"
-              style={{
-                width: 44, height: 44, borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(201,168,76,0.3)",
-                color: selectedTrackIdx === 0 ? "rgba(201,168,76,0.25)" : "#f0d080",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: selectedTrackIdx === 0 ? "not-allowed" : "pointer",
-                fontSize: 18, transition: "all 0.2s",
-              }}
-            >
-              ⏮
-            </button>
+        {/* Player Controls (Prev, Play/Pause, Next) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, margin: "0 auto 16px" }}>
+          <button
+            type="button"
+            onClick={() => {
+              if (selectedTrackIdx > 0) {
+                handleSelectTrack(selectedTrackIdx - 1);
+              }
+            }}
+            disabled={selectedTrackIdx === 0}
+            aria-label="Previous track"
+            title="Previous Track"
+            style={{
+              width: 44, height: 44, borderRadius: "50%",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(201,168,76,0.3)",
+              color: selectedTrackIdx === 0 ? "rgba(201,168,76,0.25)" : "#f0d080",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: selectedTrackIdx === 0 ? "not-allowed" : "pointer",
+              fontSize: 18, transition: "all 0.2s",
+            }}
+          >
+            ⏮
+          </button>
 
-            <div style={{
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            style={{
               width: 90, height: 90, borderRadius: "50%",
               background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+              border: "none",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: isPlaying ? "0 0 35px rgba(201,168,76,0.6)" : "0 0 15px rgba(201,168,76,0.2)",
               cursor: "pointer",
-            }} onClick={togglePlay}>
-              <span style={{ fontSize: 32, color: "#1a1200", marginLeft: isPlaying ? 0 : 4 }}>
-                {isPlaying ? "❚❚" : "▶"}
-              </span>
-            </div>
+              transition: "transform 0.15s ease",
+            }}
+          >
+            <span style={{ fontSize: 32, color: "#1a1200", marginLeft: isPlaying ? 0 : 4, lineHeight: 1 }}>
+              {isPlaying ? "❚❚" : "▶"}
+            </span>
+          </button>
 
-            <button
-              onClick={() => {
-                if (selectedTrackIdx !== null && selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
-                  handleSelectTrack(selectedTrackIdx + 1);
-                }
-              }}
-              disabled={selectedTrackIdx === GUIDED_AUDIOS.length - 1}
-              aria-label="Next track"
-              title="Next Track"
+          <button
+            type="button"
+            onClick={() => {
+              if (selectedTrackIdx < GUIDED_AUDIOS.length - 1) {
+                handleSelectTrack(selectedTrackIdx + 1);
+              }
+            }}
+            disabled={selectedTrackIdx === GUIDED_AUDIOS.length - 1}
+            aria-label="Next track"
+            title="Next Track"
+            style={{
+              width: 44, height: 44, borderRadius: "50%",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(201,168,76,0.3)",
+              color: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "rgba(201,168,76,0.25)" : "#f0d080",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "not-allowed" : "pointer",
+              fontSize: 18, transition: "all 0.2s",
+            }}
+          >
+            ⏭
+          </button>
+        </div>
+
+        <p style={{ color: "#f0d080", fontSize: 18, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "0 0 4px" }}>
+          {track.title}
+        </p>
+        <p style={{ color: "#c9a84c", fontSize: 12, margin: "0 0 14px", fontStyle: "italic" }}>
+          Scriptural Anchor: {track.verse}
+        </p>
+
+        {/* Animated Soundwave bars */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 4, height: 24, marginBottom: 14 }}>
+          {[4, 8, 14, 20, 16, 22, 12, 18, 6, 12, 20, 8].map((h, i) => (
+            <span
+              key={i}
               style={{
-                width: 44, height: 44, borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(201,168,76,0.3)",
-                color: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "rgba(201,168,76,0.25)" : "#f0d080",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: selectedTrackIdx === GUIDED_AUDIOS.length - 1 ? "not-allowed" : "pointer",
-                fontSize: 18, transition: "all 0.2s",
+                width: 3,
+                height: isPlaying ? `${Math.max(4, (h * (1 + Math.sin(progressSec * 2 + i))))}px` : "4px",
+                background: "#c9a84c",
+                borderRadius: 2,
+                transition: "height 0.15s ease",
               }}
-            >
-              ⏭
-            </button>
-          </div>
+            />
+          ))}
+        </div>
 
-          <p style={{ color: "#f0d080", fontSize: 18, fontFamily: "'Playfair Display', serif", fontWeight: 700, margin: "0 0 4px" }}>
-            {track.title}
-          </p>
-          <p style={{ color: "#c9a84c", fontSize: 12, margin: "0 0 14px", fontStyle: "italic" }}>
-            Scriptural Anchor: {track.verse}
-          </p>
+        {/* Progress Slider */}
+        <input
+          type="range"
+          min="0"
+          max={duration}
+          value={progressSec}
+          onChange={handleSeek}
+          style={{ width: "100%", accentColor: "#c9a84c", cursor: "pointer", marginBottom: 6 }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", color: "#8a7a5a", fontSize: 11, fontFamily: "sans-serif" }}>
+          <span>{formatTime(progressSec)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
 
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 4, height: 24, marginBottom: 14 }}>
-            {[4, 8, 14, 20, 16, 22, 12, 18, 6, 12, 20, 8].map((h, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 3,
-                  height: isPlaying ? `${Math.max(4, (h * (1 + Math.sin(progressSec + i))))}px` : "4px",
-                  background: "#c9a84c",
-                  borderRadius: 2,
-                  transition: "height 0.2s ease",
-                }}
-              />
-            ))}
-          </div>
-
-          <input
-            type="range"
-            min="0"
-            max={currentDuration}
-            value={progressSec}
-            onChange={handleSeek}
-            style={{ width: "100%", accentColor: "#c9a84c", cursor: "pointer", marginBottom: 6 }}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", color: "#8a7a5a", fontSize: 11 }}>
-            <span>{formatTime(progressSec)}</span>
-            <span>{formatTime(currentDuration)}</span>
-          </div>
-
-          {/* Download Audio Button */}
-          <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
-            <a
-              href={track.audioUrl}
-              download={`${track.title}.wav`}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#f0d080", borderRadius: 20, padding: "6px 14px", fontSize: 12,
-                textDecoration: "none", fontFamily: "sans-serif", fontWeight: 600,
-              }}
-            >
-              <span>⬇</span> Download Track ({track.formattedDuration})
-            </a>
-          </div>
+        {/* Download Audio Button */}
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+          <a
+            href={track.audioUrl}
+            download={`${track.title}.wav`}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,168,76,0.3)",
+              color: "#f0d080", borderRadius: 20, padding: "6px 14px", fontSize: 12,
+              textDecoration: "none", fontFamily: "sans-serif", fontWeight: 600,
+            }}
+          >
+            📥 Download Studio Audio ({track.formattedDuration})
+          </a>
+        </div>
 
           <div style={{
             background: "rgba(0,0,0,0.35)",
@@ -1072,7 +924,6 @@ function AudioPlayerTab() {
             </p>
           </div>
         </div>
-      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {GUIDED_AUDIOS.map((t, idx) => {
