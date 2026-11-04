@@ -4,11 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -128,12 +129,188 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function PrivateDevNav({ onClose }: { onClose: () => void }) {
+  const { location } = useRouterState();
+  const currentPath = location.pathname;
+
+  const pages = [
+    { path: "/", label: "🏠 Intro" },
+    { path: "/quiz", label: "🎯 Quiz" },
+    { path: "/offer", label: "💰 Oferta" },
+    { path: "/checkout", label: "🛒 Checkout" },
+    { path: "/faith-app", label: "📱 Membros" },
+    { path: "/support", label: "💬 Suporte" },
+  ];
+
+  const handleUnlockFullApp = () => {
+    try {
+      const fullSession = {
+        email: "admin@plan-faith.com",
+        name: "Admin Master",
+        plan: "seed-100",
+      };
+      localStorage.setItem("faith_app_session", JSON.stringify(fullSession));
+      window.location.href = "/faith-app?success=true";
+    } catch {}
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 99999,
+        background: "rgba(10, 8, 4, 0.96)",
+        backdropFilter: "blur(14px)",
+        borderBottom: "1.5px solid rgba(243, 195, 78, 0.5)",
+        boxShadow: "0 4px 25px rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 6,
+        padding: "6px 12px",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+        <span
+          style={{
+            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+            color: "#1a1200",
+            fontSize: 10,
+            fontWeight: 800,
+            padding: "2px 8px",
+            borderRadius: 10,
+            letterSpacing: 0.8,
+            fontFamily: "monospace",
+          }}
+        >
+          🔒 ADMIN DEV
+        </span>
+
+        {pages.map(({ path, label }) => {
+          const active = currentPath === path;
+          return (
+            <Link
+              key={path}
+              to={path}
+              style={{
+                padding: "4px 10px",
+                borderRadius: 16,
+                fontSize: 11,
+                fontWeight: active ? 700 : 500,
+                textDecoration: "none",
+                background: active
+                  ? "linear-gradient(135deg, #c9a84c, #f0d080)"
+                  : "rgba(255,255,255,0.08)",
+                color: active ? "#1a1200" : "#d4c4a0",
+                border: active
+                  ? "1px solid #f0d080"
+                  : "1px solid rgba(255,255,255,0.12)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {label}
+            </Link>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={handleUnlockFullApp}
+          title="Instant unlock all content in /faith-app"
+          style={{
+            background: "rgba(34, 197, 94, 0.2)",
+            border: "1px solid rgba(34, 197, 94, 0.5)",
+            color: "#4ade80",
+            borderRadius: 14,
+            padding: "3px 8px",
+            fontSize: 11,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          ⚡ Unlock App
+        </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={onClose}
+        title="Hide Dev Panel (press Alt+D or visit ?admin=1 to reopen)"
+        style={{
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid rgba(255,255,255,0.2)",
+          color: "#aaa",
+          borderRadius: 8,
+          padding: "3px 8px",
+          fontSize: 11,
+          cursor: "pointer",
+        }}
+      >
+        ✕ Hide
+      </button>
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // 1. Check URL parameters ?admin=1 or ?dev=1
+    const params = new URLSearchParams(window.location.search);
+    const hasAdminParam = params.get("admin") === "1" || params.get("dev") === "1";
+
+    if (hasAdminParam) {
+      localStorage.setItem("faith_admin_mode", "1");
+      setIsAdmin(true);
+    } else {
+      // 2. Check localStorage
+      if (localStorage.getItem("faith_admin_mode") === "1") {
+        setIsAdmin(true);
+      }
+    }
+
+    // 3. Secret keyboard shortcut: Alt + D or Ctrl + Shift + D
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.altKey && (e.key === "d" || e.key === "D")) ||
+        (e.ctrlKey && e.shiftKey && (e.key === "d" || e.key === "D"))
+      ) {
+        e.preventDefault();
+        setIsAdmin((prev) => {
+          const next = !prev;
+          if (next) {
+            localStorage.setItem("faith_admin_mode", "1");
+          } else {
+            localStorage.removeItem("faith_admin_mode");
+          }
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleClose = () => {
+    localStorage.removeItem("faith_admin_mode");
+    setIsAdmin(false);
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {isAdmin && <PrivateDevNav onClose={handleClose} />}
+      <div style={{ paddingTop: isAdmin ? 42 : 0 }}>
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
