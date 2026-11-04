@@ -71,13 +71,15 @@ const PLANS: Record<string, {
 // ─── Checkout component ────────────────────────────────────────────────────────
 
 export function FaithCheckout() {
-  // Read ?plan=XX from URL
-  const params = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : ""
-  );
-  const planKey = params.get("plan") ?? "27";
-  const plan = PLANS[planKey] ?? PLANS["27"];
+  const [planKey, setPlanKey] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("plan");
+      if (p && PLANS[p]) return p;
+    }
+    return "27";
+  });
 
+  const plan = PLANS[planKey] ?? PLANS["27"];
   const [loading, setLoading] = useState(false);
 
   function handleBuy() {
@@ -225,22 +227,43 @@ export function FaithCheckout() {
 
       {/* Switch plan */}
       <div style={{ marginTop: 20, textAlign: "center" }}>
-        <p style={{ color: "#4a4a4a", fontSize: 12, marginBottom: 10 }}>Want a different plan?</p>
+        <p style={{ color: "#8a7a5a", fontSize: 13, marginBottom: 10, fontWeight: 500 }}>Want a different plan?</p>
         <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-          {Object.entries(PLANS).map(([key, p]) => (
-            <a
-              key={key}
-              href={`/checkout?plan=${key}`}
-              style={{
-                padding: "6px 14px", borderRadius: 20, fontSize: 12, textDecoration: "none",
-                background: key === planKey ? "rgba(201,168,76,0.25)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${key === planKey ? "rgba(201,168,76,0.5)" : "rgba(255,255,255,0.1)"}`,
-                color: key === planKey ? "#c9a84c" : "#6b5a2a",
-              }}
-            >
-              {p.tag} — ${p.price}
-            </a>
-          ))}
+          {Object.entries(PLANS).map(([key, p]) => {
+            const isSelected = key === planKey;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setPlanKey(key);
+                  if (typeof window !== "undefined") {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("plan", key);
+                    window.history.replaceState({}, "", url.toString());
+                  }
+                }}
+                style={{
+                  cursor: "pointer",
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: isSelected ? 700 : 500,
+                  background: isSelected
+                    ? "linear-gradient(135deg, rgba(201,168,76,0.35), rgba(240,208,128,0.2))"
+                    : "rgba(255,255,255,0.05)",
+                  border: `1.5px solid ${isSelected ? "#f0d080" : "rgba(255,255,255,0.12)"}`,
+                  color: isSelected ? "#f0d080" : "#a89b80",
+                  boxShadow: isSelected ? "0 0 16px rgba(201,168,76,0.35)" : "none",
+                  transform: isSelected ? "scale(1.04)" : "scale(1)",
+                  transition: "all 0.15s ease",
+                  outline: "none",
+                }}
+              >
+                {p.tag} — ${p.price}
+              </button>
+            );
+          })}
         </div>
       </div>
 
