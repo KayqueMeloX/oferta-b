@@ -1051,19 +1051,6 @@ function AudioPlayerTab() {
   );
 }
 
-              <span style={{ color: "#8a7a5a", fontSize: 12, flexShrink: 0 }}>
-                {t.formattedDuration}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      <HeavenlySounds />
-    </div>
-  );
-}
-
 // ─── 1. Daily Angelic Word / Oracle Modal ("Draw Today's Blessing") ───────────
 
 function AngelicOracleModal({ onClose }: { onClose: () => void }) {
