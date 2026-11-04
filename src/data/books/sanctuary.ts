@@ -5,7 +5,7 @@ export const sanctuaryBook: Book = {
   tag: "DAILY GUIDE",
   title: "Daily Sanctuary & Prayer Protocol",
   subtitle: "Morning, midday & evening liturgy",
-  cover: "https://plan-faith.com/__l5e/assets-v1/f1446989-c561-4963-9a9a-20bcffd85c0b/faith-cover-sanctuary.jpg",
+  cover: "/images/faith-cover-sanctuary.jpg",
   badge: "DAILY GUIDE",
   badgeColor: "#a855f7",
   pagesCount: 154,

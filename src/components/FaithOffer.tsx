@@ -2,57 +2,55 @@ import React, { useEffect, useState } from "react";
 import { VslPlayer } from "./VslPlayer";
 import { getPaymentUrl } from "../config/payment";
 
-const ASSET_BASE = "https://plan-faith.com/__l5e/assets-v1";
-
-const BACKGROUND_URL = `${ASSET_BASE}/24285d67-8103-436e-bd4b-ea10a08cee39/background.jpg`;
+const BACKGROUND_URL = "/images/background.jpg";
 
 const SEED_IMAGES: Record<string, string> = {
-  "seed-27": `${ASSET_BASE}/faefb587-1ff2-483e-9804-a777b3191ba0/sedd-of-fath-27.jpg`,
-  "seed-47": `${ASSET_BASE}/fcc7ce46-348d-439e-b4a0-568b54718cc7/seed-of-faith47.jpg`,
-  "seed-77": `${ASSET_BASE}/262ab083-5f47-4a0a-9560-ef7023121fd8/seed-of-fath-77.jpg`,
-  "seed-100": `${ASSET_BASE}/39d77d54-54ea-46c1-ae8d-37d543c3c4fb/seed-of-faith-100.jpg`,
+  "seed-27": "/images/seed-27.jpg",
+  "seed-47": "/images/seed-47.jpg",
+  "seed-77": "/images/seed-77.jpg",
+  "seed-100": "/images/seed-100.jpg",
 };
 
 const THEMES = [
   {
     name: "My Future",
-    img: `${ASSET_BASE}/7665994b-aaa6-4edc-b414-0ba7e4ad5126/pf-future.jpg`,
+    img: "/images/pf-future.jpg",
   },
   {
     name: "Faith Decision",
-    img: `${ASSET_BASE}/ecea97b0-8e6a-4d98-abbc-b7b5de9e5881/pf-faith.jpg`,
+    img: "/images/pf-faith.jpg",
   },
   {
     name: "Dream Home",
-    img: `${ASSET_BASE}/a46179d6-03e9-42d7-ae2a-28e48d8a45cc/pf-home.jpg`,
+    img: "/images/pf-home.jpg",
   },
   {
     name: "Daily Faith",
-    img: `${ASSET_BASE}/06405fa0-2219-47a0-bf83-be0cf3087e02/pf-car.jpg`,
+    img: "/images/pf-car.jpg",
   },
   {
     name: "Happy Family",
-    img: `${ASSET_BASE}/c0ccd35d-df5c-4d44-91a1-b8d4fddd1c18/pf-family.jpg`,
+    img: "/images/pf-family.jpg",
   },
   {
     name: "Inner Peace",
-    img: `${ASSET_BASE}/fc56eb74-af48-448c-a883-a531cfb8b151/pf-health.jpg`,
+    img: "/images/pf-health.jpg",
   },
   {
     name: "Abundance",
-    img: `${ASSET_BASE}/d29c542e-920d-4f22-a8de-3bf91ea2cbd8/pf-abundance.jpg`,
+    img: "/images/pf-abundance.jpg",
   },
   {
     name: "Renewed Hope",
-    img: `${ASSET_BASE}/facb5950-88cb-4607-954d-f9e0b8d30a08/pf-boost.jpg`,
+    img: "/images/pf-boost.jpg",
   },
   {
     name: "Letting Go",
-    img: `${ASSET_BASE}/38c88d47-0875-4735-a48b-a9bf59c004ba/pf-blocks.jpg`,
+    img: "/images/pf-blocks.jpg",
   },
   {
     name: "Gratitude",
-    img: `${ASSET_BASE}/ee396474-4be6-4d6a-98a7-37731c4773ee/pf-mult.jpg`,
+    img: "/images/pf-mult.jpg",
   },
 ];
 

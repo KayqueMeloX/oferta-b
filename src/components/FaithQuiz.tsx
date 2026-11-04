@@ -1,21 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const ASSET_BASE = "https://plan-faith.com/__l5e/assets-v1";
-
 const MEDIA = {
   clips: {
-    v1: `${ASSET_BASE}/cc41fd43-1aaa-4881-93cd-e5aaf22f8af9/quiz-v1.mp4`,
-    v2: `${ASSET_BASE}/15459292-cdc3-4a52-aa18-aa782582b8bf/quiz-v2.mp4`,
-    v3: `${ASSET_BASE}/d3fadad7-f4bd-494d-8e02-640d572a8b0b/quiz-v3.mp4`,
-    v4: `${ASSET_BASE}/18afd891-5df1-4031-8e34-af72b1a0a2c3/quiz-v4.mp4`,
-    v5: `${ASSET_BASE}/7a851682-0f39-46c1-97d5-d3bd137a9150/quiz-v5.mp4`,
-    v6: `${ASSET_BASE}/54db6ef4-35ea-4707-92a5-9aed047a6d66/quiz-v6.mp4`,
-    v7: `${ASSET_BASE}/a245e9a8-3747-4717-b291-7b0f3b85d3ce/quiz-v7.mp4`,
-    v8: `${ASSET_BASE}/076c2ffe-8eb7-4924-a14b-cadb8d812666/quiz-v8.mp4`,
+    v1: `/quiz/quiz-v1.mp4`,
+    v2: `/quiz/quiz-v2.mp4`,
+    v3: `/quiz/quiz-v3.mp4`,
+    v4: `/quiz/quiz-v4.mp4`,
+    v5: `/quiz/quiz-v5.mp4`,
+    v6: `/quiz/quiz-v6.mp4`,
+    v7: `/quiz/quiz-v7.mp4`,
+    v8: `/quiz/quiz-v8.mp4`,
   },
-  loop: `${ASSET_BASE}/bf4c8854-e825-42d2-9d50-d92aa3fd839a/quiz-loop.mp4`,
-  bgm: `${ASSET_BASE}/6b1a07aa-2e39-4d9b-bcc7-63f446eb9093/quiz-bgm.mp3`,
-  logo: `${ASSET_BASE}/90d44b0e-d74e-4018-909d-df4da854af47/quiz-logo.png`,
+  loop: `/quiz/quiz-loop.mp4`,
+  bgm: `/quiz/quiz-bgm.mp3`,
+  logo: `/quiz/quiz-logo.png`,
 };
 
 type ClipKey = keyof typeof MEDIA.clips;
@@ -43,61 +41,61 @@ const ACHIEVEMENTS: Record<
 > = {
   mult: {
     name: "100x Multiplication",
-    img: `${ASSET_BASE}/ee396474-4be6-4d6a-98a7-37731c4773ee/pf-mult.jpg`,
+    img: `/images/pf-mult.jpg`,
     sub: "",
     btn: "⚡ YES! I receive 100x more!",
   },
   future: {
     name: "I Choose My Future",
-    img: `${ASSET_BASE}/7665994b-aaa6-4edc-b414-0ba7e4ad5126/pf-future.jpg`,
+    img: `/images/pf-future.jpg`,
     sub: "The power to change your life is in your hands!",
     btn: "⚡ Continue Evolution",
   },
   faith: {
     name: "Faith Decision",
-    img: `${ASSET_BASE}/ecea97b0-8e6a-4d98-abbc-b7b5de9e5881/pf-faith.jpg`,
+    img: `/images/pf-faith.jpg`,
     sub: "🙏 Your Faith Will Move Mountains",
     btn: "⚡ Continue Evolution",
   },
   home: {
     name: "Dream Home",
-    img: `${ASSET_BASE}/a46179d6-03e9-42d7-ae2a-28e48d8a45cc/pf-home.jpg`,
+    img: `/images/pf-home.jpg`,
     sub: "🏠 Your Dream Home Is on Its Way",
     btn: "⚡ Continue Evolution",
   },
   car: {
     name: "Dream Car",
-    img: `${ASSET_BASE}/06405fa0-2219-47a0-bf83-be0cf3087e02/pf-car.jpg`,
+    img: `/images/pf-car.jpg`,
     sub: "🚗 Your Dream Car Is Reserved",
     btn: "⚡ Continue Evolution",
   },
   family: {
     name: "Happy Family",
-    img: `${ASSET_BASE}/c0ccd35d-df5c-4d44-91a1-b8d4fddd1c18/pf-family.jpg`,
+    img: `/images/pf-family.jpg`,
     sub: "👨‍👩‍👧‍👦 The Happy Family You Deserve",
     btn: "⚡ Continue Evolution",
   },
   health: {
     name: "Perfect Health",
-    img: `${ASSET_BASE}/fc56eb74-af48-448c-a883-a531cfb8b151/pf-health.jpg`,
+    img: `/images/pf-health.jpg`,
     sub: "❤️ Your Perfect Health Is Activated",
     btn: "⚡ Continue Evolution",
   },
   abundance: {
     name: "Abundance",
-    img: `${ASSET_BASE}/d29c542e-920d-4f22-a8de-3bf91ea2cbd8/pf-abundance.jpg`,
+    img: `/images/pf-abundance.jpg`,
     sub: "💸 Imagine abundance flowing into every area of your life right now!",
     btn: "⚡ YES! I believe, I receive!",
   },
   boost: {
     name: "100x Boost",
-    img: `${ASSET_BASE}/facb5950-88cb-4607-954d-f9e0b8d30a08/pf-boost.jpg`,
+    img: `/images/pf-boost.jpg`,
     sub: "⚡ Your Manifestation Power Just Multiplied by 100x",
     btn: "⚡ Continue Evolution",
   },
   blocks: {
     name: "Blocks Broken",
-    img: `${ASSET_BASE}/38c88d47-0875-4735-a48b-a9bf59c004ba/pf-blocks.jpg`,
+    img: `/images/pf-blocks.jpg`,
     sub: "🔓 All Mental Blocks Have Been Removed",
     btn: "⚡ Continue Evolution",
   },

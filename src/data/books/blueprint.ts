@@ -5,7 +5,7 @@ export const blueprintBook: Book = {
   tag: "BESTSELLER",
   title: "Personalized Script & Blueprint",
   subtitle: "200+ prayers, scriptures & declarations",
-  cover: "https://plan-faith.com/__l5e/assets-v1/371768e4-6927-4bc9-99f9-0f010985638b/faith-cover-blueprint.jpg",
+  cover: "/images/faith-cover-blueprint.jpg",
   badge: "INCLUDED",
   badgeColor: "#22c55e",
   pagesCount: 148,

@@ -5,7 +5,7 @@ export const wealthBook: Book = {
   tag: "WEALTH",
   title: "The Solomon Wealth Code",
   subtitle: "Biblical keys to kingdom abundance",
-  cover: "https://plan-faith.com/__l5e/assets-v1/517928fd-1d1d-4358-ac3f-e5310d138a77/faith-cover-wealth.jpg",
+  cover: "/images/faith-cover-wealth.jpg",
   badge: "WEALTH",
   badgeColor: "#10b981",
   pagesCount: 160,

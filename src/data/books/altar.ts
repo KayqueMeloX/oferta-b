@@ -5,7 +5,7 @@ export const altarBook: Book = {
   tag: "ALTAR",
   title: "The 40-Night Family Altar",
   subtitle: "Generational blessing & deliverance",
-  cover: "https://plan-faith.com/__l5e/assets-v1/3f844a80-3def-4203-975a-31611624c3c0/faith-cover-altar.jpg",
+  cover: "/images/faith-cover-altar.jpg",
   badge: "ALTAR",
   badgeColor: "#f59e0b",
   pagesCount: 158,

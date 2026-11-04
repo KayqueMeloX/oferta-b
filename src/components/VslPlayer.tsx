@@ -37,7 +37,7 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
     }
   };
 
-  // 1. Mount official VTurb player (exactly as on plan-faith.com)
+  // 1. Mount official VTurb player
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;

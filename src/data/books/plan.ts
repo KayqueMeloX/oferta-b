@@ -5,7 +5,7 @@ export const planBook: Book = {
   tag: "PROGRAM",
   title: "90-Day Activation Plan",
   subtitle: "Step-by-step spiritual growth roadmap",
-  cover: "https://plan-faith.com/assets/faith-cover-plan-DOQOKYqJ.jpg",
+  cover: "/images/faith-cover-plan.jpg",
   badge: "PROGRAM",
   badgeColor: "#3b82f6",
   pagesCount: 160,

@@ -156,7 +156,7 @@ function PrivateDevNav({
   const handleUnlockFullApp = () => {
     try {
       const fullSession = {
-        email: "admin@plan-faith.com",
+        email: "admin@godjesus.lovable.app",
         name: "Admin Master",
         plan: "seed-100",
       };

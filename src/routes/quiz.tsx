@@ -21,8 +21,7 @@ export const Route = createFileRoute("/quiz")({
       },
       {
         property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/lovp_26x6kh4q7w808tewdws371pw9j/fdc7389913d207e214e042afa362cbc8_1793064005836.png",
+        content: "/og-image.png",
       },
       {
         name: "twitter:title",
@@ -35,8 +34,7 @@ export const Route = createFileRoute("/quiz")({
       },
       {
         name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/lovp_26x6kh4q7w808tewdws371pw9j/fdc7389913d207e214e042afa362cbc8_1793064005836.png",
+        content: "/og-image.png",
       },
     ],
   }),

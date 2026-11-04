@@ -37,16 +37,16 @@ interface Testimony {
   date: string;
 }
 
-// ─── CDN Assets from plan-faith.com ──────────────────────────────────────────
+// ─── Local Self-Hosted Assets ──────────────────────────────────────────────────
 
 const ASSETS = {
-  hero: "https://plan-faith.com/__l5e/assets-v1/ca4162c8-3869-4a49-9316-3c5c075e4757/faith-app-hero.jpg",
-  coverBlueprint: "https://plan-faith.com/__l5e/assets-v1/371768e4-6927-4bc9-99f9-0f010985638b/faith-cover-blueprint.jpg",
-  coverSanctuary: "https://plan-faith.com/__l5e/assets-v1/f1446989-c561-4963-9a9a-20bcffd85c0b/faith-cover-sanctuary.jpg",
-  coverPlan: "https://plan-faith.com/assets/faith-cover-plan-DOQOKYqJ.jpg",
-  coverSeals: "https://plan-faith.com/assets/faith-cover-seals-CRwSv7ld.jpg",
-  coverWealth: "https://plan-faith.com/__l5e/assets-v1/517928fd-1d1d-4358-ac3f-e5310d138a77/faith-cover-wealth.jpg",
-  coverAltar: "https://plan-faith.com/__l5e/assets-v1/3f844a80-3def-4203-975a-31611624c3c0/faith-cover-altar.jpg",
+  hero: "/images/faith-app-hero.jpg",
+  coverBlueprint: "/images/faith-cover-blueprint.jpg",
+  coverSanctuary: "/images/faith-cover-sanctuary.jpg",
+  coverPlan: "/images/faith-cover-plan.jpg",
+  coverSeals: "/images/faith-cover-seals.jpg",
+  coverWealth: "/images/faith-cover-wealth.jpg",
+  coverAltar: "/images/faith-cover-altar.jpg",
 };
 
 // ─── Community Testimonies Data (Anti-Refund Proof) ──────────────────────────

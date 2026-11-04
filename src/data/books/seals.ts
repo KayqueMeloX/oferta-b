@@ -5,7 +5,7 @@ export const sealsBook: Book = {
   tag: "SPECIAL",
   title: "The 7 Holy Seals of Family Protection",
   subtitle: "Spiritual warfare & household covering",
-  cover: "https://plan-faith.com/assets/faith-cover-seals-CRwSv7ld.jpg",
+  cover: "/images/faith-cover-seals.jpg",
   badge: "SPECIAL",
   badgeColor: "#eab308",
   pagesCount: 165,
