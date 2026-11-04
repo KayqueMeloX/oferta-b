@@ -2587,18 +2587,191 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
 
 // ─── Library Tab ──────────────────────────────────────────────────────────────
 
-function LibraryTab({ session }: { session: Session }) {
+interface LibraryTabProps {
+  session: Session;
+  onNavigateTab: (tab: Tab) => void;
+  onOpenRitual: () => void;
+}
+
+function LibraryTab({ session, onNavigateTab, onOpenRitual }: LibraryTabProps) {
   const [readingBook, setReadingBook] = useState<Book | null>(null);
+
+  const materials = [
+    {
+      id: "blueprint",
+      title: "Faith & Abundance Blueprint",
+      tag: "FREE",
+      tagColor: "linear-gradient(135deg, #c9a84c, #f0d080)",
+      textColor: "#1a1200",
+      desc: "Complete 21-day program with daily biblical activations",
+      icon: "📖",
+      onClick: () => onNavigateTab("journey"),
+    },
+    {
+      id: "script",
+      title: "Your Personalized Manifestation Script",
+      tag: "INCLUDED",
+      tagColor: "linear-gradient(135deg, #c9a84c, #f0d080)",
+      textColor: "#1a1200",
+      desc: "Based on your personal quiz answers & spiritual profile",
+      icon: "✨",
+      onClick: () => {
+        const b = LIBRARY_BOOKS.find(x => x.id === "front" || x.id === "blueprint") ?? LIBRARY_BOOKS[0];
+        setReadingBook(b);
+      },
+    },
+    {
+      id: "affirmations",
+      title: "777 Biblical Affirmations",
+      tag: "BONUS",
+      tagColor: "rgba(59, 130, 246, 0.25)",
+      borderTag: "1px solid rgba(59, 130, 246, 0.5)",
+      textColor: "#93c5fd",
+      desc: "Daily declarations for wealth, health & divine peace",
+      icon: "📜",
+      onClick: () => {
+        const b = LIBRARY_BOOKS.find(x => x.id === "plan") ?? LIBRARY_BOOKS[1];
+        setReadingBook(b);
+      },
+    },
+    {
+      id: "ritual",
+      title: "Sacred Morning Ritual",
+      tag: "BONUS",
+      tagColor: "rgba(236, 72, 153, 0.25)",
+      borderTag: "1px solid rgba(236, 72, 153, 0.5)",
+      textColor: "#f472b6",
+      desc: "5-minute routine that transforms your mornings",
+      icon: "🌅",
+      onClick: onOpenRitual,
+    },
+    {
+      id: "journal",
+      title: "Miracle Journal (Digital)",
+      tag: "INCLUDED",
+      tagColor: "linear-gradient(135deg, #c9a84c, #f0d080)",
+      textColor: "#1a1200",
+      desc: "Track God's faithfulness & answer prayers daily",
+      icon: "📓",
+      onClick: () => onNavigateTab("pray"),
+    },
+    {
+      id: "wealth",
+      title: "Prophetic Wealth Code",
+      tag: "INCLUDED",
+      tagColor: "linear-gradient(135deg, #c9a84c, #f0d080)",
+      textColor: "#1a1200",
+      desc: "Unlock hidden biblical principles of supernatural abundance",
+      icon: "🔐",
+      onClick: () => {
+        const b = LIBRARY_BOOKS.find(x => x.id === "wealth") ?? LIBRARY_BOOKS[4];
+        setReadingBook(b);
+      },
+    },
+  ];
 
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
       <h1 style={{ color: "#f0d080", fontSize: 26, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
-        Kingdom Vault Library
+        Your Library
       </h1>
-      <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 24px", fontFamily: "sans-serif" }}>
-        Tap any digital sacred volume to open the in-app interactive reader or download.
+      <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 20px", fontFamily: "sans-serif" }}>
+        All your digital materials, ready to access. Tap any item below to open.
       </p>
 
+      {/* 6 Core Digital Materials (Interactive List) */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+        {materials.map((item) => (
+          <div
+            key={item.id}
+            onClick={item.onClick}
+            role="button"
+            tabIndex={0}
+            style={{
+              position: "relative",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(201,168,76,0.3)",
+              borderRadius: 16,
+              padding: "16px 18px",
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.25)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#f0d080";
+              e.currentTarget.style.background = "rgba(201,168,76,0.08)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)";
+              e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                <span
+                  style={{
+                    color: "#f0d080",
+                    fontSize: 15,
+                    fontFamily: "'Playfair Display', serif",
+                    fontWeight: 700,
+                  }}
+                >
+                  {item.title}
+                </span>
+
+                <span
+                  style={{
+                    background: item.tagColor,
+                    border: item.borderTag || "none",
+                    color: item.textColor,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 12,
+                    letterSpacing: 0.5,
+                    fontFamily: "sans-serif",
+                  }}
+                >
+                  {item.tag}
+                </span>
+              </div>
+
+              <p style={{ color: "#8a7a5a", fontSize: 12, margin: 0, fontFamily: "sans-serif" }}>
+                {item.desc}
+              </p>
+            </div>
+
+            <div
+              style={{
+                color: "#f0d080",
+                fontSize: 20,
+                fontWeight: 700,
+                padding: "4px 8px",
+                flexShrink: 0,
+              }}
+            >
+              →
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Kingdom Vault Section Header */}
+      <h2 style={{ color: "#f0d080", fontSize: 20, margin: "0 0 6px", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+        Kingdom Vault Volumes
+      </h2>
+      <p style={{ color: "#8a7a5a", fontSize: 13, margin: "0 0 20px", fontFamily: "sans-serif" }}>
+        Interactive sacred book reader with chapters, scripture anchors & PDF downloads.
+      </p>
+
+      {/* Book Covers List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {LIBRARY_BOOKS.map(book => (
           <div
@@ -3652,7 +3825,13 @@ export function FaithApp() {
           />
         )}
         {tab === "journey" && <JourneyTab session={session} onBackToHome={() => setTab("home")} />}
-        {tab === "library" && <LibraryTab session={session} />}
+        {tab === "library" && (
+          <LibraryTab
+            session={session}
+            onNavigateTab={setTab}
+            onOpenRitual={() => setShowRitual(true)}
+          />
+        )}
         {tab === "audio" && <AudioPlayerTab />}
         {tab === "pray" && <PrayTab />}
       </main>
