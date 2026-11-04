@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { LIBRARY_BOOKS, type Book } from "../data/books";
+import { trackPurchase } from "../lib/tracking";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -3575,6 +3576,8 @@ export function FaithApp() {
       const params = new URLSearchParams(window.location.search);
       if (params.get("success") === "true" || params.has("session_id") || params.get("paid") === "true") {
         setWelcomeAlert(true);
+        // Track Purchase on Meta Pixel & UTMify
+        trackPurchase(47, "USD");
       }
     }
   }, []);

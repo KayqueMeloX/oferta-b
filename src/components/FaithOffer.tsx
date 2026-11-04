@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { VslPlayer } from "./VslPlayer";
 import { getPaymentUrl } from "../config/payment";
+import { trackViewContent, trackInitiateCheckout } from "../lib/tracking";
 
 const BACKGROUND_URL = "/images/background.jpg";
 
@@ -96,6 +97,9 @@ export function FaithOffer() {
         day: "numeric",
       })
     );
+
+    // Track ViewContent on Meta Pixel
+    trackViewContent("Faith Offer Page", 47);
 
     // Check if already revealed before
     try {
@@ -236,10 +240,16 @@ export function FaithOffer() {
             <div className="mx-auto mt-6 flex max-w-md flex-col gap-8">
               {PRODUCTS.map((prod) => {
                 const targetUrl = getPaymentUrl(prod.key);
+                const priceNum = parseInt(prod.price.replace("$", "")) || 47;
+                const handleCheckoutClick = () => {
+                  trackInitiateCheckout(prod.key, priceNum);
+                };
+
                 return (
                   <article key={prod.key} className="flex flex-col gap-3">
                     <a
                       href={targetUrl}
+                      onClick={handleCheckoutClick}
                       className="block w-full cursor-pointer transition-transform active:scale-[0.98]"
                     >
                       <img
@@ -253,6 +263,7 @@ export function FaithOffer() {
                     </a>
                     <a
                       href={targetUrl}
+                      onClick={handleCheckoutClick}
                       className="block w-full rounded-xl bg-gradient-to-r from-[#f7d873] to-[#e0a91d] py-4 text-center font-bold text-[#1a1206] shadow-lg transition-transform active:scale-[0.98] text-lg font-sans"
                     >
                       Choose this Seed –{" "}

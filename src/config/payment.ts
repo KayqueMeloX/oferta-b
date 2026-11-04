@@ -1,3 +1,5 @@
+import { appendUtms } from "../lib/tracking";
+
 /**
  * Direct Stripe payment / checkout URLs for each plan.
  */
@@ -17,16 +19,16 @@ export const PAYMENT_LINKS: Record<string, string> = {
 
 /**
  * Returns the direct payment URL for a given plan key (e.g. 'seed-27' or '27').
- * Redirects directly to the official Stripe payment page.
+ * Preserves all UTM campaign parameters and redirects directly to Stripe.
  */
 export function getPaymentUrl(planKey: string): string {
   const normalizedKey = planKey.startsWith("seed-") ? planKey : `seed-${planKey}`;
   const directLink = PAYMENT_LINKS[normalizedKey];
 
   if (directLink && !directLink.includes("CONFIGURE_SEU_LINK_AQUI")) {
-    return directLink;
+    return appendUtms(directLink);
   }
 
   const num = normalizedKey.replace("seed-", "");
-  return `/checkout?plan=${num}`;
+  return appendUtms(`/checkout?plan=${num}`);
 }

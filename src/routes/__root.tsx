@@ -13,6 +13,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { captureAndStoreUtms, trackPageView, META_PIXEL_ID } from "../lib/tracking";
 
 function NotFoundComponent() {
   return (
@@ -110,9 +111,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://scripts.converteai.net" },
       { rel: "preconnect", href: "https://cdn.converteai.net" },
       { rel: "preconnect", href: "https://images.converteai.net" },
+      { rel: "preconnect", href: "https://connect.facebook.net" },
+      { rel: "preconnect", href: "https://cdn.utmify.com.br" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://images.converteai.net" },
+      { rel: "dns-prefetch", href: "https://connect.facebook.net" },
+      { rel: "dns-prefetch", href: "https://cdn.utmify.com.br" },
     ],
   }),
   shellComponent: RootShell,
@@ -126,6 +131,39 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Meta Pixel Code */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '${META_PIXEL_ID}');
+              fbq('track', 'PageView');
+            `,
+          }}
+        />
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+
+        {/* Utmify UTM Tracking Script */}
+        <script
+          src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+          data-utmify-prevent-subids
+          async
+          defer
+        />
       </head>
       <body>
         {children}
@@ -328,7 +366,14 @@ function PrivateDevNav({
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { location } = useRouterState();
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // Capture UTMs on load & route change, track PageView
+  useEffect(() => {
+    captureAndStoreUtms();
+    trackPageView(location.pathname);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
