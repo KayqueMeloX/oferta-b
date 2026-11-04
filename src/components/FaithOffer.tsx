@@ -255,9 +255,12 @@ export function FaithOffer() {
                     </a>
                     <a
                       href={targetUrl}
-                      className="block w-full rounded-xl bg-gradient-to-r from-[#f7d873] to-[#e0a91d] py-4 text-center font-bold text-[#1a1206] shadow-lg transition-transform active:scale-[0.98]"
+                      className="block w-full rounded-xl bg-gradient-to-r from-[#f7d873] to-[#e0a91d] py-4 text-center font-bold text-[#1a1206] shadow-lg transition-transform active:scale-[0.98] text-lg font-sans"
                     >
-                      Choose this Seed – {prod.price} USD
+                      Choose this Seed –{" "}
+                      <span translate="no" className="notranslate font-extrabold">
+                        {prod.price} USD
+                      </span>
                     </a>
                   </article>
                 );

@@ -137,7 +137,6 @@ function PrivateDevNav({ onClose }: { onClose: () => void }) {
     { path: "/", label: "🏠 Intro" },
     { path: "/quiz", label: "🎯 Quiz" },
     { path: "/offer", label: "💰 Oferta" },
-    { path: "/checkout", label: "🛒 Checkout" },
     { path: "/faith-app", label: "📱 Membros" },
     { path: "/support", label: "💬 Suporte" },
   ];

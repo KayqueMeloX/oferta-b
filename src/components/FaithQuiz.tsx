@@ -510,7 +510,10 @@ export function FaithQuiz() {
               you believe?
             </div>
             <div className="balbox">
-              New Spiritual Balance: {formatCurrency(balance)}
+              New Spiritual Balance:{" "}
+              <span translate="no" className="notranslate font-bold">
+                {formatCurrency(balance)}
+              </span>
             </div>
           </>
         ) : (
@@ -709,7 +712,7 @@ export function FaithQuiz() {
             Hello, {userName} — your journey has begun...
           </div>
           <div className="bal-label">Spiritual Balance</div>
-          <div className="bal-value" id="balValue">
+          <div className="bal-value notranslate" id="balValue" translate="no">
             {formatCurrency(balance)}
           </div>
           <div className="energy-row">

@@ -1,16 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { FaithCheckout } from "../components/FaithCheckout";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { getPaymentUrl } from "../config/payment";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({
-    meta: [
-      { title: "Checkout | Plan Faith" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
-  component: CheckoutPage,
+  beforeLoad: ({ search }: { search: Record<string, string> }) => {
+    const plan = search?.plan;
+    if (plan) {
+      const url = getPaymentUrl(plan);
+      if (typeof window !== "undefined") {
+        window.location.href = url;
+      }
+    }
+    throw redirect({ to: "/offer" });
+  },
+  component: () => null,
 });
-
-function CheckoutPage() {
-  return <FaithCheckout />;
-}

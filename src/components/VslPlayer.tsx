@@ -171,6 +171,11 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
     setIsMuted(false);
     setHasStartedWithSound(true);
 
+    // Immediately reveal the offers below the video on click
+    if (onReveal) {
+      onReveal();
+    }
+
     const target = 0.05;
     video.currentTime = target;
     if (hlsRef.current) {
@@ -195,6 +200,10 @@ export function VslPlayer({ onReveal, revealTime = 155 }: VslPlayerProps) {
   const handleTogglePlay = (e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
+    }
+
+    if (onReveal) {
+      onReveal();
     }
 
     if (!hasStartedWithSound) {
