@@ -399,32 +399,40 @@ export function FaithQuiz() {
   useEffect(() => {
     let maxY = 0;
     const handleViewport = () => {
-      const vv = window.visualViewport;
-      const h = vv ? vv.height : window.innerHeight;
-      if (h > maxY) maxY = h;
+      try {
+        const vv = typeof window !== "undefined" ? window.visualViewport : null;
+        const h = vv ? vv.height : (typeof window !== "undefined" ? window.innerHeight : 800);
+        if (h > maxY) maxY = h;
 
-      const pfq = document.getElementById("pfq");
-      if (pfq) {
-        pfq.style.setProperty("--vvh", `${h}px`);
-        if (maxY - h > 140) {
-          pfq.classList.add("kb-open");
-        } else {
-          pfq.classList.remove("kb-open");
+        const pfq = document.getElementById("pfq");
+        if (pfq) {
+          pfq.style.setProperty("--vvh", `${h}px`);
+          if (maxY - h > 140) {
+            pfq.classList.add("kb-open");
+          } else {
+            pfq.classList.remove("kb-open");
+          }
         }
-      }
 
-      if (appContainerRef.current && vv) {
-        appContainerRef.current.style.top = `${vv.offsetTop}px`;
+        if (appContainerRef.current && vv && typeof vv.offsetTop === "number") {
+          appContainerRef.current.style.top = `${vv.offsetTop}px`;
+        }
+      } catch (e) {
+        console.debug("Viewport resize handler:", e);
       }
     };
 
     handleViewport();
-    window.visualViewport?.addEventListener("resize", handleViewport);
-    window.visualViewport?.addEventListener("scroll", handleViewport);
+    if (typeof window !== "undefined" && window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleViewport);
+      window.visualViewport.addEventListener("scroll", handleViewport);
+    }
 
     return () => {
-      window.visualViewport?.removeEventListener("resize", handleViewport);
-      window.visualViewport?.removeEventListener("scroll", handleViewport);
+      if (typeof window !== "undefined" && window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleViewport);
+        window.visualViewport.removeEventListener("scroll", handleViewport);
+      }
     };
   }, []);
 
@@ -467,17 +475,27 @@ export function FaithQuiz() {
 
   // Start Entrance name submission
   const handleNameSubmit = () => {
-    const trimmed = userName.trim();
-    if (!trimmed) return;
-    setCurrentScreen("affirmation");
-    playSpeech(SPEECH_MAP.affirm);
+    try {
+      const trimmed = userName.trim();
+      if (!trimmed) return;
+      setCurrentScreen("affirmation");
+      playSpeech(SPEECH_MAP.affirm);
+    } catch (e) {
+      console.warn("handleNameSubmit safe fallback:", e);
+      setCurrentScreen("affirmation");
+    }
   };
 
   // Affirmation screen continue
   const handleAffirmationContinue = () => {
-    setCurrentQ(0);
-    setCurrentScreen("questionScreen");
-    playSpeech(SPEECH_MAP.q0);
+    try {
+      setCurrentQ(0);
+      setCurrentScreen("questionScreen");
+      playSpeech(SPEECH_MAP.q0);
+    } catch (e) {
+      console.warn("handleAffirmationContinue safe fallback:", e);
+      setCurrentScreen("questionScreen");
+    }
   };
 
   // Show milestone modal
