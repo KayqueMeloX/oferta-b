@@ -15,6 +15,7 @@ export const VslPlayer = memo(function VslPlayer({
 }: VslPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const revealedRef = useRef(false);
+  const initializedRef = useRef(false);
 
   const triggerReveal = () => {
     if (!revealedRef.current) {
@@ -27,58 +28,110 @@ export const VslPlayer = memo(function VslPlayer({
   };
 
   useEffect(() => {
+    // Strictly prevent duplicate execution
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     const container = containerRef.current;
     if (!container) return;
 
-    // Purge any rogue vturb elements injected directly in body
-    document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+    // 1. Teardown and destroy any existing smartplayer instances from previous page loads
+    try {
+      const sp = (window as any).smartplayer;
+      if (sp && Array.isArray(sp.instances)) {
+        sp.instances.forEach((inst: any) => {
+          try {
+            inst?.video?.pause?.();
+            inst?.destroy?.();
+          } catch {}
+        });
+        sp.instances = [];
+      }
 
-    // Check if user already revealed in a previous session
+      // Pause and remove any rogue video/audio elements currently in the DOM
+      document.querySelectorAll("video, audio").forEach((media) => {
+        try {
+          (media as HTMLMediaElement).pause();
+          (media as HTMLMediaElement).src = "";
+          media.remove();
+        } catch {}
+      });
+
+      // Remove any stray vturb tags that might have leaked into body
+      document.querySelectorAll("body > vturb-smartplayer, body > [id^='vid-6ae4ee283ce6']").forEach((el) => {
+        el.remove();
+      });
+
+      // Remove any old script tags for VTurb
+      document.querySelectorAll(`script[src*="6ae4ee283ce680b34e9f0d05"]`).forEach((s) => s.remove());
+    } catch (e) {
+      console.warn("VTurb cleanup warning:", e);
+    }
+
+    // 2. Check if user already revealed
     try {
       if (localStorage.getItem("faith_offer_revealed_v2") === "1") {
         triggerReveal();
       }
     } catch {}
 
-    // Ensure only a single vturb-smartplayer element exists in container
-    if (!container.querySelector("vturb-smartplayer")) {
-      container.innerHTML = `
-        <vturb-smartplayer id="${VTURB_PLAYER_ID}" style="display:block;margin:0 auto;width:100%;">
-          <div style="position:relative;width:100%;padding:178.22% 0 0;background-color:black;"></div>
-        </vturb-smartplayer>
-      `;
-    }
+    // 3. Create single clean vturb-smartplayer tag
+    container.innerHTML = `
+      <vturb-smartplayer id="${VTURB_PLAYER_ID}" style="display:block;margin:0 auto;width:100%;">
+        <div style="position:relative;width:100%;padding:178.22% 0 0;background-color:black;"></div>
+      </vturb-smartplayer>
+    `;
 
-    // Inject official VTurb script once
-    let script = document.querySelector(`script[src="${VTURB_SCRIPT_URL}"]`) as HTMLScriptElement;
-    if (!script) {
-      script = document.createElement("script");
-      script.src = VTURB_SCRIPT_URL;
-      script.async = true;
-      document.head.appendChild(script);
-    }
+    // 4. Inject single fresh script tag
+    const script = document.createElement("script");
+    script.src = VTURB_SCRIPT_URL;
+    script.async = true;
+    document.head.appendChild(script);
 
-    // Reveal timer fallback (155s)
+    // 5. Timer fallback (155s)
     const timeoutTimer = window.setTimeout(triggerReveal, revealTime * 1000);
 
-    // Track VTurb player currentTime API
+    // 6. Track currentTime from smartplayer instance or element API
     const intervalTimer = window.setInterval(() => {
-      const el = document.getElementById(VTURB_PLAYER_ID) as any;
-      if (el) {
+      try {
+        const sp = (window as any).smartplayer;
+        const inst = sp?.instances?.[0];
+        if (inst && typeof inst.video?.currentTime === "number") {
+          if (inst.video.currentTime >= revealTime) {
+            triggerReveal();
+          }
+          return;
+        }
+
+        const el = document.getElementById(VTURB_PLAYER_ID) as any;
         const cur = el?.getCurrentTime?.();
         if (typeof cur === "number" && cur >= revealTime) {
           triggerReveal();
         }
-      }
+      } catch {}
     }, 1000);
 
     return () => {
       window.clearTimeout(timeoutTimer);
       window.clearInterval(intervalTimer);
-      if (container) {
-        container.innerHTML = "";
-      }
-      document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+
+      try {
+        const sp = (window as any).smartplayer;
+        if (sp && Array.isArray(sp.instances)) {
+          sp.instances.forEach((inst: any) => {
+            try {
+              inst?.video?.pause?.();
+              inst?.destroy?.();
+            } catch {}
+          });
+          sp.instances = [];
+        }
+        if (container) {
+          container.innerHTML = "";
+        }
+        document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+        script.remove();
+      } catch {}
     };
   }, [revealTime]);
 
