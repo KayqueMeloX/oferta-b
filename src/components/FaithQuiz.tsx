@@ -522,8 +522,8 @@ export function FaithQuiz() {
         {isMult ? (
           <>
             <div className="achsub">
-              {userName}, today I&apos;m adding 100x more to your spiritual balance — do
-              you believe?
+              <span translate="no" className="notranslate">{userName}</span>
+              <span>, today I&apos;m adding 100x more to your spiritual balance — do you believe?</span>
             </div>
             <div className="balbox">
               New Spiritual Balance:{" "}
@@ -544,7 +544,7 @@ export function FaithQuiz() {
                 <>
                   <div className="modaltop">✦ &nbsp;Abundance</div>
                   <div className="achname" style={{ fontSize: "24px" }}>
-                    {userName}
+                    <span translate="no" className="notranslate">{userName}</span>
                   </div>
                   <div className="achsub">
                     Your manifestation potential depends on your choice. Think big — you
@@ -725,7 +725,9 @@ export function FaithQuiz() {
           id="hud"
         >
           <div className="hello" id="hello">
-            Hello, {userName} — your journey has begun...
+            <span>Hello, </span>
+            <span translate="no" className="notranslate">{userName}</span>
+            <span> — your journey has begun...</span>
           </div>
           <div className="bal-label">Spiritual Balance</div>
           <div className="bal-value notranslate" id="balValue" translate="no">
@@ -775,7 +777,7 @@ export function FaithQuiz() {
           >
             <div className="revealable">
               <div className="lead">
-                God does not bring you here by accident.
+                <span>God does not bring you here by accident.</span>
                 <br />
                 <span className="big">
                   Type your name below and step into what was prepared for you.
@@ -784,9 +786,10 @@ export function FaithQuiz() {
               <input
                 type="text"
                 id="nameInput"
-                className="name-input"
+                className="name-input notranslate"
+                translate="no"
                 placeholder="Your name"
-                autoComplete="off"
+                autoComplete="name"
                 aria-label="Your name"
                 maxLength={40}
                 value={userName}
@@ -897,7 +900,8 @@ export function FaithQuiz() {
             id="loading"
           >
             <div className="lt" id="loadTitle">
-              {userName}, your Divine Manifestation Script is being created...
+              <span translate="no" className="notranslate">{userName}</span>
+              <span>, your Divine Manifestation Script is being created...</span>
             </div>
             <div className="load-status" id="loadStatus">
               {loadStatus}

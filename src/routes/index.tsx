@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FaithQuiz } from "../components/FaithQuiz";
+import { SafeBoundary } from "../components/SafeBoundary";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,5 +43,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return <FaithQuiz />;
+  return (
+    <SafeBoundary name="FaithQuiz-Index">
+      <FaithQuiz />
+    </SafeBoundary>
+  );
 }

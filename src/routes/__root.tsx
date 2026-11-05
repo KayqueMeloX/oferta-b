@@ -1,3 +1,4 @@
+import "../lib/patch-translate-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FaithQuiz } from "../components/FaithQuiz";
+import { SafeBoundary } from "../components/SafeBoundary";
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({
@@ -42,5 +43,9 @@ export const Route = createFileRoute("/quiz")({
 });
 
 function QuizPage() {
-  return <FaithQuiz />;
+  return (
+    <SafeBoundary name="FaithQuiz-QuizPage">
+      <FaithQuiz />
+    </SafeBoundary>
+  );
 }
