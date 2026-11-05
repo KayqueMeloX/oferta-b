@@ -36,7 +36,6 @@ export function initTracking() {
       })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
       window.fbq("init", META_PIXEL_ID);
-      window.fbq("track", "PageView");
     } catch (err) {
       console.debug("Meta Pixel init error:", err);
     }
@@ -121,13 +120,22 @@ export function appendUtms(targetUrl: string): string {
   }
 }
 
+let lastTrackedPath: string | null = null;
+
 /**
- * Track PageView event
+ * Track PageView event cleanly without duplicates
  */
 export function trackPageView(pageName?: string) {
   if (typeof window === "undefined" || !window.fbq) return;
+
+  const currentPath = pageName || window.location.pathname;
+  if (lastTrackedPath === currentPath) {
+    return;
+  }
+  lastTrackedPath = currentPath;
+
   try {
-    window.fbq("track", "PageView", pageName ? { page_name: pageName } : undefined);
+    window.fbq("track", "PageView");
   } catch (err) {
     console.debug("Track PageView error:", err);
   }
