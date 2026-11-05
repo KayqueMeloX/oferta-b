@@ -30,6 +30,9 @@ export const VslPlayer = memo(function VslPlayer({
     const container = containerRef.current;
     if (!container) return;
 
+    // Purge any rogue vturb elements injected directly in body
+    document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+
     // Check if user already revealed in a previous session
     try {
       if (localStorage.getItem("faith_offer_revealed_v2") === "1") {
@@ -72,6 +75,10 @@ export const VslPlayer = memo(function VslPlayer({
     return () => {
       window.clearTimeout(timeoutTimer);
       window.clearInterval(intervalTimer);
+      if (container) {
+        container.innerHTML = "";
+      }
+      document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
     };
   }, [revealTime]);
 

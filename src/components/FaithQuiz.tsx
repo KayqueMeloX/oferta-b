@@ -436,13 +436,40 @@ export function FaithQuiz() {
     };
   }, []);
 
-  // Set initial video sources
+  // Set initial video sources and guarantee complete teardown on unmount
   useEffect(() => {
     if (loopVidRef.current) loopVidRef.current.src = MEDIA.loop;
     if (bgmRef.current) {
       bgmRef.current.src = MEDIA.bgm;
       bgmRef.current.volume = 0.1;
     }
+
+    return () => {
+      try {
+        if (bgmRef.current) {
+          bgmRef.current.pause();
+          bgmRef.current.currentTime = 0;
+          bgmRef.current.src = "";
+        }
+        if (loopVidRef.current) {
+          loopVidRef.current.pause();
+          loopVidRef.current.currentTime = 0;
+          loopVidRef.current.src = "";
+        }
+        if (speechVid1Ref.current) {
+          speechVid1Ref.current.pause();
+          speechVid1Ref.current.currentTime = 0;
+          speechVid1Ref.current.src = "";
+        }
+        if (speechVid2Ref.current) {
+          speechVid2Ref.current.pause();
+          speechVid2Ref.current.currentTime = 0;
+          speechVid2Ref.current.src = "";
+        }
+      } catch (e) {
+        console.warn("Quiz media teardown error:", e);
+      }
+    };
   }, []);
 
   // Sound toggle button
@@ -640,6 +667,12 @@ export function FaithQuiz() {
         clearInterval(interval);
         setLoadStatus("Your Divine Manifestation Script is ready ✦");
         setTimeout(() => {
+          try {
+            if (bgmRef.current) bgmRef.current.pause();
+            if (loopVidRef.current) loopVidRef.current.pause();
+            if (speechVid1Ref.current) speechVid1Ref.current.pause();
+            if (speechVid2Ref.current) speechVid2Ref.current.pause();
+          } catch {}
           const params = new URLSearchParams(window.location.search);
           params.set("name", userName);
           window.location.href = `/offer?${params.toString()}`;

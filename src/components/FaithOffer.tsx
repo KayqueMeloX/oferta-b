@@ -86,6 +86,20 @@ export function FaithOffer() {
   const [isRevealed, setIsRevealed] = useState(false);
 
   useEffect(() => {
+    // 1. Teardown any orphan background media elements from previous screens
+    if (typeof document !== "undefined") {
+      document.querySelectorAll("video, audio").forEach((el) => {
+        if (!el.closest("vturb-smartplayer")) {
+          try {
+            (el as HTMLMediaElement).pause();
+            (el as HTMLMediaElement).currentTime = 0;
+          } catch {}
+        }
+      });
+      // Purge any rogue vturb tags at the root of document.body
+      document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+    }
+
     const params = new URLSearchParams(window.location.search);
     const n = params.get("name") || "";
     setName(n.trim().toUpperCase());
