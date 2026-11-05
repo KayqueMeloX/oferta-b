@@ -367,6 +367,7 @@ function PrivateDevNav({
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { location } = useRouterState();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Capture UTMs on load & route change, track PageView
@@ -378,22 +379,35 @@ function RootComponent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Check localStorage preference
-    const saved = localStorage.getItem("dev_nav_minimized");
-    if (saved === "1") {
+    // Check if ?admin=1 or ?dev=1 is in URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("admin") === "1" || params.get("dev") === "1") {
+      localStorage.setItem("faith_admin_enabled", "1");
+      setIsAdmin(true);
+    } else if (localStorage.getItem("faith_admin_enabled") === "1") {
+      setIsAdmin(true);
+    }
+
+    // Check minimized preference
+    const savedMin = localStorage.getItem("dev_nav_minimized");
+    if (savedMin === "1") {
       setIsMinimized(true);
     }
 
-    // Keyboard shortcut Alt+D to toggle
+    // Keyboard shortcut Alt+D or Ctrl+Shift+D to toggle admin dev bar
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         (e.altKey && (e.key === "d" || e.key === "D")) ||
         (e.ctrlKey && e.shiftKey && (e.key === "d" || e.key === "D"))
       ) {
         e.preventDefault();
-        setIsMinimized((prev) => {
+        setIsAdmin((prev) => {
           const next = !prev;
-          localStorage.setItem("dev_nav_minimized", next ? "1" : "0");
+          if (next) {
+            localStorage.setItem("faith_admin_enabled", "1");
+          } else {
+            localStorage.removeItem("faith_admin_enabled");
+          }
           return next;
         });
       }
@@ -413,11 +427,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PrivateDevNav
-        isMinimized={isMinimized}
-        onToggleMinimize={handleToggleMinimize}
-      />
-      <div style={{ paddingTop: isMinimized ? 0 : 42 }}>
+      {isAdmin && (
+        <PrivateDevNav
+          isMinimized={isMinimized}
+          onToggleMinimize={handleToggleMinimize}
+        />
+      )}
+      <div style={{ paddingTop: isAdmin && !isMinimized ? 42 : 0 }}>
         <Outlet />
       </div>
     </QueryClientProvider>
