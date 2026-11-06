@@ -151,7 +151,10 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '29015918781408333');
-fbq('track', 'PageView');`,
+if (!window.__meta_pv_sent) {
+  window.__meta_pv_sent = true;
+  fbq('track', 'PageView');
+}`,
           }}
         />
       </head>
