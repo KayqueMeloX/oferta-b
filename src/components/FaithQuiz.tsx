@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { triggerFirstCtaPageView } from "../lib/tracking";
 
 const MEDIA = {
   clips: {
@@ -498,9 +497,8 @@ export function FaithQuiz() {
     }
   };
 
-  // Start button on Gate (First CTA)
+  // Start button on Gate
   const handleStartGate = () => {
-    triggerFirstCtaPageView();
     setGateOpen(true);
     if (loopVidRef.current) {
       loopVidRef.current.play().catch(() => {});
@@ -515,7 +513,6 @@ export function FaithQuiz() {
   // Start Entrance name submission
   const handleNameSubmit = () => {
     try {
-      triggerFirstCtaPageView();
       const trimmed = userName.trim();
       if (!trimmed) return;
       setCurrentScreen("affirmation");

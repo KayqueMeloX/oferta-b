@@ -84,44 +84,34 @@ export function appendUtms(targetUrl: string): string {
 }
 
 /**
- * Trigger PageView strictly on the FIRST CTA click, ONLY at this moment and ONLY ONCE.
+ * Track PageView event cleanly - strictly once per unique route
  */
-export function triggerFirstCtaPageView() {
-  if (typeof window === "undefined") return;
+const trackedRoutesInSession = new Set<string>();
 
-  // Ensure it runs strictly once per session
-  if (window._fb_first_cta_tracked) return;
-  try {
-    if (sessionStorage.getItem("faith_fb_first_cta_pageview") === "1") {
-      window._fb_first_cta_tracked = true;
-      return;
-    }
-  } catch {}
+export function trackPageView(pageName?: string) {
+  if (typeof window === "undefined" || !window.fbq) return;
 
-  window._fb_first_cta_tracked = true;
-  try {
-    sessionStorage.setItem("faith_fb_first_cta_pageview", "1");
-  } catch {}
+  const currentPath = pageName || window.location.pathname;
+  const normalized = currentPath.replace(/\/+$/, "") || "/";
 
-  // 1. Browser Meta Pixel Event
+  // Prevent duplicate firing on the same route in a session
+  if (trackedRoutesInSession.has(normalized)) return;
+  trackedRoutesInSession.add(normalized);
+
+  // Initial landing page view is already dispatched by <head>
+  if (normalized === "/" || normalized === "/quiz") return;
+
   try {
-    if (window.fbq) {
-      window.fbq("track", "PageView");
-      console.log("[Pixel] PageView triggered on first CTA click");
-    }
+    window.fbq("track", "PageView");
   } catch (err) {
     console.debug("[Pixel] fbq track error:", err);
   }
 
-  // 2. Meta Conversions API (CAPI) Event
   sendMetaCapiEvent("PageView");
 }
 
-/**
- * Safe alias for trackPageView that delegates strictly to the single first CTA release
- */
-export function trackPageView() {
-  triggerFirstCtaPageView();
+export function triggerFirstCtaPageView() {
+  trackPageView();
 }
 
 /**

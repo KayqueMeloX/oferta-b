@@ -139,7 +139,7 @@ function RootShell({ children }: { children: ReactNode }) {
           async
           defer
         />
-        {/* Meta Pixel Base Code (Initialized with NO automatic PageView on load) */}
+        {/* Meta Pixel Base Code (Fires PageView exactly once on load) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `!function(f,b,e,v,n,t,s)
@@ -150,9 +150,19 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '29015918781408333');`,
+fbq('init', '29015918781408333');
+fbq('track', 'PageView');`,
           }}
         />
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=29015918781408333&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
       </head>
       <body>
         {children}
