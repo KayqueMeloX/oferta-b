@@ -6,8 +6,9 @@ declare global {
   }
 }
 
-export const META_PIXEL_ID = "";
-export const META_ACCESS_TOKEN = "";
+export const META_PIXEL_ID = "1127341919934737";
+export const META_ACCESS_TOKEN =
+  "EAAMZCDQyWTsoBS1GaQ2wKAEJpPKW57nApuZCoIuCs8gPIOyFEkyIgjP6jdNdtgFKoU1sZBY7ZBpVmjHzc7qPClaOWIlz0WGbV1nKu5622qdMubvS2OHYichqcR23D8oOgLNxWZBhRhkNJW64OjmJFttF49rW65yYnltE6nYEx9S0qbPgNBX4t4LNY08SRpgZDZD";
 
 const UTM_PARAMS = [
   "utm_source",
@@ -82,14 +83,66 @@ export function appendUtms(targetUrl: string): string {
 }
 
 /**
- * Event Tracking Stubs (Pixel removed from site)
+ * Track PageView is handled cleanly and strictly once in <head>
  */
 export function trackPageView(_pageName?: string) {}
 
 export function triggerFirstCtaPageView() {}
 
-export function trackViewContent(_contentName?: string, _value?: number) {}
+/**
+ * Track ViewContent event (strictly once per session on the Offer page)
+ */
+export function trackViewContent(contentName: string = "Faith Offer Page", value: number = 47) {
+  if (typeof window === "undefined" || !window.fbq) return;
+  try {
+    if (sessionStorage.getItem("faith_viewcontent_tracked") === "1") return;
+    sessionStorage.setItem("faith_viewcontent_tracked", "1");
 
-export function trackInitiateCheckout(_productKey?: string, _price?: number) {}
+    window.fbq("track", "ViewContent", {
+      content_name: contentName,
+      content_category: "Divine Script & Blueprint",
+      value: value,
+      currency: "USD",
+    });
+  } catch (err) {
+    console.debug("Track ViewContent error:", err);
+  }
+}
 
-export function trackPurchase(_value?: number, _currency?: string) {}
+/**
+ * Track InitiateCheckout event (when user clicks any Seed button)
+ */
+export function trackInitiateCheckout(productKey: string, price: number) {
+  if (typeof window === "undefined" || !window.fbq) return;
+  try {
+    window.fbq("track", "InitiateCheckout", {
+      content_name: `Seed of Faith - ${productKey}`,
+      content_category: "Spiritual Blueprint",
+      value: price,
+      currency: "USD",
+      num_items: 1,
+    });
+  } catch (err) {
+    console.debug("Track InitiateCheckout error:", err);
+  }
+}
+
+/**
+ * Track Purchase event (when returning from Stripe to /faith-app?success=true)
+ */
+export function trackPurchase(value: number = 47, currency: string = "USD") {
+  if (typeof window === "undefined" || !window.fbq) return;
+  try {
+    if (sessionStorage.getItem("faith_purchase_tracked") === "1") return;
+    sessionStorage.setItem("faith_purchase_tracked", "1");
+
+    window.fbq("track", "Purchase", {
+      value: value,
+      currency: currency,
+      content_name: "Seed of Faith Full Package",
+      content_type: "product",
+    });
+  } catch (err) {
+    console.debug("Track Purchase error:", err);
+  }
+}
