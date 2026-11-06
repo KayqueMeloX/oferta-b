@@ -139,7 +139,7 @@ function RootShell({ children }: { children: ReactNode }) {
           async
           defer
         />
-        {/* Meta Pixel Base Code with Strict Single-PageView Funnel Guard */}
+        {/* Meta Pixel Official Code */}
         <script
           dangerouslySetInnerHTML={{
             __html: `!function(f,b,e,v,n,t,s)
@@ -151,19 +151,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '29015918781408333');
-if (!window.__faith_pv_guarded) {
-  window.__faith_pv_guarded = true;
-  var _origFbq = window.fbq;
-  var _pvFired = false;
-  window.fbq = function() {
-    if (arguments[0] === 'track' && arguments[1] === 'PageView') {
-      if (_pvFired) return;
-      _pvFired = true;
-    }
-    return _origFbq.apply(this, arguments);
-  };
-  window.fbq('track', 'PageView');
-}`,
+fbq('track', 'PageView');`,
           }}
         />
       </head>

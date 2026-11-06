@@ -84,28 +84,37 @@ export function appendUtms(targetUrl: string): string {
 }
 
 /**
- * Safe PageView triggers (handled exclusively and once by funnel guard in RootShell)
+ * Safe PageView triggers (handled exclusively and once on site load in RootShell)
  */
-export function trackPageView(_pageName?: string) {}
+export function trackPageView(_pageName?: string) {
+  // Handled exactly once upon entering the funnel
+}
 
-export function triggerFirstCtaPageView() {}
+export function triggerFirstCtaPageView() {
+  // Safe no-op to prevent duplicate PageView events across the funnel
+}
 
 /**
- * Send Conversions API (CAPI) event to Meta Graph API
+ * Send Conversions API (CAPI) event to Meta Graph API with deduplication event_id
  */
-async function sendMetaCapiEvent(eventName: string, customData?: Record<string, any>) {
+async function sendMetaCapiEvent(
+  eventName: string,
+  customData?: Record<string, any>,
+  eventId?: string
+) {
   if (typeof window === "undefined") return;
 
   try {
     const eventTime = Math.floor(Date.now() / 1000);
-    const eventId = "evt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+    const finalEventId =
+      eventId || "evt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
 
     const payload = {
       data: [
         {
           event_name: eventName,
           event_time: eventTime,
-          event_id: eventId,
+          event_id: finalEventId,
           event_source_url: window.location.href,
           action_source: "website",
           user_data: {
@@ -136,17 +145,25 @@ async function sendMetaCapiEvent(eventName: string, customData?: Record<string, 
 }
 
 /**
- * Track ViewContent event (e.g. when landing on the Offer page)
+ * Track ViewContent event (strictly once per session on the Offer page)
  */
-export function trackViewContent(contentName: string, value?: number) {
+export function trackViewContent(contentName: string = "Faith Offer Page", value: number = 47) {
   if (typeof window === "undefined" || !window.fbq) return;
   try {
-    window.fbq("track", "ViewContent", {
+    // Avoid duplicate triggers in React re-renders or page re-visits in same session
+    if (sessionStorage.getItem("faith_viewcontent_tracked") === "1") return;
+    sessionStorage.setItem("faith_viewcontent_tracked", "1");
+
+    const eventId = "vc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+    const eventData = {
       content_name: contentName,
       content_category: "Divine Script & Blueprint",
-      ...(value ? { value, currency: "USD" } : {}),
-    });
-    sendMetaCapiEvent("ViewContent", { content_name: contentName, ...(value ? { value, currency: "USD" } : {}) });
+      value: value,
+      currency: "USD",
+    };
+
+    window.fbq("track", "ViewContent", eventData, { eventID: eventId });
+    sendMetaCapiEvent("ViewContent", eventData, eventId);
   } catch (err) {
     console.debug("Track ViewContent error:", err);
   }
@@ -158,18 +175,17 @@ export function trackViewContent(contentName: string, value?: number) {
 export function trackInitiateCheckout(productKey: string, price: number) {
   if (typeof window === "undefined" || !window.fbq) return;
   try {
-    window.fbq("track", "InitiateCheckout", {
+    const eventId = "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+    const eventData = {
       content_name: `Seed of Faith - ${productKey}`,
       content_category: "Spiritual Blueprint",
       value: price,
       currency: "USD",
       num_items: 1,
-    });
-    sendMetaCapiEvent("InitiateCheckout", {
-      content_name: `Seed of Faith - ${productKey}`,
-      value: price,
-      currency: "USD",
-    });
+    };
+
+    window.fbq("track", "InitiateCheckout", eventData, { eventID: eventId });
+    sendMetaCapiEvent("InitiateCheckout", eventData, eventId);
   } catch (err) {
     console.debug("Track InitiateCheckout error:", err);
   }
@@ -183,16 +199,18 @@ export function trackPurchase(value: number = 47, currency: string = "USD") {
   try {
     const alreadyTracked = sessionStorage.getItem("faith_purchase_tracked");
     if (alreadyTracked === "1") return;
+    sessionStorage.setItem("faith_purchase_tracked", "1");
 
-    window.fbq("track", "Purchase", {
+    const eventId = "pur_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+    const eventData = {
       value: value,
       currency: currency,
       content_name: "Seed of Faith Full Package",
       content_type: "product",
-    });
-    sendMetaCapiEvent("Purchase", { value, currency });
+    };
 
-    sessionStorage.setItem("faith_purchase_tracked", "1");
+    window.fbq("track", "Purchase", eventData, { eventID: eventId });
+    sendMetaCapiEvent("Purchase", eventData, eventId);
   } catch (err) {
     console.debug("Track Purchase error:", err);
   }
