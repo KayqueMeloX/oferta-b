@@ -1792,9 +1792,14 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
 // ─── 21-Day Journey Tab ───────────────────────────────────────────────────────
 
 function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome: () => void }) {
+  const emailKey = session.email ? `faith_completed_days_${session.email.toLowerCase().trim()}` : null;
   const [completedDays, setCompletedDays] = useState<number[]>(() => {
     if (typeof window === "undefined") return [1];
     try {
+      if (emailKey) {
+        const userSaved = localStorage.getItem(emailKey);
+        if (userSaved) return JSON.parse(userSaved);
+      }
       const saved = localStorage.getItem("faith_completed_days");
       return saved ? JSON.parse(saved) : [1];
     } catch {
@@ -1826,7 +1831,12 @@ function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome:
     if (!completedDays.includes(dayNum)) {
       const updated = [...completedDays, dayNum];
       setCompletedDays(updated);
-      localStorage.setItem("faith_completed_days", JSON.stringify(updated));
+      try {
+        localStorage.setItem("faith_completed_days", JSON.stringify(updated));
+        if (emailKey) {
+          localStorage.setItem(emailKey, JSON.stringify(updated));
+        }
+      } catch {}
     }
   }
 
@@ -2719,12 +2729,16 @@ function LibraryTab({ session, onNavigateTab, onOpenRitual }: LibraryTabProps) {
 
 // ─── Pray & Journal Tab ───────────────────────────────────────────────────────
 
-function PrayTab() {
+function PrayTab({ session }: { session?: Session }) {
+  const emailKey = session?.email ? session.email.toLowerCase().trim() : null;
+  const reqKey = emailKey ? `faith_prayer_requests_${emailKey}` : "faith_prayer_requests";
+  const journalKey = emailKey ? `faith_journal_${emailKey}` : "faith_journal";
+
   const [selectedSOS, setSelectedSOS] = useState<typeof SOS_PRAYERS[0] | null>(null);
   const [requests, setRequests] = useState<PrayerRequest[]>(() => {
     if (typeof window === "undefined") return [];
     try {
-      const saved = localStorage.getItem("faith_prayer_requests");
+      const saved = (emailKey && localStorage.getItem(reqKey)) || localStorage.getItem("faith_prayer_requests");
       return saved ? JSON.parse(saved) : [
         { id: "1", text: "Protection and favor over my family and children", answered: true, date: "Yesterday" },
         { id: "2", text: "Supernatural financial breakthrough and wisdom", answered: false, date: "Today" },
@@ -2737,7 +2751,7 @@ function PrayTab() {
   const [newReqText, setNewReqText] = useState("");
   const [journal, setJournal] = useState(() => {
     if (typeof window === "undefined") return "";
-    return localStorage.getItem("faith_journal") || "";
+    return (emailKey && localStorage.getItem(journalKey)) || localStorage.getItem("faith_journal") || "";
   });
   const [journalSaved, setJournalSaved] = useState(false);
 
@@ -2752,18 +2766,27 @@ function PrayTab() {
     };
     const updated = [item, ...requests];
     setRequests(updated);
-    localStorage.setItem("faith_prayer_requests", JSON.stringify(updated));
+    try {
+      localStorage.setItem("faith_prayer_requests", JSON.stringify(updated));
+      if (emailKey) localStorage.setItem(reqKey, JSON.stringify(updated));
+    } catch {}
     setNewReqText("");
   }
 
   function toggleAnswered(id: string) {
     const updated = requests.map(r => r.id === id ? { ...r, answered: !r.answered } : r);
     setRequests(updated);
-    localStorage.setItem("faith_prayer_requests", JSON.stringify(updated));
+    try {
+      localStorage.setItem("faith_prayer_requests", JSON.stringify(updated));
+      if (emailKey) localStorage.setItem(reqKey, JSON.stringify(updated));
+    } catch {}
   }
 
   function saveJournal() {
-    localStorage.setItem("faith_journal", journal);
+    try {
+      localStorage.setItem("faith_journal", journal);
+      if (emailKey) localStorage.setItem(journalKey, journal);
+    } catch {}
     setJournalSaved(true);
     setTimeout(() => setJournalSaved(false), 2000);
   }
@@ -3345,43 +3368,78 @@ function SupportChatBubble() {
 function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "code">("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const ADMIN_EMAIL = "admin@gmail.com";
+  // Pre-fill from existing session or URL parameters if available
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get("email");
+      const urlName = params.get("name");
+      if (urlEmail) setEmail(urlEmail);
+      if (urlName) setName(urlName);
 
-  function handleSendCode(e: React.FormEvent) {
+      if (!urlEmail && !urlName) {
+        const lastSessionRaw = localStorage.getItem("faith_app_session");
+        if (lastSessionRaw) {
+          const lastSession = JSON.parse(lastSessionRaw);
+          if (lastSession.email) setEmail(lastSession.email);
+          if (lastSession.name) setName(lastSession.name);
+        }
+      }
+    } catch {}
+  }, []);
+
+  function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes("@")) { setError("Please enter a valid email address."); return; }
-    setError("");
-    setLoading(true);
-
-    if (email.toLowerCase().trim() === ADMIN_EMAIL) {
-      setTimeout(() => {
-        const session: Session = { email, name: name.trim() || "Believer", plan: "seed-100" };
-        localStorage.setItem("faith_app_session", JSON.stringify(session));
-        setLoading(false);
-        onLogin(session);
-      }, 600);
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+      setError("Please enter a valid email address.");
       return;
     }
-
-    setTimeout(() => { setLoading(false); setStep("code"); }, 1000);
-  }
-
-  function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
-    if (code.length < 4) { setError("Please enter the verification code."); return; }
     setError("");
     setLoading(true);
+
     setTimeout(() => {
-      const session: Session = { email, name: name.trim() || email.split("@")[0], plan: "seed-100" };
-      localStorage.setItem("faith_app_session", JSON.stringify(session));
+      // Look up previously saved profile for this email if name was not entered
+      let resolvedName = name.trim();
+      try {
+        const savedProfileRaw = localStorage.getItem(`faith_user_${cleanEmail}`);
+        if (savedProfileRaw) {
+          const profile = JSON.parse(savedProfileRaw);
+          if (!resolvedName && profile.name) {
+            resolvedName = profile.name;
+          }
+        }
+      } catch {}
+
+      if (!resolvedName) {
+        const userPart = cleanEmail.split("@")[0] || "Believer";
+        resolvedName = userPart.charAt(0).toUpperCase() + userPart.slice(1);
+      }
+
+      // Persist user profile for future logins
+      try {
+        localStorage.setItem(
+          `faith_user_${cleanEmail}`,
+          JSON.stringify({ email: cleanEmail, name: resolvedName })
+        );
+      } catch {}
+
+      const session: Session = {
+        email: cleanEmail,
+        name: resolvedName,
+        plan: "seed-100",
+      };
+
+      try {
+        localStorage.setItem("faith_app_session", JSON.stringify(session));
+      } catch {}
+
       setLoading(false);
       onLogin(session);
-    }, 800);
+    }, 400);
   }
 
   return (
@@ -3412,82 +3470,51 @@ function GateScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         border: "1px solid rgba(201,168,76,0.3)",
         borderRadius: 20, padding: "32px 24px", width: "100%", maxWidth: 360,
       }}>
-        {step === "email" ? (
-          <form onSubmit={handleSendCode}>
-            <p style={{ color: "#e0d0b0", fontSize: 13, textAlign: "center", margin: "0 0 16px", fontFamily: "sans-serif" }}>
-              Enter your name and checkout email to unlock your Sanctuary:
-            </p>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Your Full Name"
-              style={{
-                width: "100%", padding: "12px 14px", borderRadius: 12,
-                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 10,
-                fontFamily: "sans-serif",
-              }}
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@email.com"
-              required
-              style={{
-                width: "100%", padding: "12px 14px", borderRadius: 12,
-                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 12,
-                fontFamily: "sans-serif",
-              }}
-            />
-            {error && <p style={{ color: "#f87171", fontSize: 13, margin: "0 0 10px", fontFamily: "sans-serif" }}>{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: "100%", padding: "14px", borderRadius: 12, border: "none",
-                background: loading ? "#6b5a2a" : "linear-gradient(135deg, #c9a84c, #f0d080)",
-                color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
-                fontFamily: "sans-serif",
-              }}
-            >
-              {loading ? "Checking Access..." : "Enter My Sanctuary →"}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerify}>
-            <p style={{ color: "#e0d0b0", fontSize: 13, textAlign: "center", margin: "0 0 16px", fontFamily: "sans-serif" }}>
-              Enter the 4-digit code sent to <strong style={{ color: "#f0d080" }}>{email}</strong>:
-            </p>
-            <input
-              type="text"
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              placeholder="1234"
-              maxLength={6}
-              style={{
-                width: "100%", padding: "12px", borderRadius: 12, textAlign: "center",
-                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
-                color: "#fff", fontSize: 24, letterSpacing: 8, outline: "none", boxSizing: "border-box", marginBottom: 12,
-              }}
-            />
-            {error && <p style={{ color: "#f87171", fontSize: 13, margin: "0 0 10px", fontFamily: "sans-serif" }}>{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: "100%", padding: "14px", borderRadius: 12, border: "none",
-                background: loading ? "#6b5a2a" : "linear-gradient(135deg, #c9a84c, #f0d080)",
-                color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
-                fontFamily: "sans-serif",
-              }}
-            >
-              {loading ? "Verifying..." : "Access Sanctuary →"}
-            </button>
-          </form>
-        )}
+        <form onSubmit={handleLogin}>
+          <p style={{ color: "#e0d0b0", fontSize: 13, textAlign: "center", margin: "0 0 16px", fontFamily: "sans-serif" }}>
+            Enter your email to access your Sanctuary and track your progress:
+          </p>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            required
+            autoComplete="email"
+            style={{
+              width: "100%", padding: "12px 14px", borderRadius: 12,
+              background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
+              color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 10,
+              fontFamily: "sans-serif",
+            }}
+          />
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Your Full Name (Optional)"
+            autoComplete="name"
+            style={{
+              width: "100%", padding: "12px 14px", borderRadius: 12,
+              background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,168,76,0.3)",
+              color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 12,
+              fontFamily: "sans-serif",
+            }}
+          />
+          {error && <p style={{ color: "#f87171", fontSize: 13, margin: "0 0 10px", fontFamily: "sans-serif" }}>{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%", padding: "14px", borderRadius: 12, border: "none",
+              background: loading ? "#6b5a2a" : "linear-gradient(135deg, #c9a84c, #f0d080)",
+              color: "#1a1200", fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
+              fontFamily: "sans-serif",
+            }}
+          >
+            {loading ? "Accessing Sanctuary..." : "Enter My Sanctuary →"}
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -3687,7 +3714,7 @@ export function FaithApp() {
           />
         )}
         {tab === "audio" && <AudioPlayerTab />}
-        {tab === "pray" && <PrayTab />}
+        {tab === "pray" && <PrayTab session={session} />}
       </main>
 
       {/* Feature Modals */}
