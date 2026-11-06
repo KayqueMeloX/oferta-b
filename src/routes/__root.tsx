@@ -113,12 +113,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://cdn.converteai.net" },
       { rel: "preconnect", href: "https://images.converteai.net" },
       { rel: "preconnect", href: "https://cdn.utmify.com.br" },
-      { rel: "preconnect", href: "https://connect.facebook.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://images.converteai.net" },
       { rel: "dns-prefetch", href: "https://cdn.utmify.com.br" },
-      { rel: "dns-prefetch", href: "https://connect.facebook.net" },
     ],
   }),
   shellComponent: RootShell,
@@ -138,26 +136,6 @@ function RootShell({ children }: { children: ReactNode }) {
           data-utmify-prevent-subids=""
           async
           defer
-        />
-        {/* Meta Pixel Official with Strict Single-PageView Guard */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;var _pv=false;n=f.fbq=function(){
-if((arguments[0]==='track'||arguments[0]==='trackCustom')&&arguments[1]==='PageView'){
-if(_pv)return;_pv=true;
-}
-n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq.disablePushState=true;
-fbq('set','autoConfig',false,'29015918781408333');
-fbq('init','29015918781408333');
-fbq('track','PageView');`,
-          }}
         />
       </head>
       <body>
