@@ -1,20 +1,9 @@
-declare global {
-  interface Window {
-    fbq?: any;
-    _fbq?: any;
-    pixelId?: string;
-  }
-}
-
-export const META_PIXEL_ID = "29015918781408333";
-
 /**
- * Initialize tracking - scripts are already embedded in RootShell.
+ * Tracking & UTM Preserver
+ *
+ * Captures advertising UTM parameters (UTMify, Google, Facebook Ads, TikTok)
+ * from incoming URLs and appends them to outbound checkout links.
  */
-export function initTracking() {
-  if (typeof window === "undefined") return;
-  captureAndStoreUtms();
-}
 
 const UTM_PARAMS = [
   "utm_source",
@@ -27,6 +16,14 @@ const UTM_PARAMS = [
   "fbclid",
   "gclid",
 ];
+
+/**
+ * Initialize tracking on client mount
+ */
+export function initTracking() {
+  if (typeof window === "undefined") return;
+  captureAndStoreUtms();
+}
 
 /**
  * Capture and store any UTM or tracking parameters from the current URL
@@ -80,83 +77,13 @@ export function appendUtms(targetUrl: string): string {
   }
 }
 
-// Strict session set: guarantees PageView fires only once per unique path
-const trackedPathsInSession = new Set<string>();
-
 /**
- * Track PageView event cleanly - strictly once per unique route in a session
+ * Safe no-op placeholders (Meta Pixel removed per user request)
  */
-export function trackPageView(pageName?: string) {
-  if (typeof window === "undefined" || !window.fbq) return;
+export function trackPageView(_pageName?: string) {}
 
-  const rawPath = pageName || window.location.pathname;
-  const normalizedPath = rawPath.replace(/\/+$/, "") || "/";
+export function trackViewContent(_contentName: string, _value?: number) {}
 
-  // If this route has already been tracked in this tab session, NEVER fire it again
-  if (trackedPathsInSession.has(normalizedPath)) {
-    return;
-  }
-  trackedPathsInSession.add(normalizedPath);
+export function trackInitiateCheckout(_productKey: string, _price: number) {}
 
-  try {
-    window.fbq("track", "PageView");
-  } catch (err) {
-    console.debug("Track PageView error:", err);
-  }
-}
-
-/**
- * Track ViewContent event (e.g. when landing on the Offer page)
- */
-export function trackViewContent(contentName: string, value?: number) {
-  if (typeof window === "undefined" || !window.fbq) return;
-  try {
-    window.fbq("track", "ViewContent", {
-      content_name: contentName,
-      content_category: "Divine Script & Blueprint",
-      ...(value ? { value, currency: "USD" } : {}),
-    });
-  } catch (err) {
-    console.debug("Track ViewContent error:", err);
-  }
-}
-
-/**
- * Track InitiateCheckout event (when user clicks any Seed button)
- */
-export function trackInitiateCheckout(productKey: string, price: number) {
-  if (typeof window === "undefined" || !window.fbq) return;
-  try {
-    window.fbq("track", "InitiateCheckout", {
-      content_name: `Seed of Faith - ${productKey}`,
-      content_category: "Spiritual Blueprint",
-      value: price,
-      currency: "USD",
-      num_items: 1,
-    });
-  } catch (err) {
-    console.debug("Track InitiateCheckout error:", err);
-  }
-}
-
-/**
- * Track Purchase event (when returning from Stripe to /faith-app?success=true)
- */
-export function trackPurchase(value: number = 47, currency: string = "USD") {
-  if (typeof window === "undefined" || !window.fbq) return;
-  try {
-    const alreadyTracked = sessionStorage.getItem("faith_purchase_tracked");
-    if (alreadyTracked === "1") return;
-
-    window.fbq("track", "Purchase", {
-      value: value,
-      currency: currency,
-      content_name: "Seed of Faith Full Package",
-      content_type: "product",
-    });
-
-    sessionStorage.setItem("faith_purchase_tracked", "1");
-  } catch (err) {
-    console.debug("Track Purchase error:", err);
-  }
-}
+export function trackPurchase(_value: number = 47, _currency: string = "USD") {}
