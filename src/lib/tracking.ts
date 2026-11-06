@@ -122,24 +122,23 @@ export function appendUtms(targetUrl: string): string {
   }
 }
 
-let lastTrackedPath: string | null = null;
-let lastTrackedTime = 0;
+// Strict session set: guarantees PageView fires only once per unique path
+const trackedPathsInSession = new Set<string>();
 
 /**
- * Track PageView event cleanly without duplicates
+ * Track PageView event cleanly - strictly once per unique route in a session
  */
 export function trackPageView(pageName?: string) {
   if (typeof window === "undefined" || !window.fbq) return;
 
-  const currentPath = pageName || window.location.pathname;
-  const now = Date.now();
+  const rawPath = pageName || window.location.pathname;
+  const normalizedPath = rawPath.replace(/\/+$/, "") || "/";
 
-  // Deduplicate if called within 3 seconds for the same route
-  if (lastTrackedPath === currentPath && now - lastTrackedTime < 3000) {
+  // If this route has already been tracked in this tab session, NEVER fire it again
+  if (trackedPathsInSession.has(normalizedPath)) {
     return;
   }
-  lastTrackedPath = currentPath;
-  lastTrackedTime = now;
+  trackedPathsInSession.add(normalizedPath);
 
   try {
     window.fbq("track", "PageView");
