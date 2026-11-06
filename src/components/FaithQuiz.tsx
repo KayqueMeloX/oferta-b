@@ -444,6 +444,16 @@ export function FaithQuiz() {
       bgmRef.current.volume = 0.1;
     }
 
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const nameParam = sp.get("name");
+      if (nameParam) setUserName(nameParam);
+      if (sp.get("screen") === "loading") {
+        setGateOpen(true);
+        setCurrentScreen("loading");
+      }
+    } catch {}
+
     return () => {
       try {
         if (bgmRef.current) {
@@ -636,36 +646,74 @@ export function FaithQuiz() {
   // Start Loading transformation screen
   const startLoadingScreen = () => {
     setCurrentScreen("loading");
-    playSpeech(SPEECH_MAP.loading);
+  };
+
+  // Dedicated Loading Progress Effect (guarantees smooth 0% to 100% load)
+  useEffect(() => {
+    if (currentScreen !== "loading") return;
+
+    try {
+      playSpeech(SPEECH_MAP.loading);
+    } catch (e) {
+      console.warn("Loading speech trigger fallback:", e);
+    }
 
     const steps: [number, string][] = [
       [0, "Starting transformation..."],
-      [22, "Reading the desires of your heart..."],
-      [45, "Aligning your energy with the divine..."],
-      [68, "Breaking spiritual blocks..."],
-      [85, "Writing your Sacred Script, word by word..."],
-      [97, "Finalizing your manifestation..."],
+      [20, "Reading the desires of your heart..."],
+      [42, "Aligning your energy with the divine..."],
+      [65, "Breaking spiritual blocks..."],
+      [84, "Writing your Sacred Script, word by word..."],
+      [96, "Finalizing your manifestation..."],
     ];
 
-    let t = 0;
-    const interval = setInterval(() => {
-      t += 160;
-      const totalDur = 12000;
-      const pct = Math.min(100, (t / totalDur) * 100);
+    const totalDur = 10500; // ~10.5s matching Archangel speech v8
+    const startTime = Date.now();
+    let completed = false;
+    let lastReportedPct = -1;
 
+    setLoadPct(0);
+    setLoadStatus(steps[0][1]);
+
+    const tick = () => {
+      if (completed) return;
+
+      const elapsed = Date.now() - startTime;
+      const rawPct = Math.min(100, (elapsed / totalDur) * 100);
+      const floorPct = Math.floor(rawPct);
+
+      let currentStepText = steps[0][1];
       for (let i = steps.length - 1; i >= 0; i--) {
-        const step = steps[i];
-        if (step && pct >= step[0]) {
-          setLoadStatus(step[1]);
+        if (rawPct >= steps[i][0]) {
+          currentStepText = steps[i][1];
           break;
         }
       }
 
-      setLoadPct(Math.floor(pct));
+      // Update DOM directly for instant, uninterrupted 60fps rendering
+      const fillEl = document.getElementById("loadFill");
+      const pctEl = document.getElementById("loadPct");
+      const statusEl = document.getElementById("loadStatus");
 
-      if (pct >= 100) {
-        clearInterval(interval);
+      if (fillEl) fillEl.style.width = `${rawPct}%`;
+      if (pctEl) pctEl.textContent = `${floorPct}%`;
+      if (statusEl && rawPct < 100) statusEl.textContent = currentStepText;
+
+      // Update React state when integer value changes
+      if (floorPct !== lastReportedPct) {
+        lastReportedPct = floorPct;
+        setLoadPct(floorPct);
+        if (rawPct < 100) setLoadStatus(currentStepText);
+      }
+
+      if (rawPct >= 100) {
+        completed = true;
+        if (fillEl) fillEl.style.width = "100%";
+        if (pctEl) pctEl.textContent = "100%";
+        if (statusEl) statusEl.textContent = "Your Divine Manifestation Script is ready ✦";
+        setLoadPct(100);
         setLoadStatus("Your Divine Manifestation Script is ready ✦");
+
         setTimeout(() => {
           try {
             if (bgmRef.current) {
@@ -689,13 +737,24 @@ export function FaithQuiz() {
               speechVid2Ref.current.src = "";
             }
           } catch {}
+
           const params = new URLSearchParams(window.location.search);
-          params.set("name", userName);
+          if (userName) params.set("name", userName);
           window.location.href = `/offer?${params.toString()}`;
         }, 1200);
+        return;
       }
-    }, 160);
-  };
+
+      requestAnimationFrame(tick);
+    };
+
+    const animId = requestAnimationFrame(tick);
+
+    return () => {
+      completed = true;
+      cancelAnimationFrame(animId);
+    };
+  }, [currentScreen, userName]);
 
   const currentQuestionData = QUESTIONS[currentQ];
   const questionText = currentQuestionData
@@ -949,7 +1008,7 @@ export function FaithQuiz() {
             id="loading"
           >
             <div className="lt" id="loadTitle">
-              <span translate="no" className="notranslate">{userName}</span>
+              <span translate="no" className="notranslate">{userName || "Beloved"}</span>
               <span>, your Divine Manifestation Script is being created...</span>
             </div>
             <div className="load-status" id="loadStatus">
