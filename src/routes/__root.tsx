@@ -139,7 +139,7 @@ function RootShell({ children }: { children: ReactNode }) {
           async
           defer
         />
-        {/* Meta Pixel Base Code (Fires PageView exactly once on load) */}
+        {/* Meta Pixel Base Code with Strict Single-PageView Funnel Guard */}
         <script
           dangerouslySetInnerHTML={{
             __html: `!function(f,b,e,v,n,t,s)
@@ -151,18 +151,21 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '29015918781408333');
-fbq('track', 'PageView');`,
+if (!window.__faith_pv_guarded) {
+  window.__faith_pv_guarded = true;
+  var _origFbq = window.fbq;
+  var _pvFired = false;
+  window.fbq = function() {
+    if (arguments[0] === 'track' && arguments[1] === 'PageView') {
+      if (_pvFired) return;
+      _pvFired = true;
+    }
+    return _origFbq.apply(this, arguments);
+  };
+  window.fbq('track', 'PageView');
+}`,
           }}
         />
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=29015918781408333&ev=PageView&noscript=1"
-            alt=""
-          />
-        </noscript>
       </head>
       <body>
         {children}

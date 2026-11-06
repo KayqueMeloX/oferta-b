@@ -84,35 +84,11 @@ export function appendUtms(targetUrl: string): string {
 }
 
 /**
- * Track PageView event cleanly - strictly once per unique route
+ * Safe PageView triggers (handled exclusively and once by funnel guard in RootShell)
  */
-const trackedRoutesInSession = new Set<string>();
+export function trackPageView(_pageName?: string) {}
 
-export function trackPageView(pageName?: string) {
-  if (typeof window === "undefined" || !window.fbq) return;
-
-  const currentPath = pageName || window.location.pathname;
-  const normalized = currentPath.replace(/\/+$/, "") || "/";
-
-  // Prevent duplicate firing on the same route in a session
-  if (trackedRoutesInSession.has(normalized)) return;
-  trackedRoutesInSession.add(normalized);
-
-  // Initial landing page view is already dispatched by <head>
-  if (normalized === "/" || normalized === "/quiz") return;
-
-  try {
-    window.fbq("track", "PageView");
-  } catch (err) {
-    console.debug("[Pixel] fbq track error:", err);
-  }
-
-  sendMetaCapiEvent("PageView");
-}
-
-export function triggerFirstCtaPageView() {
-  trackPageView();
-}
+export function triggerFirstCtaPageView() {}
 
 /**
  * Send Conversions API (CAPI) event to Meta Graph API
