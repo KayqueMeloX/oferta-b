@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { VslPlayer } from "./VslPlayer";
 import { getPaymentUrl } from "../config/payment";
 import { trackViewContent, trackInitiateCheckout } from "../lib/tracking";
 
@@ -78,26 +77,35 @@ const PRODUCTS = [
   },
 ];
 
-const REVEAL_DELAY_SECONDS = 155;
-
 export function FaithOffer() {
   const [name, setName] = useState("");
   const [dateStr, setDateStr] = useState("");
-  const [isRevealed, setIsRevealed] = useState(false);
 
   useEffect(() => {
-    // 1. Teardown any orphan background media elements from previous screens
+    // Teardown any orphan background media elements or vturb players
     if (typeof document !== "undefined") {
-      document.querySelectorAll("video, audio").forEach((el) => {
-        if (!el.closest("vturb-smartplayer")) {
-          try {
-            (el as HTMLMediaElement).pause();
-            (el as HTMLMediaElement).currentTime = 0;
-          } catch {}
+      try {
+        const sp = (window as any).smartplayer;
+        if (sp && Array.isArray(sp.instances)) {
+          sp.instances.forEach((inst: any) => {
+            try {
+              inst?.video?.pause?.();
+              inst?.destroy?.();
+            } catch {}
+          });
+          sp.instances = [];
         }
+      } catch {}
+
+      document.querySelectorAll("video, audio").forEach((el) => {
+        try {
+          (el as HTMLMediaElement).pause();
+          (el as HTMLMediaElement).currentTime = 0;
+        } catch {}
       });
-      // Purge any rogue vturb tags at the root of document.body
-      document.querySelectorAll("body > vturb-smartplayer").forEach((el) => el.remove());
+
+      document.querySelectorAll("body > vturb-smartplayer, vturb-smartplayer, [id^='vid-6ae4ee283ce6']").forEach((el) => el.remove());
+      document.querySelectorAll(`script[src*="converteai.net"]`).forEach((s) => s.remove());
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -114,30 +122,7 @@ export function FaithOffer() {
 
     // Track ViewContent on Meta Pixel
     trackViewContent("Faith Offer Page", 47);
-
-    // Check if already revealed before
-    try {
-      if (localStorage.getItem("faith_offer_revealed_v2") === "1") {
-        setIsRevealed(true);
-      }
-    } catch {}
-
-    const timer = setTimeout(() => {
-      setIsRevealed(true);
-      try {
-        localStorage.setItem("faith_offer_revealed_v2", "1");
-      } catch {}
-    }, REVEAL_DELAY_SECONDS * 1000);
-
-    return () => clearTimeout(timer);
   }, []);
-
-  const handleReveal = () => {
-    setIsRevealed(true);
-    try {
-      localStorage.setItem("faith_offer_revealed_v2", "1");
-    } catch {}
-  };
 
   return (
     <div
@@ -185,17 +170,9 @@ export function FaithOffer() {
           your new reality.
         </p>
 
-        {/* Video Player */}
-        <VslPlayer onReveal={handleReveal} revealTime={REVEAL_DELAY_SECONDS} />
-
-        {!isRevealed ? (
-          <p className="font-sans text-sm text-[#d8cba7]">
-            Keep watching — your Seeds of Faith will appear below the video.
-          </p>
-        ) : (
-          <div>
-            {/* Reflection Themes */}
-            <section className="mt-10">
+        <div>
+          {/* Reflection Themes */}
+          <section className="mt-10">
               <h2 className="text-3xl font-bold text-[#f3c34e]">
                 Your themes for reflection:
               </h2>
@@ -295,7 +272,6 @@ export function FaithOffer() {
               shipped.
             </p>
           </div>
-        )}
       </main>
 
       {/* Footer */}
