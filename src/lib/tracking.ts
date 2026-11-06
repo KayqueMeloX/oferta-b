@@ -35,6 +35,8 @@ export function initTracking() {
         s.parentNode.insertBefore(t, s);
       })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
+      // Disable autoConfig to prevent Meta from auto-firing duplicate PageViews
+      window.fbq("set", "autoConfig", false, META_PIXEL_ID);
       window.fbq("init", META_PIXEL_ID);
     } catch (err) {
       console.debug("Meta Pixel init error:", err);
@@ -121,6 +123,7 @@ export function appendUtms(targetUrl: string): string {
 }
 
 let lastTrackedPath: string | null = null;
+let lastTrackedTime = 0;
 
 /**
  * Track PageView event cleanly without duplicates
@@ -129,10 +132,14 @@ export function trackPageView(pageName?: string) {
   if (typeof window === "undefined" || !window.fbq) return;
 
   const currentPath = pageName || window.location.pathname;
-  if (lastTrackedPath === currentPath) {
+  const now = Date.now();
+
+  // Deduplicate if called within 3 seconds for the same route
+  if (lastTrackedPath === currentPath && now - lastTrackedTime < 3000) {
     return;
   }
   lastTrackedPath = currentPath;
+  lastTrackedTime = now;
 
   try {
     window.fbq("track", "PageView");

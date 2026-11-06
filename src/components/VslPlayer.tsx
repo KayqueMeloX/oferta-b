@@ -112,6 +112,7 @@ export const VslPlayer = memo(function VslPlayer({
     }, 1000);
 
     return () => {
+      initializedRef.current = false;
       window.clearTimeout(timeoutTimer);
       window.clearInterval(intervalTimer);
 
