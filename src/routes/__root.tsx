@@ -10,7 +10,7 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -132,6 +132,28 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Meta Pixel Official Snippet */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','29015918781408333');fbq('track','PageView');`,
+          }}
+        />
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=29015918781408333&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+        {/* Utmify Official Script */}
+        <script
+          src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+          data-utmify-prevent-subids=""
+          async
+          defer
+        />
       </head>
       <body>
         {children}
@@ -337,12 +359,23 @@ function RootComponent() {
   const { location } = useRouterState();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const initialPathRef = useRef<string | null>(null);
 
-  // Initialize tracking & capture UTMs safely on client mount
+  // Capture UTMs & track subsequent client-side route transitions
   useEffect(() => {
-    initTracking();
     captureAndStoreUtms();
-    trackPageView(location.pathname);
+
+    // The <head> script already sent the initial PageView on page load.
+    // Only track subsequent SPA transitions:
+    if (initialPathRef.current === null) {
+      initialPathRef.current = location.pathname;
+      return;
+    }
+
+    if (initialPathRef.current !== location.pathname) {
+      initialPathRef.current = location.pathname;
+      trackPageView(location.pathname);
+    }
   }, [location.pathname]);
 
   useEffect(() => {

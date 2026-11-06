@@ -9,53 +9,11 @@ declare global {
 export const META_PIXEL_ID = "29015918781408333";
 
 /**
- * Initialize Meta Pixel and Utmify safely on the client side
- * without causing React / SSR hydration mismatch.
+ * Initialize tracking - scripts are already embedded in RootShell.
  */
 export function initTracking() {
   if (typeof window === "undefined") return;
-
-  // 1. Meta Pixel
-  if (!window.fbq) {
-    try {
-      (function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-
-      // Disable autoConfig to prevent Meta from auto-firing duplicate PageViews
-      window.fbq("set", "autoConfig", false, META_PIXEL_ID);
-      window.fbq("init", META_PIXEL_ID);
-    } catch (err) {
-      console.debug("Meta Pixel init error:", err);
-    }
-  }
-
-  // 2. Utmify Script
-  try {
-    if (!document.querySelector('script[src*="utmify.com.br/scripts/utms/latest.js"]')) {
-      const script = document.createElement("script");
-      script.src = "https://cdn.utmify.com.br/scripts/utms/latest.js";
-      script.setAttribute("data-utmify-prevent-subids", "");
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-  } catch (err) {
-    console.debug("Utmify init error:", err);
-  }
+  captureAndStoreUtms();
 }
 
 const UTM_PARAMS = [
