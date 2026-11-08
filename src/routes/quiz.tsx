@@ -5,37 +5,31 @@ import { SafeBoundary } from "../components/SafeBoundary";
 export const Route = createFileRoute("/quiz")({
   head: () => ({
     meta: [
-      { title: "A Message From Archangel Michael | Plan Faith" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "Your Guided Faith Quiz | Plan Faith" },
       {
         name: "description",
         content:
-          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
+          "Complete your guided faith quiz with Archangel Michael to prepare your personalized inspirational Manifestation Script.",
       },
       {
         property: "og:title",
-        content: "A Message From Archangel Michael | Plan Faith",
+        content: "Your Guided Faith Quiz | Plan Faith",
       },
       {
         property: "og:description",
         content:
-          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
-      },
-      {
-        property: "og:image",
-        content: "/og-image.png",
+          "Complete your guided faith quiz with Archangel Michael to prepare your personalized inspirational Manifestation Script.",
       },
       {
         name: "twitter:title",
-        content: "A Message From Archangel Michael | Plan Faith",
+        content: "Your Guided Faith Quiz | Plan Faith",
       },
       {
         name: "twitter:description",
         content:
-          "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
-      },
-      {
-        name: "twitter:image",
-        content: "/og-image.png",
+          "Complete your guided faith quiz with Archangel Michael to prepare your personalized inspirational Manifestation Script.",
       },
     ],
   }),

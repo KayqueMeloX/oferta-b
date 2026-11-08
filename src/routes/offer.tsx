@@ -4,6 +4,8 @@ import { FaithOffer } from "../components/FaithOffer";
 export const Route = createFileRoute("/offer")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Your Divine Manifestation Script Is Ready | Plan Faith" },
       {
         name: "description",
@@ -20,10 +22,6 @@ export const Route = createFileRoute("/offer")({
           "Watch the message, then choose your Seed of Faith to receive your personalized inspirational Script and the Faith & Abundance Blueprint.",
       },
       {
-        property: "og:image",
-        content: "/og-image.png",
-      },
-      {
         name: "twitter:title",
         content: "Your Divine Manifestation Script Is Ready | Plan Faith",
       },
@@ -31,10 +29,6 @@ export const Route = createFileRoute("/offer")({
         name: "twitter:description",
         content:
           "Watch the message, then choose your Seed of Faith to receive your personalized inspirational Script and the Faith & Abundance Blueprint.",
-      },
-      {
-        name: "twitter:image",
-        content: "/og-image.png",
       },
     ],
   }),

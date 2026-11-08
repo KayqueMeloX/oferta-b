@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/refund")({
   head: () => ({
-    meta: [{ title: "Refund Policy | Plan Faith" }],
+    meta: [
+      { title: "Refund Policy | Plan Faith" },
+      { name: "description", content: "Read the Plan Faith refund policy and how to request a refund." },
+      { property: "og:title", content: "Refund Policy | Plan Faith" },
+      { property: "og:description", content: "Read the Plan Faith refund policy and how to request a refund." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   component: RefundPage,
 });
