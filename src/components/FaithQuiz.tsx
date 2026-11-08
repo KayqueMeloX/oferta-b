@@ -507,7 +507,7 @@ export function FaithQuiz() {
       bgmRef.current.volume = 0.1;
       bgmRef.current.play().catch(() => {});
     }
-    playSpeech(SPEECH_MAP.entrance);
+    playSpeech(SPEECH_MAP["entrance"]);
   };
 
   // Start Entrance name submission
@@ -516,7 +516,7 @@ export function FaithQuiz() {
       const trimmed = userName.trim();
       if (!trimmed) return;
       setCurrentScreen("affirmation");
-      playSpeech(SPEECH_MAP.affirm);
+      playSpeech(SPEECH_MAP["affirm"]);
     } catch (e) {
       console.warn("handleNameSubmit safe fallback:", e);
       setCurrentScreen("affirmation");
@@ -528,7 +528,7 @@ export function FaithQuiz() {
     try {
       setCurrentQ(0);
       setCurrentScreen("questionScreen");
-      playSpeech(SPEECH_MAP.q0);
+      playSpeech(SPEECH_MAP["q0"]);
     } catch (e) {
       console.warn("handleAffirmationContinue safe fallback:", e);
       setCurrentScreen("questionScreen");
@@ -653,7 +653,7 @@ export function FaithQuiz() {
     if (currentScreen !== "loading") return;
 
     try {
-      playSpeech(SPEECH_MAP.loading);
+      playSpeech(SPEECH_MAP["loading"]);
     } catch (e) {
       console.warn("Loading speech trigger fallback:", e);
     }
@@ -673,7 +673,8 @@ export function FaithQuiz() {
     let lastReportedPct = -1;
 
     setLoadPct(0);
-    setLoadStatus(steps[0][1]);
+    const initialStatus = steps[0]?.[1] ?? "Starting transformation...";
+    setLoadStatus(initialStatus);
 
     const tick = () => {
       if (completed) return;
@@ -682,10 +683,11 @@ export function FaithQuiz() {
       const rawPct = Math.min(100, (elapsed / totalDur) * 100);
       const floorPct = Math.floor(rawPct);
 
-      let currentStepText = steps[0][1];
+      let currentStepText = initialStatus;
       for (let i = steps.length - 1; i >= 0; i--) {
-        if (rawPct >= steps[i][0]) {
-          currentStepText = steps[i][1];
+        const step = steps[i];
+        if (step && rawPct >= step[0]) {
+          currentStepText = step[1];
           break;
         }
       }

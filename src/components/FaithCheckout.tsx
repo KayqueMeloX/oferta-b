@@ -14,7 +14,6 @@ const PLANS: Record<string, {
     price: 27,
     tag: "Starter",
     description: "Begin your faith journey with the core blueprint and your personalized script.",
-    badge: undefined,
     includes: [
       "Faith & Abundance Blueprint (21-Day Program)",
       "Your Personalized Manifestation Script",
@@ -84,6 +83,7 @@ export function FaithCheckout() {
   const [loading, setLoading] = useState(false);
 
   function handleBuy() {
+    if (!plan) return;
     setLoading(true);
 
     const link = PAYMENT_LINKS[plan.id];
@@ -96,6 +96,8 @@ export function FaithCheckout() {
       }, 500);
     }
   }
+
+  if (!plan) return null;
 
   return (
     <div style={{
