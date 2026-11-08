@@ -686,11 +686,13 @@ function AudioPlayerTab() {
   }
 
   function handleSelectTrack(idx: number) {
+    const selectedTrack = GUIDED_AUDIOS[idx];
+    if (!selectedTrack) return;
     setSelectedTrackIdx(idx);
     setProgressSec(0);
     const audio = audioRef.current;
     if (audio) {
-      audio.src = GUIDED_AUDIOS[idx].audioUrl;
+      audio.src = selectedTrack.audioUrl;
       audio.currentTime = 0;
       audio.load();
       audio
@@ -736,6 +738,8 @@ function AudioPlayerTab() {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   }
+
+  if (!track) return null;
 
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
@@ -1595,7 +1599,7 @@ function CertificateModal({ session, onClose }: { session: Session; onClose: () 
   const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const rawId = Math.abs(session.email.split("").reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0));
   const certId = "COV-" + rawId.toString(16).toUpperCase().padStart(8, "0");
-  const userName = session.name || session.email.split("@")[0].toUpperCase();
+  const userName = session.name || (session.email.split("@")[0] ?? "").toUpperCase();
 
   return (
     <div style={{
@@ -1842,6 +1846,8 @@ function JourneyTab({ session, onBackToHome }: { session: Session; onBackToHome:
 
   const activeDay = JOURNEY_DAYS.find(d => d.day === activeDayNum) ?? JOURNEY_DAYS[0];
   const progressPercent = Math.round((completedDays.length / 21) * 100);
+
+  if (!activeDay) return null;
 
   return (
     <div style={{ padding: "20px 20px 100px", maxWidth: 540, margin: "0 auto" }}>
@@ -2139,12 +2145,16 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
   }
 
   function handleTouchStart(e: React.TouchEvent) {
-    touchStartXRef.current = e.touches[0].clientX;
+    touchStartXRef.current = e.touches[0]?.clientX ?? null;
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
-    if (touchStartXRef.current === null) return;
-    const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+    const touch = e.changedTouches[0];
+    if (touchStartXRef.current === null || !touch) {
+      touchStartXRef.current = null;
+      return;
+    }
+    const diff = touchStartXRef.current - touch.clientX;
     if (diff > 50) {
       // Swiped left -> Next chapter
       if (currentChapter < book.chapters.length - 1) {
@@ -2158,6 +2168,8 @@ function BookReaderModal({ book, onClose }: { book: Book; onClose: () => void })
     }
     touchStartXRef.current = null;
   }
+
+  if (!chapter) return null;
 
   return (
     <div style={{
@@ -2479,7 +2491,7 @@ function LibraryTab({ session, onNavigateTab, onOpenRitual }: LibraryTabProps) {
       icon: "✨",
       onClick: () => {
         const b = LIBRARY_BOOKS.find(x => x.id === "front" || x.id === "blueprint") ?? LIBRARY_BOOKS[0];
-        setReadingBook(b);
+        setReadingBook(b ?? null);
       },
     },
     {
@@ -2493,7 +2505,7 @@ function LibraryTab({ session, onNavigateTab, onOpenRitual }: LibraryTabProps) {
       icon: "📜",
       onClick: () => {
         const b = LIBRARY_BOOKS.find(x => x.id === "plan") ?? LIBRARY_BOOKS[1];
-        setReadingBook(b);
+        setReadingBook(b ?? null);
       },
     },
     {
@@ -2527,7 +2539,7 @@ function LibraryTab({ session, onNavigateTab, onOpenRitual }: LibraryTabProps) {
       icon: "🔐",
       onClick: () => {
         const b = LIBRARY_BOOKS.find(x => x.id === "wealth") ?? LIBRARY_BOOKS[4];
-        setReadingBook(b);
+        setReadingBook(b ?? null);
       },
     },
   ];
