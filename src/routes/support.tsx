@@ -3,7 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/support")({
   head: () => ({
-    meta: [{ title: "Support | Plan Faith" }],
+    meta: [
+      { title: "Support | Plan Faith" },
+      { name: "description", content: "Contact Plan Faith support for help with access and your materials." },
+      { property: "og:title", content: "Support | Plan Faith" },
+      { property: "og:description", content: "Contact Plan Faith support for help with access and your materials." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   component: SupportPage,
 });

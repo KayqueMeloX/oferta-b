@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
-    meta: [{ title: "Privacy Policy | Plan Faith" }],
+    meta: [
+      { title: "Privacy Policy | Plan Faith" },
+      { name: "description", content: "Read how Plan Faith handles personal information and privacy." },
+      { property: "og:title", content: "Privacy Policy | Plan Faith" },
+      { property: "og:description", content: "Read how Plan Faith handles personal information and privacy." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   component: PrivacyPage,
 });

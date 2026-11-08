@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
-    meta: [{ title: "Terms of Service | Plan Faith" }],
+    meta: [
+      { title: "Terms of Service | Plan Faith" },
+      { name: "description", content: "Read the terms governing your use of Plan Faith and its materials." },
+      { property: "og:title", content: "Terms of Service | Plan Faith" },
+      { property: "og:description", content: "Read the terms governing your use of Plan Faith and its materials." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   component: TermsPage,
 });

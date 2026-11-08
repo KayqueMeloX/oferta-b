@@ -5,6 +5,8 @@ import { SafeBoundary } from "../components/SafeBoundary";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "A Message From Archangel Michael | Plan Faith" },
       {
         name: "description",
@@ -21,10 +23,6 @@ export const Route = createFileRoute("/")({
           "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
       },
       {
-        property: "og:image",
-        content: "/og-image.png",
-      },
-      {
         name: "twitter:title",
         content: "A Message From Archangel Michael | Plan Faith",
       },
@@ -32,10 +30,6 @@ export const Route = createFileRoute("/")({
         name: "twitter:description",
         content:
           "Take the guided faith journey with Archangel Michael and receive your personalized inspirational Manifestation Script.",
-      },
-      {
-        name: "twitter:image",
-        content: "/og-image.png",
       },
     ],
   }),
