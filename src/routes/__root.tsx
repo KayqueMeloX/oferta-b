@@ -130,6 +130,12 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* PageView dedup guard — must load before Utmify. Allows one fbq PageView per path. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var sent={};var cur;function wrap(fn){if(typeof fn!=="function"||fn.__pvGuard)return fn;var p=new Proxy(fn,{apply:function(t,th,a){if(a&&a[0]==="track"&&a[1]==="PageView"){var k=location.pathname;if(sent[k])return;sent[k]=1;}return Reflect.apply(t,th,a);},get:function(t,k){return k==="__pvGuard"?true:t[k];},set:function(t,k,v){t[k]=v;return true;}});return p;}Object.defineProperty(window,"fbq",{configurable:true,get:function(){return cur;},set:function(v){cur=wrap(v);}});}catch(e){}})();`,
+          }}
+        />
         {/* Utmify Official Script (UTMs) */}
         <script
           src="https://cdn.utmify.com.br/scripts/utms/latest.js"
